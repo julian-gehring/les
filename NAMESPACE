@@ -1,0 +1,11 @@
+importFrom(graphics, plot)
+importFrom(methods, show)
+importFrom(boot, boot, boot.ci)
+importFrom(gplots, plotCI)
+importFrom(multicore, mclapply)
+importFrom(RColorBrewer, brewer.pal)
+
+export(estimate)
+exportClasses(Les)
+exportMethods(plot, show, summary, cutoff, regions, ci)
+
