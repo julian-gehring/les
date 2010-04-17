@@ -44,9 +44,9 @@ calcSingle <- function(ind0, pos, pval, win,
   
   distance <- abs(pos - pos0)
   indValid <- distance <= win
-  #nValidProbes <- sum(indValid)
+  #nValidProbes <- sum(indValid)  ## not needed?
   nValidProbes <- length(unique(pval[indValid]))
-  #nUniqueProbes <- length(unique(pval[indValid]))
+  #nUniqueProbes <- length(unique(pval[indValid]))  ## not needed?
 
   if(nValidProbes>1)  {
     dis <- distance[indValid]
