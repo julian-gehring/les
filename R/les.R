@@ -58,7 +58,7 @@ calcSingle <- function(ind0, pos, pval, win,
   else  {
     res <- c(pos0, NA, NA, nValidProbes)
   }
-  
+
   return(res)
 }
 
