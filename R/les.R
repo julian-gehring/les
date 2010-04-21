@@ -44,11 +44,9 @@ calcSingle <- function(ind0, pos, pval, win,
   
   distance <- abs(pos - pos0)
   indValid <- distance <= win
-  #nValidProbes <- sum(indValid)  ## not needed?
   nValidProbes <- length(unique(pval[indValid]))
-  #nUniqueProbes <- length(unique(pval[indValid]))  ## not needed?
 
-  if(nValidProbes>1)  {
+  if(nValidProbes>0)  {
     dis <- distance[indValid]
     weight <- weighting(dis, win)
 
@@ -169,7 +167,6 @@ bootSingle <- function(ind0, pos, pval, win, weighting,
                nValidProbes=nValidProbes)
     ## try not needed?
     ci <- try(boot.ci(bo, conf, type="perc"), silent=FALSE)
-    ci <- boot.ci(bo, conf, type="perc")
     if(class(ci)=="try-error")
       res <- c(NA, NA)
     else
@@ -207,7 +204,8 @@ fitGSRIboot <- function(pval, index, cweight,
     q <- GSRI:::slopeFast(x, y)
     restOld <- rest
   }
-  if(is.na(q) || q > 1)  ## good? NA seems not thrown out in boot.ci
+  #browser()
+  if(is.na(q))  ## good? NA seems not thrown out in boot.ci
     q <- NA
   res <- 1 - min(q, 1)
   
@@ -258,15 +256,15 @@ setMethod("ci", "Les",
             if(is.logical(subset))
               subset <- which(subset)
             nBoot <- as.integer(nBoot)
-            if(res@grenander == TRUE)
-              stop("Bootstrap and Grenander estimator do not work together.")
+            #if(res@grenander == TRUE)
+            #  Stop("Bootstrap and Grenander estimator do not work together.")
 
             win <- res@win
-            indProbes <- seq(win+1, win+length(pos))[subset]
+            indProbes <- seq(win+1, win+length(res@pos))[subset]
             pos <- c(rep(-Inf, win), res@pos, rep(Inf, win))
             pval <- c(rep(NA, win), res@pval, rep(NA, win))
 
-            if(is.numeric(nCores))  {
+            if(is.numeric(nCores) && nCores > 0)  {
               bs <- mcsapply(indProbes, bootSingle,
                              pos, pval, win, res@weighting,
                              nBoot, conf, res@grenander,
@@ -277,12 +275,6 @@ setMethod("ci", "Les",
                            pos, pval, win, res@weighting,
                            nBoot, conf, res@grenander)
             }
-            
-            
-            bs <- mcsapply(indProbes, bootSingle,
-               pos, pval, win, res@weighting,
-               nBoot, conf, res@grenander,
-                           mc.cores=multicore:::detectCores()-1)
             
             rownames(bs) <- c("lower", "upper")
             colnames(bs) <- pos[indProbes]
@@ -409,8 +401,9 @@ setMethod("plot", "Les",
             ind <- (pos >= xlim[1]) & (pos <= xlim[2])  ## needed for plotting?
 
             if(is.logical(limit) && limit == TRUE)  {
-              if(length(x@limit) != 0)
+              if(length(x@limit) != 0)  {
                 limit <- x@cutoff
+              }
               else  {
                 warning("'cutoff' not estimated")
                 limit <- FALSE  ## skip warning??
@@ -428,7 +421,7 @@ setMethod("plot", "Les",
               abline(h=limit, col="gray")
 
             #points(pos, q, col=probeCol, cex=probeCex, pch=probePch)
-
+            browser()
             #sfrac <- min(0.01*range(xlim), min(diff(pos[ind])*0.5))
             sfrac <- min(min(diff(pos[ind]))/(xlim[2]-xlim[1])/2, 0.01)
             suppressWarnings(
