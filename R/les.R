@@ -111,7 +111,7 @@ getCDF <- function(pval, weight, grenander)  {
   if(grenander == TRUE)  {
     if(nProbes != nUnique)
       stop("Grenander estimator does not allow duplicates in p-values.")
-    cdf <- GSRI:::grenanderInterpol(pval, cdf)
+    cdf <- GSRI:::grenanderInterp(pval, cdf)
   }
   cdf <- cdf - 0.5/nProbes  ## where to put this ??
   res <- list(sortedPval=pval, cdf=cdf)
@@ -310,8 +310,10 @@ setMethod("regions", "Les",
               else
                 limit <- res@cutoff
             }
-             
-            ind <- c(0, res@q >= limit, 0)
+
+            indValid <- !is.na(res@q)
+            posValid <- res@pos[indValid]
+            ind <- c(0, res@q[indValid] >= limit, 0)
             d <- diff(ind)
             begin <- which(d == 1)
             end <- which(d == -1) - 1
@@ -321,7 +323,7 @@ setMethod("regions", "Les",
             if(verbose == TRUE)
               print(sprintf("%d %s%g", n,
                             "regions found with q>=", limit))
-            regions <- matrix(c(begin, end), 2, n, byrow=TRUE)
+            regions <- matrix(c(posValid[begin], posValid[end]), 2, n, byrow=TRUE)
             rownames(regions) <- c("begin", "end")
             colnames(regions) <- seq(1, length=n)
 
@@ -407,8 +409,8 @@ setMethod("plot", "Les",
             ind <- (pos >= xlim[1]) & (pos <= xlim[2])  ## needed for plotting?
 
             if(is.logical(limit) && limit == TRUE)  {
-              if(length(res@limit) != 0)
-                limit <- res@cutoff
+              if(length(x@limit) != 0)
+                limit <- x@cutoff
               else  {
                 warning("'cutoff' not estimated")
                 limit <- FALSE  ## skip warning??
@@ -431,14 +433,14 @@ setMethod("plot", "Les",
             sfrac <- min(min(diff(pos[ind]))/(xlim[2]-xlim[1])/2, 0.01)
             suppressWarnings(
             switch(match(error, c("ci", "se", "none")),
-                   {ss <- res@subset
-                    ci <- res@ci
+                   {ss <- x@subset
+                    ci <- x@ci
                     plotCI(pos[ss], q[ss],
                            ui=ci["upper", ], li=ci["lower", ],
                            gap=0, pch=".", col="azure4",
                            add=TRUE, sfrac=sfrac)
                    },
-                   {se <- res@se
+                   {se <- x@se
                     plotCI(pos, q,
                            uiw=se*semSpread, liw=se*semSpread,
                            gap=0, pch=".", col="azure4",
