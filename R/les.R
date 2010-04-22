@@ -46,7 +46,7 @@ calcSingle <- function(ind0, pos, pval, win,
   indValid <- distance <= win
   nValidProbes <- length(unique(pval[indValid]))
 
-  if(nValidProbes>0)  {
+  if(nValidProbes>1)  {
     dis <- distance[indValid]
     weight <- weighting(dis, win)
 
@@ -401,9 +401,8 @@ setMethod("plot", "Les",
             ind <- (pos >= xlim[1]) & (pos <= xlim[2])  ## needed for plotting?
 
             if(is.logical(limit) && limit == TRUE)  {
-              if(length(x@limit) != 0)  {
+              if(length(x@cutoff) != 0)
                 limit <- x@cutoff
-              }
               else  {
                 warning("'cutoff' not estimated")
                 limit <- FALSE  ## skip warning??
@@ -420,8 +419,6 @@ setMethod("plot", "Les",
             if(is.numeric(limit))
               abline(h=limit, col="gray")
 
-            #points(pos, q, col=probeCol, cex=probeCex, pch=probePch)
-            browser()
             #sfrac <- min(0.01*range(xlim), min(diff(pos[ind])*0.5))
             sfrac <- min(min(diff(pos[ind]))/(xlim[2]-xlim[1])/2, 0.01)
             suppressWarnings(
