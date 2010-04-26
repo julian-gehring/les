@@ -39,18 +39,18 @@ calcSingle <- function(ind0, pos, pval, win,
 
   pos0 <- pos[ind0]
   indCut <- seq(ind0-win, ind0+win)
-  pos <- pos[indCut]
-  pval <- pval[indCut]
+  posCut <- pos[indCut]
+  pvalCut <- pval[indCut]
   
-  distance <- abs(pos - pos0)
+  distance <- abs(posCut - pos0)
   indValid <- distance <= win
-  nValidProbes <- length(unique(pval[indValid]))
+  nValidProbes <- length(unique(pvalCut[indValid]))
 
-  if(nValidProbes>1)  {
+  if(nValidProbes>0)  {
     dis <- distance[indValid]
     weight <- weighting(dis, win)
 
-    res <- fitGSRI(pval[indValid], weight,
+    res <- fitGSRI(pvalCut[indValid], weight,
                    pos0, nValidProbes, grenander)
   }
   else  {
