@@ -1,3 +1,12 @@
+setClass("Les",
+  representation(pos="numeric", q="numeric", se="numeric",
+  nUsedProbes="integer", pval="numeric", win="integer",
+  weighting="function", grenander="logical", ci="matrix", nBoot="integer", conf="numeric",
+  subset="numeric", cutoff="numeric", nSigProbes="numeric",
+  regions="matrix", limit="numeric")
+)
+
+
 estimate <- function(pos, pval, win,
                      weighting=triangWeight, grenander=FALSE, nCores=FALSE)  {
 
@@ -235,13 +244,7 @@ mcsapply <- function(X, FUN, ...,
 }
 
 
-setClass("Les",
-  representation(pos="numeric", q="numeric", se="numeric",
-  nUsedProbes="integer", pval="numeric", win="integer",
-  weighting="function", grenander="logical", ci="matrix", nBoot="integer", conf="numeric",
-  subset="numeric", cutoff="numeric", nSigProbes="numeric",
-  regions="matrix", limit="numeric")
-)
+
 
 
 setGeneric("ci",
