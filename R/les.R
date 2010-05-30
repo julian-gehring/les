@@ -1,51 +1,105 @@
-setClass("Les",
-  representation(pos="numeric", q="numeric", se="numeric",
-  nUsedProbes="integer", pval="numeric", win="integer",
-  weighting="function", grenander="logical", ci="matrix", nBoot="integer", conf="numeric",
-  subset="numeric", cutoff="numeric", nSigProbes="numeric",
-  regions="matrix", limit="numeric")
-)
+#source("/home/julian/packages/les/les/R/allClasses.R")
+##################################################
+## create
+##################################################
+create <- function(pos, pval, chr)  {
 
+  ## default values
+  if(missing(chr))
+    chr <- rep(0, length(pos)) 
 
-estimate <- function(pos, pval, win,
-                     weighting=triangWeight, grenander=FALSE, nCores=FALSE)  {
+  ## check inputs
+  if(length(pos) != length(pval))
+    stop("'pos' and 'pval' must have same length.")
+  if(length(pos) != length(chr))
+    stop("'pos' and 'chr' must have same length.")
+  if(any(is.na(pos)))
+    stop("'pos' must not contain NAs.")
+  if(any(pos %% 1 != 0))
+    stop("'pos' must be a vector of integers.")
 
-  #checkInputs(pos, pval, win)
-  win <- as.integer(win)
-
+  ## throw out NAs in pval
   indValid <- !is.na(pval)
-  pos <- pos[indValid]
+  pos <- as.integer(pos[indValid])
   pval <- round(pval[indValid], 12)
+  chr <- factor(chr[indValid])
 
-  ord <- sort.list(pos, method="quick", na.last=NA)
+  ## sort
+  ord <- order(chr, pos)
   pos <- pos[ord]
   pval <- pval[ord]
+  chr <- chr[ord]
 
-  indProbes <- seq(win+1, win+length(pos))
-  pos <- c(rep(-Inf, win), pos, rep(Inf, win))
-  pval <- c(rep(NA, win), pval, rep(NA, win))
+  ## check for duplicated pos for each chr
+  if(any(grepl("TRUE", rownames(table(duplicated(pos), chr)))))
+    warning("'pos' contains duplicates on the same chr")
 
-  if(is.numeric(nCores))  {
-   cs <- mcsapply(indProbes, calcSingle, pos, pval,
-                   win, weighting, grenander, mc.cores=nCores)
-  }
-  else  {
-    cs <- sapply(indProbes, calcSingle, pos, pval,
-                 win, weighting, grenander)
-  }
-
-  res <- new(Class="Les", pos=cs[1, ], q=cs[2, ],
-             se=cs[3, ], nUsedProbes=as.integer(cs[4, ]),
-             pval=pval[indProbes], win=win,
-             weighting=weighting, grenander=grenander)
+  object <- new(Class="Les",
+             pos=pos, pval=pval, chr=chr, nChr=nlevels(chr))
   
-  return(res)
+  return(object)
+}
+## ok ##
+
+
+##################################################
+## estimate
+##################################################
+estimate <- function(object, win, weighting=triangWeight,
+                     grenander=FALSE, se=TRUE, nCores=FALSE)  {
+  
+  ## check input
+  if(win %% 1 != 0)
+    warning("'win' should be an integer.")
+  win <- as.integer(win)
+  chrLevel <- levels(object@chr)
+
+  ## check for multicore
+  mcUse <- any(.packages() == "multicore") && nCores != FALSE
+
+  ## for each chr
+  for(c in 1:object@nChr)  {
+    indChr <- object@chr == chrLevel[c]
+    indProbes <- seq(win+1, win+length(object@pos[indChr]))
+    pos <- c(rep(-Inf, win), object@pos[indChr], rep(Inf, win))
+    pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
+
+    ## apply
+    if(mcUse == TRUE)  {
+      cs <- multicore::mcsapply(indProbes, calcSingle, pos, pval,
+                     win, weighting, grenander, se, nBoot=FALSE, mc.cores=nCores)
+    }
+    else  {
+      cs <- sapply(indProbes, calcSingle, pos, pval,
+                   win, weighting, grenander, se, nBoot=FALSE)
+    }
+
+    ## extract result
+    object@lambda[indChr] <- cs[1, ]
+    object@nProbes[indChr] <- as.integer(cs[3, ])
+    if(se == TRUE)
+      object@se[indChr] <- cs[2, ]
+  }
+
+  object@win <- win
+  object@weighting <- weighting
+  object@grenander <- grenander
+  
+  return(object)
 }
 
+setGeneric("estimate")
+## ok ##
 
+
+##################################################
+## calcSingle
+##################################################
 calcSingle <- function(ind0, pos, pval, win,
-                       weighting, grenander)  {
+                       weighting, grenander, se,
+                       nBoot, conf)  {
 
+  ## cut down
   pos0 <- pos[ind0]
   indCut <- seq(ind0-win, ind0+win)
   posCut <- pos[indCut]
@@ -55,78 +109,125 @@ calcSingle <- function(ind0, pos, pval, win,
   indValid <- distance <= win
   nValidProbes <- length(unique(pvalCut[indValid]))
 
-  if(nValidProbes>0)  {
+  if(nValidProbes>1)  {
+    ## if enough probes
     dis <- distance[indValid]
     weight <- weighting(dis, win)
 
-    res <- fitGSRI(pvalCut[indValid], weight,
-                   pos0, nValidProbes, grenander)
+    ## apply
+    if(nBoot == FALSE)  {
+      res <- fitGSRI(pvalCut[indValid], index=NULL, weight,
+                     nValidProbes, grenander, se)
+    }
+    else  {
+      bo <- boot::boot(pvalCut[indValid], fitGSRI, nBoot,
+                 cweight=weight, nValidProbes=nValidProbes,
+                 grenander=grenander, se=se)
+      ## try not needed?
+      ci <- try(boot::boot.ci(bo, conf, type="perc"), silent=FALSE)
+      if(class(ci) == "try-error")
+        res <- c(NA, NA)
+      else
+        res <- ci$perc[4:5]
+    }
+    
   }
   else  {
-    res <- c(pos0, NA, NA, nValidProbes)
+    ## if not enough probes
+    if(nBoot == FALSE)
+      res <- c(NA, NA, nValidProbes)
+    else
+      res <- c(NA, NA)
   }
 
   return(res)
 }
+## ok ## nValidProbes as input?
 
 
-fitGSRI <- function(pval, weight, pos0,
-                    nValidProbes, grenander)  {
+##################################################
+## fitGSRI
+##################################################
+fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
   
   maxIter <- nValidProbes
   restOld <- 0
   rest <- restOld
   q <- 1
+  noBoot <- is.null(index)
+  if(noBoot == TRUE)
+    cdf <- wcdf(pval, cweight, grenander)
+  else
+    cdf <- wcdf(pval[index], cweight[index], grenander)
 
-  cdf <- getCDF(pval, weight, grenander)
-
+  ## iterative fitting
   for(i in 1:maxIter)  {
     rest <- nValidProbes - ceiling(q*nValidProbes)
     rest <- max(c(restOld, rest, 1))
     rest <- min(c(nValidProbes-1, rest))
     if(is.na(rest) || restOld == rest)
       break
-    x <- cdf$sortedPval[rest:nValidProbes] - 1
+    x <- cdf$pval[rest:nValidProbes] - 1
     y <- cdf$cdf[rest:nValidProbes] - 1
+    if(length(unique(x)) == 1) # only for boot?
+      break
     q <- GSRI:::slopeFast(x, y)
     restOld <- rest
   }
-  res <- c(pos0, 1 - min(q, 1), seFast(x, y, q), nValidProbes)
 
+  ## return values
+  if(noBoot == TRUE)  {
+    if(se == TRUE)
+      se <- seFast(x, y, q)
+    else
+      se <- NA
+    res <- c(1 - min(q, 1), se, nValidProbes)
+  }
+  else  {
+    res <- 1 - min(q, 1, na.rm=TRUE)
+  }
+  
   return(res)
 }
+## ok ## needs testing, nValidProbes
 
 
-getCDF <- function(pval, weight, grenander)  {
+##################################################
+## wcdf
+##################################################
+wcdf <- function(pval, weight, grenander)  {
   
   ord <- sort.list(pval, method="quick", na.last=NA)
-  pval <- pval[ord]
-  weight <- weight[ord]
+  pvalSort <- pval[ord]
+  weightSort <- weight[ord]
 
-  indUnique <- !duplicated(pval)
-  uniquePval <- pval[indUnique]
-  uniqueWeight <- weight[indUnique]
+  indUnique <- !duplicated(pvalSort)
+  uniquePval <- pvalSort[indUnique]
+  uniqueWeight <- weightSort[indUnique]
 
   nUnique <- length(uniquePval)
-  nProbes <- length(pval)
+  nProbes <- length(pvalSort)
 
   cdf <- cumsum(uniqueWeight)
   cdf <- cdf/cdf[nUnique]
   
   if(nProbes != nUnique)
-    cdf <- rep.int(cdf, table(pval))
+    cdf <- rep.int(cdf, table(pvalSort))
   if(grenander == TRUE)  {
     if(nProbes != nUnique)
       stop("Grenander estimator does not allow duplicates in p-values.")
-    cdf <- GSRI:::grenanderInterp(pval, cdf)
+    cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
   }
   cdf <- cdf - 0.5/nProbes  ## where to put this ??
-  res <- list(sortedPval=pval, cdf=cdf)
+  res <- list(pval=pvalSort, cdf=cdf)
 
   return(res)
 }
 
 
+##################################################
+## seFast
+##################################################
 seFast <- function(x, y, b) {
   
   si     <- sum((y-b*x)^2)/(length(x)-1)
@@ -134,8 +235,12 @@ seFast <- function(x, y, b) {
   
   return(se)
 }
-  
+## ok ##
 
+
+##################################################
+## triangWeight
+##################################################
 triangWeight <- function(distance, win)  {
   
   weight <- 1 - distance/win  ## not normed
@@ -143,8 +248,24 @@ triangWeight <- function(distance, win)  {
     
   return(weight)
 }
+## ok ##
 
 
+##################################################
+## rectangWeight
+##################################################
+gaussWeight <- function(distance, win)  {
+
+  weight <- dnorm(distance, sd=win/2)
+
+  return(weight)
+}
+## ok ##
+
+
+##################################################
+## gaussWeight
+##################################################
 rectangWeight <- function(distance, win)  {
 
   n <- length(distance)
@@ -152,76 +273,12 @@ rectangWeight <- function(distance, win)  {
 
   return(weight)
 }
+## ok ##
 
 
-bootSingle <- function(ind0, pos, pval, win, weighting,
-                       nBoot, conf, grenander)  {
-
-  pos0 <- pos[ind0]
-  indCut <- seq(ind0-win, ind0+win)
-  pos <- pos[indCut]
-  pval <- pval[indCut]
-  
-  distance <- abs(pos - pos0)
-  indValid <- distance <= win
-  #nValidProbes <- sum(indValid)
-  nValidProbes <- length(unique(pval[indValid]))
-
-  if(nValidProbes>1)  {
-    dis <- distance[indValid]
-    weight <- weighting(dis, win)
-
-    bo <- boot(pval[indValid], fitGSRIboot, nBoot,
-               cweight=weight, grenander=grenander,
-               nValidProbes=nValidProbes)
-    ## try not needed?
-    ci <- try(boot.ci(bo, conf, type="perc"), silent=FALSE)
-    if(class(ci)=="try-error")
-      res <- c(NA, NA)
-    else
-      res <- ci$perc[4:5]
-  }
-  else  {
-    res <- c(NA, NA)
-  }
-  
-  return(res)
-}
-
-
-fitGSRIboot <- function(pval, index, cweight,
-                        nValidProbes, grenander)  {
-
-  pval <- pval[index]
-  weight <- cweight[index]
-  maxIter <- nValidProbes
-  restOld <- 0
-  q <- 1
-
-  cdf <- getCDF(pval, weight, grenander)
-
-  for(i in 1:maxIter)  {
-    rest <- nValidProbes - ceiling(q*nValidProbes)
-    rest <- max(c(restOld, rest, 1))
-    rest <- min(c(nValidProbes-1, rest))
-    if(is.na(rest) || restOld == rest)
-      break
-    x <- cdf$sortedPval[rest:nValidProbes] - 1
-    y <- cdf$cdf[rest:nValidProbes] - 1
-    if(length(unique(x)) == 1)
-      break
-    q <- GSRI:::slopeFast(x, y)
-    restOld <- rest
-  }
-  #browser()
-  if(is.na(q))  ## good? NA seems not thrown out in boot.ci
-    q <- NA
-  res <- 1 - min(q, 1)
-  
-  return(res)
-}
-
-
+##################################################
+## mcapply
+##################################################
 mcsapply <- function(X, FUN, ...,
                      simplify=TRUE, USE.NAMES=TRUE, mc.cores)  {
   
@@ -242,124 +299,137 @@ mcsapply <- function(X, FUN, ...,
   }
   else answer
 }
+## ok ##
 
 
+##################################################
+## ci
+##################################################
+ci <- function(object, subset, nBoot=100, conf=0.95, nCores=FALSE)  {
 
+  if(missing(subset))
+    subset <- rep(TRUE, length(object@pos))
+    #subset <- seq(along=object@pos)
+  if(!is.logical(subset) & is.vector(subset))
+    subset <- ind2log(subset, length(object@pos))
+  #if(is.matrix(subset))
+  #  subset <- reg2log(subset, object@pos)
+  nBoot <- as.integer(nBoot)
+  win <- object@win
+  chrLevel <- levels(object@chr)
+  nChr <- length(chrLevel)
 
-
-setGeneric("ci",
-           function(res, ...) {standardGeneric("ci")}
-           )
-
-setMethod("ci", "Les",
-          function(res, subset, nBoot=100, conf=0.95, nCores=FALSE)  {
-
-            if(missing(subset))
-              subset <- seq(along=res@pos)
-            if(is.logical(subset))
-              subset <- which(subset)
-            nBoot <- as.integer(nBoot)
-            #if(res@grenander == TRUE)
-            #  Stop("Bootstrap and Grenander estimator do not work together.")
-
-            win <- res@win
-            indProbes <- seq(win+1, win+length(res@pos))[subset]
-            pos <- c(rep(-Inf, win), res@pos, rep(Inf, win))
-            pval <- c(rep(NA, win), res@pval, rep(NA, win))
-
-            if(is.numeric(nCores) && nCores > 0)  {
-              bs <- mcsapply(indProbes, bootSingle,
-                             pos, pval, win, res@weighting,
-                             nBoot, conf, res@grenander,
-                             mc.cores=nCores)
-            }
-            else  {
-              bs <- sapply(indProbes, bootSingle,
-                           pos, pval, win, res@weighting,
-                           nBoot, conf, res@grenander)
-            }
-            
-            rownames(bs) <- c("lower", "upper")
-            colnames(bs) <- pos[indProbes]
-
-            res@ci <- bs
-            res@subset <- as.integer(subset)
-            res@nBoot <- nBoot
-            res@conf <- conf
-
-            return(res)
-}
-)
-
-
-setGeneric("regions",
-           function(res, ...) {standardGeneric("regions")}
-           )
-
-setMethod("regions", "Les",
-          function(res, limit=NULL, verbose=FALSE)  {
-
-            if(is.null(limit))  {
-              if(length(res@cutoff) == 0)
-                stop("'limit' must be specified")
-              else
-                limit <- res@cutoff
-            }
-
-            indValid <- !is.na(res@q)
-            posValid <- res@pos[indValid]
-            ind <- c(0, res@q[indValid] >= limit, 0)
-            d <- diff(ind)
-            begin <- which(d == 1)
-            end <- which(d == -1) - 1
-            n <- length(begin)
-            if(n != length(end))
-              stop("Unequal numbers of region bounderies")
-            if(verbose == TRUE)
-              print(sprintf("%d %s%g", n,
-                            "regions found with q>=", limit))
-            regions <- matrix(c(posValid[begin], posValid[end]), 2, n, byrow=TRUE)
-            rownames(regions) <- c("begin", "end")
-            colnames(regions) <- seq(1, length=n)
-
-            res@regions <- regions
-            res@limit <- limit
-
-            return(res)
-          }
-)
-
-
-setGeneric("cutoff",
-           function(res, ...) {standardGeneric("cutoff")}
-           )
-
-setMethod("cutoff", "Les",
-          function(res, grenander=FALSE, verbose=FALSE)  {
-
-            pval <- res@pval
-            nProbes <- length(pval)
-            erg <- fitGSRI(pval, rep(1, nProbes), NA,
-                           nProbes, grenander)
-            nSigProbes <- erg[2]*nProbes
-            nSigLower <- ceiling(nSigProbes)
-            cutoff <- c(NA, sort(res@q, decreasing=TRUE))[nSigLower+1]
-            ## +1: access right probe due to ceiling !
-
-            if(verbose == TRUE)
-              print(sprintf("%g %s%g", nSigLower,
-                  "significant probes estimated with limit q>=", cutoff))
-
-            res@nSigProbes <- nSigProbes
-            res@cutoff <- cutoff
+  mcUse <- any(.packages() == "multicore") && nCores != FALSE
+  bc <- c()
+  for(c in 1:nChr)  {
+    indChr <- object@chr == chrLevel[c]
+    indProbes <- seq(win+1, win+length(object@pos[indChr]))[subset[indChr]]
+    pos <- c(rep(-Inf, win), object@pos[indChr], rep(Inf, win))
+    pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
+    
+    if(mcUse == TRUE)  {
+      bs <- multicore::mcsapply(indProbes, calcSingle,
+                                pos, pval, win, object@weighting,
+                                object@grenander, se=FALSE, nBoot, conf,
+                                mc.cores=nCores)
+    }
+    else  {
+      bs <- sapply(indProbes, calcSingle,
+                   pos, pval, win, object@weighting,
+                   object@grenander, se=FALSE, nBoot, conf)
+    }
+    bc <- cbind(bc, bs)
+  }
   
-            return(res)
-          }
-          )
+  object@ci <- data.frame(lower=bc[1, ], upper=bc[2, ])
+  object@subset <- log2ind(subset)
+  object@nBoot <- nBoot
+  object@conf <- conf
+  
+  return(object)
+}
 
+setGeneric("ci")
 
+##################################################
+## regions
+##################################################
+regions <- function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)  {
+
+  if(is.null(limit))  {
+    if(length(object@theta) == 0)
+      stop("'limit' must be specified")
+    else
+      limit <- object@theta
+  }
+  if(is.na(limit) || limit < 0 || limit > 1)
+    stop("'limit' must be in the range [0,1].")
+  lambda <- object@lambda
+  indNa <- is.na(lambda)
+  lambda[indNa] <- 0
+  ind <- c(0, lambda >= limit, 0)
+  indMax <- which(diff(object@pos) > maxGap)
+  ind[indMax] <- 0
+  ind[indMax+1] <- 0
+  d <- diff(ind)
+  begin <- which(d == 1)
+  end <- which(d == -1) - 1
+  nProbes <- end - begin +1
+  
+  indSame <- (object@chr[begin] == object@chr[end]) & (nProbes >= minLength)
+  begin <- begin[indSame]
+  end <- end[indSame]
+  nProbes <- nProbes[indSame]
+
+  if(length(begin) != length(end))
+    stop("Unequal numbers of region bounderies")
+  if(verbose == TRUE)
+    print(sprintf("%d %s%g", length(begin), "regions found with lambda>=", limit))
+  size <- as.integer(object@pos[end]-object@pos[begin]+1)
+  regions <- data.frame(start=object@pos[begin], end=object@pos[end],
+                        size=size, nProbes=nProbes, chr=factor(object@chr[begin]))
+  
+  object@regions <- regions
+  object@limit <- limit
+  object@minLength <- as.integer(minLength)
+  object@maxGap <- as.integer(maxGap)
+  
+  return(object)
+}
+
+setGeneric("regions")
+
+##################################################
+## cutoff
+##################################################
+cutoff <- function(object, grenander=FALSE, verbose=FALSE)  {
+
+  pval <- object@pval
+  nProbes <- length(pval)
+  erg <- fitGSRI(pval, index=NULL, rep(1, nProbes),
+                 nProbes, grenander, se=FALSE)
+  nSigProbes <- erg[1]*nProbes
+  nSigLower <- ceiling(nSigProbes)
+  cutoff <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
+  ## +1: access right probe due to ceiling !
+  
+  if(verbose == TRUE)
+    print(sprintf("%g %s%g", nSigLower,
+                  "significant probes estimated with limit lambda>=", cutoff))
+  
+  object@nSigProbes <- nSigProbes ## round?
+  object@theta <- cutoff
+  
+  return(object)
+}
+
+setGeneric("cutoff")
+
+##################################################
+## plot
+##################################################
 setMethod("plot", "Les",
-          function(x, y, region=FALSE, limit=TRUE,
+          function(x, y, chr, region=FALSE, limit=TRUE,
                    xlim, ylim=c(0,1),
                    error="none", semSpread=1.96,
                    patchCol="gray", borderCol="black",
@@ -367,108 +437,122 @@ setMethod("plot", "Les",
                    regionLty=2, regionLw=3, regionCex=NULL,
                    probeCol="black", probeCex=0.5, probePch=20)  {
 
-            pos <- x@pos
-            q <- x@q
+  pos <- x@pos
+  lambda <- x@lambda
+  
+  if(error == "ci" && length(x@ci) == 0)  {
+    warning("CI not computed so far")
+    error <- "none"
+  }
 
-            if(error == "ci" && length(x@ci) == 0)  {
-              warning("CI not computed so far")
-              error <- "none"
-            }
-    
-            if(!missing(y))  {
-              par(mar=c(2.1,4.1,4.1,2.1))
-              par(fig=c(0,1,0,0.3))
-              plot.new()
-              plot.window(x=xlim, y=c(0, 2))
-              abline(h=0.5, col="gray32")
-              indAnno <- y$pos[1, ] >= xlim[1] & y$pos[2, ] <= xlim[2]
-              for(i in which(indAnno))  {
-                polygon(c(y$pos[ ,i], rev(y$pos[ ,i])),
-                        c(0, 0, 1, 1),
-                        col=y$col[i])
-              }
-              text(x=0.5*(anno$pos[2,indAnno]+anno$pos[1,indAnno]),
-                   y=0.5,
-                   label=anno$name[indAnno],
-                   adj=c(0.5,0.5)
+  if(missing(chr))  {
+    if(x@nChr != 1)
+      stop("Please specify 'chr'.")
+    else
+      indChr <- rep(TRUE, length(x@pos))
+  }
+  else  {
+    indChr <- x@chr == chr
+  }
+  
+  if(!missing(y))  {
+    par(mar=c(2.1,4.1,4.1,2.1))
+    par(fig=c(0,1,0,0.3))
+    plot.new()
+    plot.window(x=xlim, y=c(0, 2))
+    abline(h=0.5, col="gray32")
+    indAnno <- reg2ind(y$reg, xlim)
+    for(i in indAnno)  {
+      polygon(c(y$pos[ ,i], rev(y$pos[ ,i])),
+              c(0, 0, 1, 1), col=y$col[i])
+    }
+    text(x=0.5*(anno$pos[2,indAnno]+anno$pos[1,indAnno]),
+         y=0.5,
+         label=anno$name[indAnno],
+         adj=c(0.5,0.5)
+         )
+    text(x=xlim[2], y=0.55,
+         label="DNA", adj=c(0.5,0))
+    ## for next plot
+    par(fig=c(0,1,0.2,1), new=TRUE)
+  }
+  
+  if(missing(xlim))
+    xlim <- range(pos)
+  ind <- (pos >= xlim[1]) & (pos <= xlim[2])  ## needed for plotting?
+  
+  if(is.logical(limit) && limit == TRUE)  {
+    if(length(x@theta) != 0)
+      limit <- x@theta
+    else  {
+                                        #warning("'cutoff' not estimated")
+      limit <- FALSE  ## skip warning??
+    }
+  }
+  if(region == TRUE && length(x@regions) != 0)
+    regions <- x@regions
+  if(!is.logical(region))
+    regions <- region
+  
+  sig <- lambda >= limit
+  plot(pos, lambda, type="n", xlim, ylim,
+       xlab="Probe position", ylab=expression(Lambda))
+  if(is.numeric(limit))
+    abline(h=limit, col="gray")
+  abline(h=0, col="lightgray")
+  sfrac <- min(min(diff(pos[ind]))/(xlim[2]-xlim[1])/2, 0.01)
+  suppressWarnings(
+    switch(match(error, c("ci", "se", "none")),  {
+      ss <- x@subset
+      ci <- x@ci
+      plotCI(pos[ss], lambda[ss],
+             ui=ci$upper, li=ci$lower,
+             gap=0, pch=".", col="azure4",
+             add=TRUE, sfrac=sfrac)
+    },  {
+      se <- x@se
+      plotCI(pos, lambda,
+             uiw=se*semSpread, liw=se*semSpread,
+             gap=0, pch=".", col="azure4",
+             add=TRUE, sfrac=sfrac)
+    }
+           )
                    )
-              text(x=xlim[2], y=0.55,
-                   label="DNA", adj=c(0.5,0))
-
-              # for next plot
-              par(fig=c(0,1,0.2,1), new=TRUE)
-            }
-            
-            if(missing(xlim))
-              xlim <- range(pos)
-            ind <- (pos >= xlim[1]) & (pos <= xlim[2])  ## needed for plotting?
-
-            if(is.logical(limit) && limit == TRUE)  {
-              if(length(x@cutoff) != 0)
-                limit <- x@cutoff
-              else  {
-                warning("'cutoff' not estimated")
-                limit <- FALSE  ## skip warning??
-              }
-            }
-            if(region == TRUE && length(x@regions) != 0)
-              regions <- x@regions
-            if(!is.logical(region))
-              regions <- region
-
-            sig <- q >= limit
-            plot(pos, q, type="n", xlim, ylim,
-                 xlab="Probe position", ylab=expression(Lambda))
-            if(is.numeric(limit))
-              abline(h=limit, col="gray")
-
-            #sfrac <- min(0.01*range(xlim), min(diff(pos[ind])*0.5))
-            sfrac <- min(min(diff(pos[ind]))/(xlim[2]-xlim[1])/2, 0.01)
-            suppressWarnings(
-            switch(match(error, c("ci", "se", "none")),
-                   {ss <- x@subset
-                    ci <- x@ci
-                    plotCI(pos[ss], q[ss],
-                           ui=ci["upper", ], li=ci["lower", ],
-                           gap=0, pch=".", col="azure4",
-                           add=TRUE, sfrac=sfrac)
-                   },
-                   {se <- x@se
-                    plotCI(pos, q,
-                           uiw=se*semSpread, liw=se*semSpread,
-                           gap=0, pch=".", col="azure4",
-                           add=TRUE, sfrac=sfrac)
-                   }
-                   )
-                             )
-                   
-            points(pos, q, type="o",
-                   pch=probePch, col=probeCol, cex=probeCex)
-            if(is.numeric(limit))  {
-            points(pos[sig], q[sig],
-                   pch=probePch, col=markerCol, cex=probeCex)
-            }
-
-            if(!is.logical(region) && !is.numeric(region))
-              stop("'region' must be logical or numeric")
-            if(is.logical(region) && region == TRUE)
-              region <- x@regions
-            if(!is.logical(region) || region == TRUE)  {
-              regionCol <- rep(brewer.pal(8, "Set1"), each=2)
-              abline(v=region, col=regionCol)
-            }
-          }
+  
+  points(pos, lambda, type="o",
+         pch=probePch, col=probeCol, cex=probeCex)
+  if(is.numeric(limit))  {
+    points(pos[sig], lambda[sig],
+           pch=probePch, col=markerCol, cex=probeCex)
+  }
+  
+  if(!is.logical(region) && !is.numeric(region))
+    stop("'region' must be logical or numeric")
+  if(is.logical(region) && region == TRUE)
+    region <- x@regions
+  if(!is.logical(region) || region == TRUE)  {
+    regionCol <- rep(brewer.pal(8, "Set1"), each=2)
+    abline(v=region, col=regionCol)
+  }
+}
           )
 
 
+##################################################
+## [
+##################################################
 setMethod("[", "Les",
           function(x, i, j, drop)  {
             value <- slot(x, i)
             return(value)
           }
 )
+## ok ##
 
 
+##################################################
+## <-
+##################################################
 setReplaceMethod("[", "Les",
                  function(x, i, j, value)  {
                    slot(x, i) <- value
@@ -476,33 +560,227 @@ setReplaceMethod("[", "Les",
                    return(x)
                  }
 )
+## ok ##  is this function needed by the user ? ##
 
 
+##################################################
+## show
+##################################################
 setMethod("show", "Les",
           function(object)  {
-            pos <- object@pos
-            q <- object@q
-            pr <- range(pos)
-            qr <- range(q)
-            cat("Object of class 'Les'")
-            cat(sprintf("%d %s (%d-%d)", length(pos), "probes", pr[1], pr[2]))
-            cat(sprintf("%s %g-%g", "Range Lambda:", qr[1], qr[2]))
-            if(length(object@ci) != 0)
-              cat("confidence intervals computed", quote=FALSE)
-            if(length(object@regions) != 0)
-              cat("regions detected", quote=FALSE)
-            if(length(object@cutoff) != 0)
-              cat("cutoff estimated", quote=FALSE)
+            
+  pos <- object@pos
+  lambda <- object@lambda
+  nChr <- object@nChr
+  cat("** Object of class 'Les' **\n")
+  cat(sprintf("* %d %s %d %s\n", length(pos),
+              "probes on", nChr, "chromosomes"))
+  if(length(lambda) != 0)
+    cat(sprintf("* %s [%g, %g] %s %d\n", "Lambda in range",
+                min(lambda, na.rm=TRUE), max(lambda, na.rm=TRUE),
+                "with kernel size", object@win))
+  if(length(object@ci) != 0)
+    cat(sprintf("* %g %s %d %s\n", object@conf, "confidence intervals computed for",
+                length(object@subset), "probes"))
+  if(length(object@nSigProbes) != 0)
+    cat(sprintf("* %d %s %g\n", ceiling(object@nSigProbes),
+                "regulated probes estimated for lambda >=",
+                object@theta))
+  if(length(object@regions) != 0)
+    cat(sprintf("* %d %s\n", nrow(object@regions), "regions detected"))
+}
+          )
+
+
+##################################################
+## summary
+##################################################
+setMethod("summary", "Les",
+          function(object, ...)  {
+            show(object, ...)
+            cat("* Available slots:\n")
+            sn <- slotNames(object)
+            ind <- sapply(sn, function(sn) length(object[sn])) > 0
+            print(sn[ind])
           }
           )
 
 
-setMethod("summary", "Les",
-          function(object, ...)  {
-          slotNames(object)
-        }
-)
+##################################################
+## optimalKernel
+##################################################
+optimalKernel <- function(object, winSize, regions, verbose=FALSE)  {
+  
+  if(missing(regions))
+    regions <- rep(TRUE, length(object@pval))
+  #if(is.matrix(regions))
+  #  nReg <- nrow(regions)
+  #else
+    nReg <- 1
+  #if(ncol(regions) != 2)
+  #  stop("'regions' must have 2 columns")
+
+  if(length(object@weighting) == 0)
+    stop("'weighting' function must be set by the 'estimate' method")
+  options(weighting=object@weighting)
+  
+  ## check if existing
+
+  chi2 <- matrix(NA, nReg, length(winSize))
+  for(r in 1:nReg)  {
+    #ind <- inVector(object@pos, regions[r,1], regions[r,2])
+    ind <- regions
+    fdr <- fdrtool::fdrtool(object@pval[ind], "pvalue",
+                            verbose=FALSE, plot=FALSE, cutoff="pct0")
+    if(length(unique(object@chr[ind])) > 1)
+      stop("regions covers more than 1 chromosome.")
+    resc <- create(object@pos[ind], object@pval[ind])
+    for(w in 1:length(winSize))  {
+      lesi <- estimate(resc, winSize[w], weighting=xvalWeight, nCores=FALSE)["lambda"]
+      #chi2[r,w] <- sum((scaling(lesi) + scaling(fdr$qval) - 1)^2)
+      chi2[r,w] <- sum((scaling(lesi) - scaling(1 - fdr$lfdr))^2)
+    }
+  }
+  colnames(chi2) <- winSize
+  
+  return(chi2)
+}       
+
+setGeneric("optimalKernel")
 
 
+##################################################
+## xvalWeight
+##################################################
+xvalWeight <- function(distance, win)  {
+
+  weighting <- getOption("weighting")
+  weight <- weighting(distance, win) ## problematic ## NOT GOOD !!! ##
+  weight[distance == 0] <- 0
+  
+  return(weight)
+}
 
 
+log2ind <- function(log)  {
+
+  ind <- seq(along=log)[log]
+  ind <- as.integer(ind)
+
+  return(ind)
+}
+## ok ##
+
+
+ind2log <- function(ind, n)  {
+
+  log <- logical(n)
+  log[ind] <- TRUE
+
+  return(log)
+}
+## ok ##
+
+
+reg2log <- function(reg, x)  {
+
+  if(ncol(reg) != 2)
+    stop("'reg' must have 2 columns")
+  log <- logical(length(x))
+  for(i in 1:nrow(reg))  {
+    ind <- x >= min(reg[i, ]) & x <= max(reg[i, ])
+    log[ind] <- TRUE
+  }
+
+  return(log)
+}
+## ok ##
+
+
+reg2ind <- function(reg, x)  {
+
+  log <- reg2log(reg, x)
+  ind <- log2ind(log)
+
+  return(ind)
+}
+## ok ##
+
+
+log2reg <- function(log)  {
+
+  ind <- c(FALSE, log, FALSE)
+  d <- diff(ind)
+  s <- seq(along=d)
+  begin <- s[d == 1]
+  end <- s[d == -1] - 1
+  #ind <- begin != end
+  reg <- cbind(begin, end)
+  colnames(reg) <- c("begin", "end")
+
+  return(reg)
+}
+## ok ##
+
+
+ind2reg <- function(ind, n)  {
+
+  log <- ind2log(ind, n)
+  reg <- log2reg(log)
+
+  return(reg)
+}
+## ok ##
+
+
+scaling <- function(x)  {
+
+  x <- x - min(x)
+  x <- x/max(x)
+
+  return(x)
+}
+
+
+inVector <- function(pos, start, end)  {
+  if(length(start) != length(end))
+    stop("not same length")
+  sig <- logical(length(pos))
+  for(i in 1:length(start))  {
+    ind <- pos >= start[i] & pos <= end[i]
+    sig[ind] <- TRUE
+  }
+  return(sig)
+}
+
+
+exportLambda <-function(object, chr, file, range,
+                        description="Lambda", precision=4)  {
+            
+  header <- c(sprintf("%s%s%s","track name=\"", description,
+                      "\" type=wiggle_0 viewLimits=0:1 autoScale=off"),
+              sprintf("%s%s %s", "variableStep chrom=", chr,  "span=1"))
+
+  if(missing(range))  {
+    ind <- object@chr == chr & !is.na(object@lambda)
+  }
+  else  {
+    ind <- object@chr == chr & object@pos <= min(range) &
+    object@pos >= max(range) & !is.na(object@lambda)
+  }
+
+  values <- format(round(object@lambda[ind], precision), scientific=16)
+  df <- data.frame(pos=object@pos[ind], value=values)
+  # not good, why this?
+  indDup <- duplicated(df$pos)
+  df <- df[!indDup, ]
+  indValid <- !is.na(df$value)
+  df <- df[indValid, ]
+
+  write(header, file)
+  write.table(df, file, append=TRUE, quote=FALSE, sep="\t",
+              row.names=FALSE, col.names=FALSE)
+
+}
+
+setGeneric("exportLambda")

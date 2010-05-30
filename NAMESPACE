@@ -5,7 +5,7 @@ importFrom(gplots, plotCI)
 importFrom(multicore, mclapply)
 importFrom(RColorBrewer, brewer.pal)
 
-export(estimate, triangWeight, rectangWeight)
+export(create, triangWeight, rectangWeight, gaussWeight)
 exportClasses(Les)
-exportMethods(plot, show, summary, cutoff, regions, ci)
+exportMethods(plot, show, summary, cutoff, regions, ci, exportLambda, estimate, optimalKernel)
 
