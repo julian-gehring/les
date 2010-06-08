@@ -66,7 +66,7 @@ estimate <- function(object, win, weighting=triangWeight,
 
     ## apply
     if(mcUse == TRUE)  {
-      cs <- multicore::mcsapply(indProbes, calcSingle, pos, pval,
+      cs <- mcsapply(indProbes, calcSingle, pos, pval,
                      win, weighting, grenander, se, nBoot=FALSE, mc.cores=nCores)
     }
     else  {
@@ -328,10 +328,10 @@ ci <- function(object, subset, nBoot=100, conf=0.95, nCores=FALSE)  {
     pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
     
     if(mcUse == TRUE)  {
-      bs <- multicore::mcsapply(indProbes, calcSingle,
-                                pos, pval, win, object@weighting,
-                                object@grenander, se=FALSE, nBoot, conf,
-                                mc.cores=nCores)
+      bs <- mcsapply(indProbes, calcSingle,
+                     pos, pval, win, object@weighting,
+                     object@grenander, se=FALSE, nBoot, conf,
+                     mc.cores=nCores)
     }
     else  {
       bs <- sapply(indProbes, calcSingle,
