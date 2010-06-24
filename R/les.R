@@ -384,10 +384,18 @@ regions <- function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)
     stop("Unequal numbers of region bounderies")
   if(verbose == TRUE)
     print(sprintf("%d %s%g", length(begin), "regions found with lambda>=", limit))
+
+  ri <- vector("numeric", length(begin))
+  for(i in 1:length(begin))  {
+    ri[i] <- gsri(object@pval[begin[i]:end[i]], se=FALSE)[1]
+  }
+  
   size <- as.integer(object@pos[end]-object@pos[begin]+1)
   regions <- data.frame(start=object@pos[begin], end=object@pos[end],
-                        size=size, nProbes=nProbes, chr=factor(object@chr[begin]))
-  
+                        size=size, nProbes=nProbes, ri=round(ri, 4),
+                        chr=factor(object@chr[begin]))
+  regions <- regions[order(ri, nProbes, size, decreasing=TRUE), ]
+
   object@regions <- regions
   object@limit <- limit
   object@minLength <- as.integer(minLength)
@@ -397,6 +405,22 @@ regions <- function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)
 }
 
 setGeneric("regions")
+
+
+##################################################
+## gsri
+##################################################
+
+gsri <- function(pval, grenander=FALSE, se=TRUE)  {
+
+  cweight <- rep(1, length(pval))
+  res <- fitGSRI(pval, NULL, cweight, length(pval), grenander, se)
+  res <- c(res, res[1]*res[3])
+  names(res) <- c("GSRI", "se", "n", "nReg")
+
+  return(res)
+}
+
 
 ##################################################
 ## cutoff

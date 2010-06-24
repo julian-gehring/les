@@ -17,6 +17,7 @@
 \usage{
   calcSingle(ind0, pos, pval, win, weighting, grenander, se, nBoot, conf)
   fitGSRI(pval, index, cweight, nValidProbes, grenander, se)
+  gsri(pval, grenander, se) 
   wcdf(pval, weight, grenander)
   mcsapply(X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE, mc.cores)
   seFast(x, y, b)
