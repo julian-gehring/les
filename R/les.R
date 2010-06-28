@@ -385,16 +385,18 @@ regions <- function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)
   if(verbose == TRUE)
     print(sprintf("%d %s%g", length(begin), "regions found with lambda>=", limit))
 
-  ri <- vector("numeric", length(begin))
+  ri <- matrix(NA, length(begin), 2)
   for(i in 1:length(begin))  {
-    ri[i] <- gsri(object@pval[begin[i]:end[i]], se=FALSE)[1]
+    ri[i, ] <- gsri(object@pval[begin[i]:end[i]], se=TRUE)[c(1,2)]
   }
+  rs <- ri[ ,1]/ri[ ,2]
   
   size <- as.integer(object@pos[end]-object@pos[begin]+1)
   regions <- data.frame(start=object@pos[begin], end=object@pos[end],
-                        size=size, nProbes=nProbes, ri=round(ri, 4),
+                        size=size, nProbes=nProbes, ri=round(ri[ ,1], 4),
+                        se=round(ri[ ,2], 4), rs=round(rs, 4), 
                         chr=factor(object@chr[begin]))
-  regions <- regions[order(ri, nProbes, size, decreasing=TRUE), ]
+  regions <- regions[order(rs, ri[ ,1], nProbes, size, decreasing=TRUE), ]
 
   object@regions <- regions
   object@limit <- limit
