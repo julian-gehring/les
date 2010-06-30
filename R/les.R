@@ -34,7 +34,7 @@ create <- function(pos, pval, chr)  {
     warning("'pos' contains duplicates on the same chr")
 
   object <- new(Class="Les",
-             pos=pos, pval=pval, chr=chr, nChr=nlevels(chr))
+                pos=pos, pval=pval, chr=chr, nChr=nlevels(chr))
   
   return(object)
 }
@@ -54,7 +54,7 @@ estimate <- function(object, win, weighting=triangWeight,
   chrLevel <- levels(object@chr)
 
   ## check for multicore
-  mcUse <- any(.packages() == "multicore") && nCores != FALSE
+  mcUse <- any(.packages(all.available=TRUE) == "multicore") && nCores != FALSE
 
   ## for each chr
   for(c in 1:object@nChr)  {
@@ -209,12 +209,14 @@ wcdf <- function(pval, weight, grenander)  {
 
   cdf <- cumsum(uniqueWeight)
   cdf <- cdf/cdf[nUnique]
-  
+    
   if(nProbes != nUnique)
     cdf <- rep.int(cdf, table(pvalSort))
   if(grenander == TRUE)  {
-    if(nProbes != nUnique)
-      stop("Grenander estimator does not allow duplicates in p-values.")
+    if(nProbes != nUnique)  {
+      j <- round(rnorm(nProbes-nUnqiue, 0, 1e-12), 12)
+      pvalSort[!indUnique] <- pvalSort[!indUinque] + j
+    }
     cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
   }
   cdf <- cdf - 0.5/nProbes  ## where to put this ??
@@ -424,6 +426,17 @@ gsri <- function(pval, grenander=FALSE, se=TRUE)  {
 }
 
 
+gsri <- function(pval, grenander=FALSE, se=TRUE)  {
+
+  cweight <- rep(1, length(pval))
+  res <- fitGSRI(pval, NULL, cweight, length(pval), grenander, se)
+  res <- c(res, res[1]*res[3])
+  names(res) <- c("GSRI", "se", "n", "nReg")
+
+  return(res)
+}
+
+
 ##################################################
 ## cutoff
 ##################################################
@@ -431,8 +444,7 @@ cutoff <- function(object, grenander=FALSE, verbose=FALSE)  {
 
   pval <- object@pval
   nProbes <- length(pval)
-  erg <- fitGSRI(pval, index=NULL, rep(1, nProbes),
-                 nProbes, grenander, se=FALSE)
+  erg <- gsri(pval, grenander, se=FALSE)
   nSigProbes <- erg[1]*nProbes
   nSigLower <- ceiling(nSigProbes)
   cutoff <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
@@ -765,6 +777,7 @@ scaling <- function(x)  {
 
   return(x)
 }
+## ok ##
 
 
 inVector <- function(pos, start, end)  {
@@ -777,6 +790,7 @@ inVector <- function(pos, start, end)  {
   }
   return(sig)
 }
+## ok ##
 
 
 exportLambda <-function(object, chr, file, range,

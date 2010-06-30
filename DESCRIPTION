@@ -1,8 +1,8 @@
 Package: les
 Type: Package
 Title: Finds loci of enhanced significance for differential expression in tiling array data
-Version: 0.7.0
-Date: 2010-05-12
+Version: 0.8.0
+Date: 2010-06-29
 Author: Julian Gehring
 Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
 Imports: boot, gplots, multicore, GSRI, RColorBrewer
