@@ -13,7 +13,7 @@
 
 \usage{
   estimate(object, win, weighting = triangWeight, grenander = FALSE, se
-  = TRUE, nCores = FALSE)
+  = TRUE, nCores=NULL)
 }
 
 \arguments{

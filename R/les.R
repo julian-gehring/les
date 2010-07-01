@@ -5,13 +5,13 @@ create <- function(pos, pval, chr)  {
 
   ## default values
   if(missing(chr))
-    chr <- rep(0, length(pos)) 
+    chr <- rep(0, length(pos))
 
   ## check inputs
   if(length(pos) != length(pval))
-    stop("'pos' and 'pval' must have same length.")
+    stop("'pos' and 'pval' must have the same length.")
   if(length(pos) != length(chr))
-    stop("'pos' and 'chr' must have same length.")
+    stop("'pos' and 'chr' must have the same length.")
   if(any(is.na(pos)))
     stop("'pos' must not contain NAs.")
   if(any(pos %% 1 != 0))
@@ -31,7 +31,7 @@ create <- function(pos, pval, chr)  {
 
   ## check for duplicated pos for each chr
   if(any(grepl("TRUE", rownames(table(duplicated(pos), chr)))))
-    warning("'pos' contains duplicates on the same chr")
+    warning("'pos' contains duplicates on the same chr.")
 
   object <- new(Class="Les",
                 pos=pos, pval=pval, chr=chr, nChr=nlevels(chr))
@@ -45,16 +45,13 @@ create <- function(pos, pval, chr)  {
 ## estimate
 ##################################################
 estimate <- function(object, win, weighting=triangWeight,
-                     grenander=FALSE, se=TRUE, nCores=FALSE)  {
+                     grenander=FALSE, se=TRUE, nCores=NULL)  {
   
   ## check input
   if(win %% 1 != 0)
-    warning("'win' should be an integer.")
+    warning("'win' was rounded to nearest integer.")
   win <- as.integer(win)
   chrLevel <- levels(object@chr)
-
-  ## check for multicore
-  mcUse <- any(.packages(all.available=TRUE) == "multicore") && nCores != FALSE
 
   ## for each chr
   for(c in 1:object@nChr)  {
@@ -64,15 +61,9 @@ estimate <- function(object, win, weighting=triangWeight,
     pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
 
     ## apply
-    if(mcUse == TRUE)  {
-      cs <- mcsapply(indProbes, calcSingle, pos, pval,
-                     win, weighting, grenander, se, nBoot=FALSE, mc.cores=nCores)
-    }
-    else  {
-      cs <- sapply(indProbes, calcSingle, pos, pval,
-                   win, weighting, grenander, se, nBoot=FALSE)
-    }
-
+    cs <- mcsapply(indProbes, calcSingle, pos, pval,
+                   win, weighting, grenander, se, nBoot=FALSE, mc.cores=nCores)
+    
     ## extract result
     object@lambda[indChr] <- cs[1, ]
     object@nProbes[indChr] <- as.integer(cs[3, ])
@@ -214,8 +205,8 @@ wcdf <- function(pval, weight, grenander)  {
     cdf <- rep.int(cdf, table(pvalSort))
   if(grenander == TRUE)  {
     if(nProbes != nUnique)  {
-      j <- round(rnorm(nProbes-nUnqiue, 0, 1e-12), 12)
-      pvalSort[!indUnique] <- pvalSort[!indUinque] + j
+      jit <- round(runif(nProbes-nUnique, 2e-12, 5e-12), 12)
+      pvalSort[!indUnique] <- pvalSort[!indUnique] + jit
     }
     cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
   }
@@ -280,25 +271,20 @@ rectangWeight <- function(distance, win)  {
 ##################################################
 ## mcapply
 ##################################################
-mcsapply <- function(X, FUN, ...,
-                     simplify=TRUE, USE.NAMES=TRUE, mc.cores)  {
+mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
+
+  mcLoaded <- any(.packages() %in% "multicore") &&
+  any("mclapply" %in% objects("package:multicore"))
   
-  FUN <- match.fun(FUN)
-  answer <- mclapply(X, FUN, ..., mc.cores=mc.cores)
-  if (USE.NAMES && is.character(X) && is.null(names(answer))) 
-    names(answer) <- X
-  if (simplify && length(answer) && length(common.len <- unique(unlist(lapply(answer, 
-    length)))) == 1L) {
-    if (common.len == 1L) 
-      unlist(answer, recursive = FALSE)
-    else if (common.len > 1L) 
-      array(unlist(answer, recursive = FALSE), dim = c(common.len, 
-        length(X)), dimnames = if (!(is.null(n1 <- names(answer[[1L]])) & 
-        is.null(n2 <- names(answer)))) 
-      list(n1, n2))
-    else answer
+  if(mcLoaded && !is.null(mc.cores))  {
+    res <- mclapply(X, FUN, ..., mc.cores=mc.cores)
+    res <- sapply(res, c)
   }
-  else answer
+  else  {
+    res <- sapply(X, FUN, ...)
+  }
+
+  return(res)
 }
 ## ok ##
 
@@ -306,7 +292,7 @@ mcsapply <- function(X, FUN, ...,
 ##################################################
 ## ci
 ##################################################
-ci <- function(object, subset, nBoot=100, conf=0.95, nCores=FALSE)  {
+ci <- function(object, subset, nBoot=100, conf=0.95, nCores=NULL)  {
 
   if(missing(subset))
     subset <- rep(TRUE, length(object@pos))
@@ -320,7 +306,6 @@ ci <- function(object, subset, nBoot=100, conf=0.95, nCores=FALSE)  {
   chrLevel <- levels(object@chr)
   nChr <- length(chrLevel)
 
-  mcUse <- any(.packages() == "multicore") && nCores != FALSE
   bc <- c()
   for(c in 1:nChr)  {
     indChr <- object@chr == chrLevel[c]
@@ -328,17 +313,9 @@ ci <- function(object, subset, nBoot=100, conf=0.95, nCores=FALSE)  {
     pos <- c(rep(-Inf, win), object@pos[indChr], rep(Inf, win))
     pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
     
-    if(mcUse == TRUE)  {
-      bs <- mcsapply(indProbes, calcSingle,
-                     pos, pval, win, object@weighting,
-                     object@grenander, se=FALSE, nBoot, conf,
-                     mc.cores=nCores)
-    }
-    else  {
-      bs <- sapply(indProbes, calcSingle,
-                   pos, pval, win, object@weighting,
-                   object@grenander, se=FALSE, nBoot, conf)
-    }
+    bs <- mcsapply(indProbes, calcSingle,pos, pval,
+                   win, object@weighting, object@grenander, se=FALSE, nBoot, conf,
+                   mc.cores=nCores)
     bc <- cbind(bc, bs)
   }
   
@@ -351,6 +328,7 @@ ci <- function(object, subset, nBoot=100, conf=0.95, nCores=FALSE)  {
 }
 
 setGeneric("ci")
+
 
 ##################################################
 ## regions
@@ -414,17 +392,6 @@ setGeneric("regions")
 ##################################################
 ## gsri
 ##################################################
-
-gsri <- function(pval, grenander=FALSE, se=TRUE)  {
-
-  cweight <- rep(1, length(pval))
-  res <- fitGSRI(pval, NULL, cweight, length(pval), grenander, se)
-  res <- c(res, res[1]*res[3])
-  names(res) <- c("GSRI", "se", "n", "nReg")
-
-  return(res)
-}
-
 
 gsri <- function(pval, grenander=FALSE, se=TRUE)  {
 

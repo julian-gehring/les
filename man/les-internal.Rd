@@ -17,9 +17,9 @@
 \usage{
   calcSingle(ind0, pos, pval, win, weighting, grenander, se, nBoot, conf)
   fitGSRI(pval, index, cweight, nValidProbes, grenander, se)
-  gsri(pval, grenander, se) 
+  gsri(pval, grenander, se)
   wcdf(pval, weight, grenander)
-  mcsapply(X, FUN, ..., simplify = TRUE, USE.NAMES = TRUE, mc.cores)
+  mcsapply(X, FUN, ..., mc.cores=NULL)
   seFast(x, y, b)
   xvalWeight(distance, win)
   log2ind(log)

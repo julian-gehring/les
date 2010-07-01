@@ -1,13 +1,14 @@
 Package: les
 Type: Package
 Title: Finds loci of enhanced significance for differential expression in tiling array data
-Version: 0.8.0
-Date: 2010-06-29
-Author: Julian Gehring
+Version: 0.8.2
+Date: 2010-07-01
+Author: Julian Gehring, Clemens Kreutz
 Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
-Imports: boot, gplots, multicore, GSRI, RColorBrewer
+Imports: boot, gplots, GSRI, RColorBrewer
 Depends: R (>= 2.11.0), methods, graphics, fdrtool
 Suggests: Biobase, limma
+Enhances: multicore
 Description: Finds loci of enhanced significance in tiling array data using the LES score estimating the amount of regulation.
 License: GPL-3
 LazyLoad: yes

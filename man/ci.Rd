@@ -9,7 +9,7 @@
 }
 
 \usage{
-  ci(object, subset, nBoot = 100, conf = 0.95, nCores = FALSE)
+  ci(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
 }
 
 \arguments{
