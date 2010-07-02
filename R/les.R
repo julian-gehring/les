@@ -48,6 +48,8 @@ estimate <- function(object, win, weighting=triangWeight,
                      grenander=FALSE, se=TRUE, nCores=NULL)  {
   
   ## check input
+  if(class(object) != "Les")
+    stop("'object' must be of class 'Les'")
   if(win %% 1 != 0)
     warning("'win' was rounded to nearest integer.")
   win <- as.integer(win)
@@ -294,6 +296,8 @@ mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
 ##################################################
 ci <- function(object, subset, nBoot=100, conf=0.95, nCores=NULL)  {
 
+  if(class(object) != "Les")
+    stop("'object' must be of class 'Les'")
   if(missing(subset))
     subset <- rep(TRUE, length(object@pos))
     #subset <- seq(along=object@pos)
@@ -306,7 +310,7 @@ ci <- function(object, subset, nBoot=100, conf=0.95, nCores=NULL)  {
   chrLevel <- levels(object@chr)
   nChr <- length(chrLevel)
 
-  bc <- c()
+  bc <- c()  ## make better
   for(c in 1:nChr)  {
     indChr <- object@chr == chrLevel[c]
     indProbes <- seq(win+1, win+length(object@pos[indChr]))[subset[indChr]]
@@ -335,6 +339,8 @@ setGeneric("ci")
 ##################################################
 regions <- function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)  {
 
+  if(class(object) != "Les")
+    stop("'object' must be of class 'Les'")
   if(is.null(limit))  {
     if(length(object@theta) == 0)
       stop("'limit' must be specified")
@@ -408,7 +414,10 @@ gsri <- function(pval, grenander=FALSE, se=TRUE)  {
 ## cutoff
 ##################################################
 cutoff <- function(object, grenander=FALSE, verbose=FALSE)  {
-
+  
+  if(class(object) != "Les")
+    stop("'object' must be of class 'Les'")
+  
   pval <- object@pval
   nProbes <- length(pval)
   erg <- gsri(pval, grenander, se=FALSE)
@@ -762,6 +771,9 @@ inVector <- function(pos, start, end)  {
 
 exportLambda <-function(object, chr, file, range,
                         description="Lambda", precision=4)  {
+
+  if(class(object) != "Les")
+    stop("'object' must be of class 'Les'")
             
   header <- c(sprintf("%s%s%s","track name=\"", description,
                       "\" type=wiggle_0 viewLimits=0:1 autoScale=off"),
