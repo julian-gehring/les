@@ -44,9 +44,10 @@ create <- function(pos, pval, chr)  {
 ##################################################
 ## estimate
 ##################################################
-estimate <- function(object, win, weighting=triangWeight,
-                     grenander=FALSE, se=TRUE, nCores=NULL)  {
-  
+setMethod("estimate", "Les",
+          function(object, win, weighting=triangWeight,
+                   grenander=FALSE, se=TRUE, nCores=NULL)  {
+            
   ## check input
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'")
@@ -79,8 +80,8 @@ estimate <- function(object, win, weighting=triangWeight,
   
   return(object)
 }
+)
 
-setGeneric("estimate")
 ## ok ##
 
 
@@ -278,8 +279,8 @@ mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
   mcLoaded <- any(.packages() %in% "multicore") &&
   any("mclapply" %in% objects("package:multicore"))
   
-  if(mcLoaded && !is.null(mc.cores))  {
-    res <- mclapply(X, FUN, ..., mc.cores=mc.cores)
+  if(mcLoaded == TRUE && !is.null(mc.cores))  {
+    res <- multicore::mclapply(X, FUN, ..., mc.cores=mc.cores)
     res <- sapply(res, c)
   }
   else  {
@@ -294,7 +295,8 @@ mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
 ##################################################
 ## ci
 ##################################################
-ci <- function(object, subset, nBoot=100, conf=0.95, nCores=NULL)  {
+setMethod("ci", "Les",
+          function(object, subset, nBoot=100, conf=0.95, nCores=NULL)  {
 
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'")
@@ -330,14 +332,14 @@ ci <- function(object, subset, nBoot=100, conf=0.95, nCores=NULL)  {
   
   return(object)
 }
-
-setGeneric("ci")
+)
 
 
 ##################################################
 ## regions
 ##################################################
-regions <- function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)  {
+setMethod("regions", "Les",
+          function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)  {
 
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'")
@@ -378,10 +380,10 @@ regions <- function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)
   rs <- ri[ ,1]/ri[ ,2]
   
   size <- as.integer(object@pos[end]-object@pos[begin]+1)
-  regions <- data.frame(start=object@pos[begin], end=object@pos[end],
+  regions <- data.frame(chr=factor(object@chr[begin]),
+                        start=object@pos[begin], end=object@pos[end],
                         size=size, nProbes=nProbes, ri=round(ri[ ,1], 4),
-                        se=round(ri[ ,2], 4), rs=round(rs, 4), 
-                        chr=factor(object@chr[begin]))
+                        se=round(ri[ ,2], 4), rs=round(rs, 4))
   regions <- regions[order(rs, ri[ ,1], nProbes, size, decreasing=TRUE), ]
 
   object@regions <- regions
@@ -391,14 +393,12 @@ regions <- function(object, limit=NULL, minLength=10, maxGap=100, verbose=FALSE)
   
   return(object)
 }
-
-setGeneric("regions")
+)
 
 
 ##################################################
 ## gsri
 ##################################################
-
 gsri <- function(pval, grenander=FALSE, se=TRUE)  {
 
   cweight <- rep(1, length(pval))
@@ -413,7 +413,8 @@ gsri <- function(pval, grenander=FALSE, se=TRUE)  {
 ##################################################
 ## cutoff
 ##################################################
-cutoff <- function(object, grenander=FALSE, verbose=FALSE)  {
+setMethod("cutoff", "Les",
+          function(object, grenander=FALSE, verbose=FALSE)  {
   
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'")
@@ -435,8 +436,8 @@ cutoff <- function(object, grenander=FALSE, verbose=FALSE)  {
   
   return(object)
 }
+)
 
-setGeneric("cutoff")
 
 ##################################################
 ## plot
@@ -445,7 +446,7 @@ setMethod("plot", "Les",
           function(x, y, chr, region=FALSE, limit=TRUE,
                    xlim, ylim=c(0,1),
                    error="none", semSpread=1.96,
-                   patchCol="gray", borderCol="black",
+                   patchCol="lightgray", borderCol="black",
                    markerCol="red", regionCol,
                    regionLty=2, regionLw=3, regionCex=NULL,
                    probeCol="black", probeCex=0.5, probePch=20)  {
@@ -465,7 +466,7 @@ setMethod("plot", "Les",
       indChr <- rep(TRUE, length(x@pos))
   }
   else  {
-    indChr <- x@chr == chr
+    indChr <- x@chr %in% chr
   }
   
   if(!missing(y))  {
@@ -622,7 +623,8 @@ setMethod("summary", "Les",
 ##################################################
 ## optimalKernel
 ##################################################
-optimalKernel <- function(object, winSize, regions, verbose=FALSE)  {
+setMethod("optimalKernel", "Les",
+          function(object, winSize, regions, verbose=FALSE)  {
   
   if(missing(regions))
     regions <- rep(TRUE, length(object@pval))
@@ -657,9 +659,8 @@ optimalKernel <- function(object, winSize, regions, verbose=FALSE)  {
   colnames(chi2) <- winSize
   
   return(chi2)
-}       
-
-setGeneric("optimalKernel")
+}
+)
 
 
 ##################################################
@@ -768,9 +769,9 @@ inVector <- function(pos, start, end)  {
 }
 ## ok ##
 
-
-exportLambda <-function(object, chr, file, range,
-                        description="Lambda", precision=4)  {
+setMethod("exportLambda", "Les",
+          function(object, chr, file, range,
+                   description="Lambda", precision=4)  {
 
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'")
@@ -800,5 +801,4 @@ exportLambda <-function(object, chr, file, range,
               row.names=FALSE, col.names=FALSE)
 
 }
-
-setGeneric("exportLambda")
+)

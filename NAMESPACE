@@ -2,7 +2,7 @@ importFrom(graphics, plot)
 importFrom(methods, show)
 importFrom(boot, boot, boot.ci)
 importFrom(gplots, plotCI)
-importFrom(multicore, mclapply)
+#importFrom(multicore, mclapply)
 importFrom(RColorBrewer, brewer.pal)
 
 export(create, triangWeight, rectangWeight, gaussWeight)
