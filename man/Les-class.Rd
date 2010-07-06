@@ -7,7 +7,7 @@
 \alias{[<-,Les-method}
 \alias{[,Les-method}
 \alias{ci,Les-method}
-\alias{cutoff,Les-method}
+\alias{threshold,Les-method}
 \alias{estimate,Les-method}
 \alias{plot,Les-method}
 \alias{regions,Les-method}
@@ -23,7 +23,7 @@
 }
 
 \section{Objects from the Class}{
-  Objects of class 'Les' are created by calling the function 'estimate'.
+  Objects of class 'Les' are created by calling the function 'create'.
 }
        
 \section{Slots}{
@@ -85,8 +85,6 @@
     \item{exportLambda}{\code{signature(object = "Les")}: ...}
   }
 }
-       
-\references{ ... to be added ... }
 
 \author{
   Julian Gehring, Clemens Kreutz
@@ -97,13 +95,17 @@
 \seealso{
   Package:
   \code{\link{les-package}}
+
+  Class:
+  \code{\linkS4class{Les}}
   
   Methods and functions:
   \code{\link{create}}
-  \code{\link{cutoff}}
   \code{\link{estimate}}
+  \code{\link{threshold}}
   \code{\link{regions}}
   \code{\link{ci}}
+  \code{\link{exportLambda}}
 }
 
 \examples{

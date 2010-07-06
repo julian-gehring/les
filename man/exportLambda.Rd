@@ -7,22 +7,24 @@
 }
 
 \description{
-  Exports the estimates \eqn{\Lambda_i}{Lambda} of one chromosome in a
-  '.wig' file.
+  Exports the estimates \eqn{\Lambda_i}{Lambda} of a region of interest
+  in a '.wig' file. The exported file can be read by others software or
+  loaded into various genome browsers.
 }
 
 \usage{
-  exportLambda(object, chr, file, range, description = "Lambda",
-  precision = 4)
+exportLambda(object, file, chr, range, description = "Lambda", precision
+= 4)
 }
 
 \arguments{
   \item{object}{Object of class 'Les' containing experimental data, as
-    returned by 'create'.}
+    returned by 'estimate'.}
+  \item{file}{Character string specifing the file path and name for
+    export.}
   \item{chr}{Character string specifing results from which chromosome
-    should be exported. 'chr' should have a match in 'chr' argument
+    should be exported. 'chr' must have a match in the 'chr' argument
     specified in 'create'.}
-  \item{file}{Character string specifing the file name for export.}
   \item{range}{Numeric vector specifing the probe range in position
     which should be exported. If missing all probes of the chromsome
     will be exported.}
@@ -54,15 +56,24 @@
   
   Methods and functions:
   \code{\link{create}}
-  \code{\link{cutoff}}
+  \code{\link{estimate}}
+  \code{\link{threshold}}
   \code{\link{regions}}
   \code{\link{ci}}
+  \code{\link{exportLambda}}
 }
 
 \examples{
-  \dontrun{
-    exportLambda(res, "chr1", "out.wig")
-  }
+\dontrun{
+data(resTile)
+
+x <- create(pos, pval, chr)
+x <- estimate(x, win=25)
+x <- threshold(x)
+x <- regions(x)
+
+exportLambda(x, "chr1", "out.wig")
+}
 }
 
 \keyword{htest}

@@ -6,10 +6,9 @@
 \alias{wcdf}
 \alias{mcsapply}
 \alias{seFast}
-\alias{xvalWeight}
 
 \title{
-  Internal les functions
+  Internal functions of the 'les' package.
 }
 
 \description{Internal les functions}
@@ -21,7 +20,6 @@
   wcdf(pval, weight, grenander)
   mcsapply(X, FUN, ..., mc.cores=NULL)
   seFast(x, y, b)
-  xvalWeight(distance, win)
   log2ind(log)
   ind2log(ind, n)
   reg2log(reg, x)
@@ -34,11 +32,6 @@
 \details{
   Internal functions of the 'les' package.
   These are not to be called by the user.
-}
-
-\references{
-  Modified code from the following packages is used:
-  ...
 }
 
 \author{

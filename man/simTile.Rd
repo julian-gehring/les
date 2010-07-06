@@ -4,8 +4,7 @@
 
 \alias{simTile}
 
-\title{
-  Simulated tiling array data set containing Loci of Enhanced
+\title{Simulated tiling array data set containing Loci of Enhanced
   Significance
 }
 

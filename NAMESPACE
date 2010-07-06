@@ -7,5 +7,5 @@ importFrom(RColorBrewer, brewer.pal)
 
 export(create, triangWeight, rectangWeight, gaussWeight)
 exportClasses(Les)
-exportMethods(plot, show, summary, cutoff, regions, ci, exportLambda, estimate, optimalKernel)
+exportMethods(plot, show, summary, threshold, regions, ci, exportLambda, estimate)
 

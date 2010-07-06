@@ -2,42 +2,69 @@
 
 \alias{regions}
 
-\title{
-  regions
-}
+\title{regions}
 
 \description{
-  Estimates regions of continously elevated \eqn{\Lambda_i}{Lambda}.
+  Estimates regions of continously elevated
+  \eqn{\Lambda_i}{Lambda}. These are distinct regions of regulation.
 }
       
 \usage{
-  regions(object, limit, minLength = 10, maxGap = 100, verbose = FALSE)
+regions(object, limit, minLength, maxGap, verbose = FALSE)
 }
 
 \arguments{
-  \item{object}{Object of class 'Les' as returned by 'cutoff'}
-  \item{limit}{Numeric specifing the threshold \eqn{\Theta}{Theta} for
+  \item{object}{Object of class 'Les' as returned by 'threshold'.}
+  \item{limit}{Numeric specifying the threshold \eqn{\Theta}{Theta} for
     \eqn{\Lambda}{Lambda} with regions are defined as
     \eqn{\Lambda_i\geq\Theta}{Lambda>=Theta}. If missing
     \eqn{\Theta}{Theta} will be derived from the estimated number of
-    regulated probes as computed by 'cutoff'.}
-  \item{minLength}{Integer specifing the minimum number of probes in a
-    region to be reported as such.}
-  \item{maxGap}{Integer specifing maximum gap in base pairs between two
+    regulated probes as computed by 'threshold'.}
+  \item{minLength}{Integer specifying the minimum number of probes in a
+    region. If not specified regions can have arbitrary small size.}
+  \item{maxGap}{Integer specifying maximum gap in base pairs between two
     neighboring probes in a region. If this value is exceeded the region
     will be split into smaller ones such that maxGap is not exceed by
-    any probe pair.}
+    any pair of neighboring probes. If not specified arbitrary large gap
+    sizes are allowed.}
   \item{verbose}{Logical indicating whether a summary of the estimated
     regions should be printed on screen (default: FALSE).}
 }
 
 \details{
-  Finds regions above threshold
-}
+  This method finds distint regions in \eqn{\Lambda}{Lambda} by
+  thresholding with \eqn{\Theta}{Theta}. The regions have to fulfill the
+  following criteria:
+
+  (1) For all probes in the region
+  \eqn{\Lambda_i\geq\Theta}{Lambda>=Theta} has to hold.
+  (2) Each region has to contain at least as many probes as specified in
+  'minLength'.
+  (3) The gap between to neighboring probes has to be smaller or equal
+  to 'maxGap'.
+
+  Along with the bounderies of the regions the number of regulated
+  probes within each region is estimated. This is used to sort the
+  regions in order to get a list of top regions. The resulting data
+  frame containing the regions can be accessed with the '[' method.
+ }
 
 \value{
   Object of class 'Les' with additionally filled slots:
   regions, limit
+
+  'regions' is a data frame with variables:
+  \item{chr}{Chromosome the regions is located on.}
+  \item{start}{Position of the beginning of the region.}
+  \item{end}{Position of the end of the region.}
+  \item{size}{Extend of the region in base pairs (measured in the same
+    units as input 'pos').}
+  \item{nProbes}{Number of probes in the region.}
+  \item{ri}{Regulation Index of the region indicating the fraction of
+    regulated probes in the region.}
+  \item{se}{Standard error of the estimation of 'ri'.}
+  \item{rs}{Regulation score defined as 'ri'/'se'. The data frame is
+    sorted by this variable.}
 }
 
 \author{
@@ -50,16 +77,26 @@
   Class:
   \code{\linkS4class{Les}}
   
-  Functions:
+  Methods and functions:
+  \code{\link{create}}
   \code{\link{estimate}}
-  \code{\link{cutoff}}
+  \code{\link{threshold}}
+  \code{\link{regions}}
   \code{\link{ci}}
+  \code{\link{exportLambda}}
 }
 
 \examples{
-  \dontrun{
-    res <- regions(res, verbose=TRUE)
-  }
+\dontrun{
+data(resTile)
+
+x <- create(pos, pval, chr)
+x <- estimate(x, win=50)
+x <- threshold(x, grenander=TRUE, verbose=TRUE)
+x <- regions(x, verbose=TRUE)
+
+print(x["regions"])
+}
 }
 
 \keyword{htest}

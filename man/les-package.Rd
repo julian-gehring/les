@@ -5,13 +5,10 @@
 
 \docType{package}
 
-\title{
-  Finds loci of enhanced significance for differential expression in
-  tiling array data
-}
+\title{Loci of Enhanced Significance for Tiling Microarray Data}
 
 \description{
-  Finds loci of enhanced significance in tiling array data using the LES score estimating the amount of regulation.
+  The 'les' package estimates the Loci of Enhanced Significance (LES) in tiling microarray data. These are regions of regulation such as found in differential transcription, chip-CHIP or methylation experiments. The package provides a universal framework suitable of identifing regulatory effects in various data sets.
 }
 
 \details{
@@ -23,8 +20,22 @@
     License: \tab GPL-3\cr
     Depends: \tab methods\cr
   }
-~~ An overview of how to use the package, including the most important ~~
-~~ functions ~~
+
+  The 'les' package provides a universal framwork to detect regions of
+  regulation in tiling microarray experiments.
+
+  It is universal in the sense that the user is free to choose any
+  statistical test to estimate the effect of differential regulation for
+  each probe. Given the p-values for each probe and the corresponding
+  positions of the probes 'les' uses a sliding window approach to
+  estimate the fraction of regulated probes in the local surrouding of
+  each probe. The approach is related to computing a locally weighted
+  false discovery rate and yields a interpretable statistical feature
+  \eqn{\Lambda}{Lambda}.
+
+  Resulting regions can be scored according to their overall
+  effect. Methods for high-level plotting and export of the results to
+  other software and genome browsers are provided.
 }
 
 \author{
@@ -43,23 +54,26 @@
   Class:
   \code{\linkS4class{Les}}
   
-  Functions:
+  Methods and functions:
+  \code{\link{create}}
   \code{\link{estimate}}
-  \code{\link{cutoff}}
+  \code{\link{threshold}}
   \code{\link{regions}}
   \code{\link{ci}}
+  \code{\link{exportLambda}}
 }
 
 \examples{
-  pos <- 1:300
-  pval <- runif(300)
-  pval[101:150] <- runif(50, 0, 0.05)
-  pval[201:250] <- runif(50, 0, 0.05)
-  win <- 50
+\dontrun{
+data(statTile)
 
-  anno <- list(pos=matrix(c(101,150, 201,250), nrow=2),
-             strand=c(1, 1),
-             name=c("gene1", "RNA5"),
-             col=c("lightblue", "lightgreen")
-             )
+x <- create(pos, pval, chr)
+x <- estimate(x, win=25)
+x <- threshold(x)
+x <- regions(x)g
+x <- ci(x)
+
+plot(x)
+exportLambda(x)
+}
 }

@@ -25,10 +25,10 @@
 }
 
 \details{
-  The two functions 'triangWeight' and 'rectangWeight' provide a
-  triangular and rectangular weighting window respectively. The
-  weighting function can be specified by the 'weightingFunction'
-  argument in the 'estimate' method.
+  The functions 'triangWeight', 'rectangWeight' and 'gaussWeight'
+  provide a triangular and rectangular weighting window
+  respectively. The weighting function can be specified by the
+  'weightingFunction' argument in the 'estimate' method.
 
   This way it is also possible to use custom weighting functions. In
   general they have to be called the same way as the functions mentioned
@@ -54,18 +54,24 @@
   Class:
   \code{\linkS4class{Les}}
   
-  Functions:
+  Methods and functions:
+  \code{\link{create}}
   \code{\link{estimate}}
-  \code{\link{cutoff}}
+  \code{\link{threshold}}
   \code{\link{regions}}
   \code{\link{ci}}
+  \code{\link{exportLambda}}
+  \code{\link{weighting}}
 }
 
 \examples{
-  \dontrun{
-    weight <- triangWeight(dist, win)
-    weight <- rectangWeight(dist, win)
-  }
+\dontrun{
+weight <- triangWeight(dist, win)
+weight <- rectangWeight(dist, win)
+weight <- gaussWeight(dist, win)
+
+res <- estimate(res, win=20, weighting=rectangWeight)
+}
 }
 
 \keyword{htest}
