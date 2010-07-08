@@ -339,7 +339,7 @@ setMethod("ci", "Les",
 ## regions
 ##################################################
 setMethod("regions", "Les",
-          function(object, limit=NULL, minLength, maxGap, verbose=FALSE)  {
+          function(object, limit=NULL, minLength=2, maxGap=Inf, verbose=FALSE)  {
 
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'.")
@@ -351,10 +351,6 @@ setMethod("regions", "Les",
   }
   if(is.na(limit) || limit <= 0 || limit >= 1)
     stop("'limit' must be in the range [0,1].")
-  if(missing(minLength))
-    minLength <- 0
-  if(missing(maxGap))
-    maxGap <- Inf
   lambda <- object@lambda
   indNa <- is.na(lambda)
   lambda[indNa] <- 0
@@ -606,10 +602,10 @@ setMethod("plot", "Les",
     suppressWarnings({
       ss <- ind2log(x@subset, length(x@pos))
       ci <- x@ci[indChr, ]
-      plotCI(pos[ss[indChr]], lambda[ss[indChr]],
-             ui=ci$upper, li=ci$lower,
-             gap=0, pch=".", col="azure4", add=TRUE,
-             sfrac=sfrac)
+      gplots::plotCI(pos[ss[indChr]], lambda[ss[indChr]],
+                     ui=ci$upper, li=ci$lower,
+                     gap=0, pch=".", col="azure4", add=TRUE,
+                     sfrac=sfrac)
     })
   }
   
@@ -826,8 +822,70 @@ setMethod("exportLambda", "Les",
   df <- df[indValid, ]
 
   write(header, file)
-  write.table(df, file, append=TRUE, quote=FALSE, sep="\t",
+  utils::write.table(df, file, append=TRUE, quote=FALSE, sep="\t",
               row.names=FALSE, col.names=FALSE)
 
+}
+)
+
+
+setMethod("export", "Les",
+          function(object, file, format="bed", chr, range,
+                   description="Lambda", strand=".", group="les",
+                   precision=4)  {
+
+  choice <- pmatch(format, c("gff", "bed", "wig"))          
+  if(class(object) != "Les")
+    stop("'object' must be of class 'Les'")
+  if(is.na(choice))
+    stop("'format' must be 'gff', 'bed' or 'wig'")
+
+  if(choice %in% 1:2)  {
+    if(length(object@regions) == 0)
+      stop("'regions()' must be run first.")
+    regions <- object@regions
+    if(missing(chr))
+      ind <- rep(TRUE, nrow(regions))
+    else
+      ind <- regions$chr %in% chr
+    chrom <- paste("chr", regions$chr[ind], sep="")
+    header <- sprintf("%s%s%s", "track name=LES description=\"",
+                      description, "\" useScore=1")
+    score <- round(regions$ri[ind]*1e3)
+  
+    if(choice == 1)  ## gff
+      df <- data.frame(chrom=chrom, source="les", feature="region",
+                       start=regions$start[ind], end=regions$end[ind],
+                       score=score, strand=strand, frame=".", group=group)
+    if(choice == 2)  ## bed
+      df <- data.frame(chrom=chrom, chromStart=regions$start[ind],
+                       chromEnd=regions$end[ind], name=which(ind),
+                       score=score)
+  }
+  if(choice == 3)  {
+    if(missing(chr) || length(chr) > 1)
+      stop("'chr' must have one value for 'wig' export")
+    header <- c(sprintf("%s%s%s","track name=\"", description,
+                        "\" type=wiggle_0 viewLimits=0:1 autoScale=off"),
+                sprintf("%s%s %s", "variableStep chrom=", chr,  "span=1"))
+
+    if(missing(range))
+      ind <- object@chr %in% chr & !is.na(object@lambda)
+    else  {
+      ind <- object@chr %in% chr & object@pos <= min(range) &
+      object@pos >= max(range) & !is.na(object@lambda)
+    }
+    
+    values <- format(round(object@lambda[ind], precision), scientific=16)
+    df <- data.frame(pos=object@pos[ind], value=values)
+    indDup <- duplicated(df$pos)
+    df <- df[!indDup, ]
+    indValid <- !is.na(df$value)
+    df <- df[indValid, ]
+  }
+
+  write(header, file)
+  utils::write.table(df, file, append=TRUE, quote=FALSE, sep="\t",
+              row.names=FALSE, col.names=FALSE)
 }
 )

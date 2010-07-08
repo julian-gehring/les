@@ -14,7 +14,7 @@
 \alias{show,Les-method}
 \alias{summary,Les-method}
 \alias{exportLambda,Les-method}
-\alias{optimalKernel,Les-method}
+\alias{export,Les-method}
 
 \title{Class 'Les'}
 

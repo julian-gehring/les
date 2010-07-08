@@ -15,7 +15,7 @@ setGeneric("estimate",
            )
 
 setGeneric("regions",
-           function(object, limit=NULL, minLength, maxGap,
+           function(object, limit=NULL, minLength=2, maxGap=Inf,
                     verbose=FALSE)
            {standardGeneric("regions")}
            )
@@ -29,4 +29,11 @@ setGeneric("exportLambda",
            function(object, file, chr, range,
                     description="Lambda", precision=4)
            {standardGeneric("exportLambda")}
+           )
+
+setGeneric("export",
+           function(object, file, format="bed", chr, range,
+                    description="Lambda", strand=".", group="les",
+                    precision=4)
+           {standardGeneric("export")}
            )

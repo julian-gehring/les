@@ -10,7 +10,7 @@
 }
       
 \usage{
-regions(object, limit, minLength, maxGap, verbose = FALSE)
+regions(object, limit=NULL, minLength=2, maxGap=Inf, verbose = FALSE)
 }
 
 \arguments{

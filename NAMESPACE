@@ -1,11 +1,16 @@
-importFrom(graphics, plot)
-importFrom(methods, show)
 importFrom(boot, boot, boot.ci)
 importFrom(gplots, plotCI)
-#importFrom(multicore, mclapply)
+importFrom(graphics, abline, plot, points, rect)
+importFrom(grDevices, gray)
+importFrom(methods, "@<-", new, slot, "slot<-", slotNames, validObject)
 importFrom(RColorBrewer, brewer.pal)
+importFrom(stats, dnorm, runif)
+importFrom(utils, write.table)
+importMethodsFrom(methods, show)
+importClassesFrom(methods, data.frame, factor, "function", integer,
+                  logical, numeric)
 
 export(create, triangWeight, rectangWeight, gaussWeight)
 exportClasses(Les)
-exportMethods(plot, show, summary, threshold, regions, ci, exportLambda, estimate)
+exportMethods(plot, show, summary, threshold, regions, ci, exportLambda, export, estimate)
 
