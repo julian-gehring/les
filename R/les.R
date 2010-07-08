@@ -209,7 +209,7 @@ wcdf <- function(pval, weight, grenander)  {
     cdf <- rep.int(cdf, table(pvalSort))
   if(grenander == TRUE)  {
     if(nProbes != nUnique)  {
-      jit <- round(runif(nProbes-nUnique, 2e-12, 5e-12), 12)
+      jit <- seq(1e-15, by=1e-15, len=nProbes-nUnique)
       pvalSort[!indUnique] <- pvalSort[!indUnique] + jit
     }
     cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
@@ -251,7 +251,7 @@ triangWeight <- function(distance, win)  {
 ##################################################
 gaussWeight <- function(distance, win)  {
 
-  weight <- dnorm(distance, sd=win/2)
+  weight <- stats::dnorm(distance, sd=win/2)
 
   return(weight)
 }
@@ -621,7 +621,8 @@ setMethod("plot", "Les",
   if(region == TRUE)  {
     regions <- x@regions
     regions <- regions[regions$chr %in% chr, ]
-    indRegion <- (regions$start >= xlim[1] & regions$start <= xlim[2]) | (regions$end >= xlim[1] & regions$end <= xlim[2])
+    indRegion <- (regions$start >= xlim[1] & regions$start <= xlim[2])
+    | (regions$end >= xlim[1] & regions$end <= xlim[2])
     regions <- regions[indRegion, ]
     for(i in 1:nrow(regions))  {
       rect(regions$start[i], -0.03, regions$end[i], -0.005,
