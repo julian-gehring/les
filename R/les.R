@@ -420,15 +420,15 @@ setMethod("threshold", "Les",
   
   pval <- object@pval
   nProbes <- length(pval)
-  erg <- gsri(pval, grenander, se=FALSE)
+  erg <- les:::gsri(pval, grenander, se=FALSE)
   nSigProbes <- erg[1]*nProbes
-  nSigLower <- ceiling(nSigProbes)
+  nSigLower <- floor(nSigProbes)
   cutoff <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
-  ## +1: access right probe due to ceiling !
+  ## +1: access right probe due to floor !
   
   if(verbose == TRUE)
     print(sprintf("%g %s%g", nSigLower,
-                  "significant probes estimated with limit lambda>=", cutoff))
+                  "significant probes estimated with limit Lambda>=", cutoff))
   
   object@nSigProbes <- nSigProbes
   object@theta <- cutoff
@@ -621,8 +621,7 @@ setMethod("plot", "Les",
   if(region == TRUE)  {
     regions <- x@regions
     regions <- regions[regions$chr %in% chr, ]
-    indRegion <- (regions$start >= xlim[1] & regions$start <= xlim[2])
-    | (regions$end >= xlim[1] & regions$end <= xlim[2])
+    indRegion <- (regions$start >= xlim[1] & regions$start <= xlim[2]) | (regions$end >= xlim[1] & regions$end <= xlim[2])
     regions <- regions[indRegion, ]
     for(i in 1:nrow(regions))  {
       rect(regions$start[i], -0.03, regions$end[i], -0.005,

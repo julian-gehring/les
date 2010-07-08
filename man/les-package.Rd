@@ -70,7 +70,7 @@ data(statTile)
 x <- create(pos, pval, chr)
 x <- estimate(x, win=25)
 x <- threshold(x)
-x <- regions(x)g
+x <- regions(x)
 x <- ci(x)
 
 plot(x)
