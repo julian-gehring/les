@@ -27,10 +27,6 @@ create <- function(pos, pval, chr)  {
   pval <- pval[ord]
   chr <- chr[ord]
 
-  ## check for duplicated pos for each chr
-  if(any(grepl("TRUE", rownames(table(duplicated(pos), chr)))))
-    warning("'pos' contains duplicates on the same chr.")
-
   object <- new(Class="Les",
                 pos=pos, pval=pval, chr=chr, nChr=nlevels(chr))
   

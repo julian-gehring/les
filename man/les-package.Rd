@@ -15,8 +15,8 @@
   \tabular{ll}{
     Package: \tab les\cr
     Type: \tab Package\cr
-    Version: \tab 0.5.0\cr
-    Date: \tab 2010-04-15\cr
+    Version: \tab 0.9.0\cr
+    Date: \tab 2010-07-08\cr
     License: \tab GPL-3\cr
     Depends: \tab methods\cr
   }
@@ -60,7 +60,7 @@
   \code{\link{threshold}}
   \code{\link{regions}}
   \code{\link{ci}}
-  \code{\link{exportLambda}}
+  \code{\link{export}}
 }
 
 \examples{
@@ -74,6 +74,6 @@ x <- regions(x)
 x <- ci(x)
 
 plot(x)
-exportLambda(x)
+export(x)
 }
 }
