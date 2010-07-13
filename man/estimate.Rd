@@ -11,7 +11,7 @@
 
 \usage{
 estimate(object, win, weighting = triangWeight, grenander = FALSE, se =
-TRUE, nCores=NULL)
+FALSE, nCores=NULL)
 
 }
 
@@ -30,7 +30,7 @@ TRUE, nCores=NULL)
     for the cumulative density should be used (default: FALSE). For
     details see below and at the 'GSRI' package.}
   \item{se}{Logical indicating whether the standard error from the final
-    linear model should be computed and stored (default: TRUE). The
+    linear model should be computed and stored (default: FALSE). The
     standard error displays the goodness of fit for every probe, but is
     not needed for further computation. If computation time is a
     critical factor computation of the SE can be omitted to save some

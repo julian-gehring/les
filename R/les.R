@@ -40,7 +40,7 @@ create <- function(pos, pval, chr)  {
 ##################################################
 setMethod("estimate", "Les",
           function(object, win, weighting=triangWeight,
-                   grenander=FALSE, se=TRUE, nCores=NULL)  {
+                   grenander=FALSE, se=FALSE, nCores=NULL)  {
             
   ## check input
   if(class(object) != "Les")
@@ -167,7 +167,7 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
 
   ## return values
   if(noBoot == TRUE)  {
-    if(se == TRUE)
+    if(se == TRUE && length(x) > 1)
       se <- seFast(x, y, q)
     else
       se <- NA
@@ -192,24 +192,27 @@ wcdf <- function(pval, weight, grenander)  {
   weightSort <- weight[ord]
 
   indUnique <- !duplicated(pvalSort)
-  uniquePval <- pvalSort[indUnique]
-  uniqueWeight <- weightSort[indUnique]
-
-  nUnique <- length(uniquePval)
+  pvalUnique <- pvalSort[indUnique]
+#  weightUnique <- weightSort[indUnique] 
+  nUnique <- length(pvalUnique)
   nProbes <- length(pvalSort)
-
-  cdf <- cumsum(uniqueWeight)
+  cdf <- cumsum(weightSort[indUnique])
   cdf <- cdf/cdf[nUnique]
-    
+
+  if(grenander == TRUE)
+    cdf <- GSRI:::grenanderInterp(pvalUnique, cdf)
   if(nProbes != nUnique)
-    cdf <- rep.int(cdf, table(pvalSort))
-  if(grenander == TRUE)  {
-    if(nProbes != nUnique)  {
-      jit <- seq(1e-15, by=1e-15, len=nProbes-nUnique)
-      pvalSort[!indUnique] <- pvalSort[!indUnique] + jit
-    }
-    cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
-  }
+      cdf <- rep.int(cdf, table(pvalSort))
+    
+#  if(nProbes != nUnique)
+#    cdf <- rep.int(cdf, table(pvalSort))
+#  if(grenander == TRUE)  {
+#    if(nProbes != nUnique)  {
+#      jit <- seq(1e-15, by=1e-15, len=nProbes-nUnique)
+#      pvalSort[!indUnique] <- pvalSort[!indUnique] + jit
+#    }
+#    cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
+#  }
   cdf <- cdf - 0.5/nProbes  ## where to put this ??
   res <- list(pval=pvalSort, cdf=cdf)
 
