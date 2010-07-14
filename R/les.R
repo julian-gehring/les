@@ -94,8 +94,8 @@ calcSingle <- function(ind0, pos, pval, win,
   posCut <- pos[indCut]
   pvalCut <- pval[indCut]
   
-  distance <- abs(posCut - pos0)
-  indValid <- distance <= win
+  distance <- posCut - pos0
+  indValid <- abs(distance) <= win
   nValidProbes <- length(unique(pvalCut[indValid]))
 
   if(nValidProbes>1)  {
@@ -238,7 +238,7 @@ seFast <- function(x, y, b) {
 ##################################################
 triangWeight <- function(distance, win)  {
   
-  weight <- 1 - distance/win  ## normed in cdf
+  weight <- 1 - abs(distance)/win
     
   return(weight)
 }
@@ -246,7 +246,7 @@ triangWeight <- function(distance, win)  {
 
 
 ##################################################
-## rectangWeight
+## gaussWeight
 ##################################################
 gaussWeight <- function(distance, win)  {
 
@@ -258,7 +258,7 @@ gaussWeight <- function(distance, win)  {
 
 
 ##################################################
-## gaussWeight
+## rectangWeight
 ##################################################
 rectangWeight <- function(distance, win)  {
 
