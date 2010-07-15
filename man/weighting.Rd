@@ -20,10 +20,10 @@
 }
 
 \arguments{
-  \item{distance}{Numeric vector specifing the distance of probes from
+  \item{distance}{Numeric vector specifying the distance of probes from
     central probe. Negative values refer to probes upstream, positive
     values to probes downstream.}
-  \item{win}{Integer specifing maximum size of window.}
+  \item{win}{Integer specifying maximum size of window.}
 }
 
 \details{

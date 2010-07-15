@@ -8,7 +8,7 @@
 \title{Loci of Enhanced Significance for Tiling Microarray Data}
 
 \description{
-  The 'les' package estimates the Loci of Enhanced Significance (LES) in tiling microarray data. These are regions of regulation such as found in differential transcription, chip-CHIP or methylation experiments. The package provides a universal framework suitable of identifing regulatory effects in various data sets.
+  The 'les' package estimates the Loci of Enhanced Significance (LES) in tiling microarray data. These are regions of regulation such as found in differential transcription, chip-CHIP or methylation experiments. The package provides a universal framework suitable of identifying regulatory effects in various data sets.
 }
 
 \details{
@@ -21,14 +21,14 @@
     Depends: \tab methods\cr
   }
 
-  The 'les' package provides a universal framwork to detect regions of
+  The 'les' package provides a universal framework to detect regions of
   regulation in tiling microarray experiments.
 
   It is universal in the sense that the user is free to choose any
   statistical test to estimate the effect of differential regulation for
   each probe. Given the p-values for each probe and the corresponding
   positions of the probes 'les' uses a sliding window approach to
-  estimate the fraction of regulated probes in the local surrouding of
+  estimate the fraction of regulated probes in the local surrounding of
   each probe. The approach is related to computing a locally weighted
   false discovery rate and yields a interpretable statistical feature
   \eqn{\Lambda}{Lambda}.

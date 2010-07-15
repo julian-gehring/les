@@ -6,15 +6,8 @@
 \alias{Les-class}
 \alias{[<-,Les-method}
 \alias{[,Les-method}
-\alias{ci,Les-method}
-\alias{threshold,Les-method}
-\alias{estimate,Les-method}
-\alias{plot,Les-method}
-\alias{regions,Les-method}
 \alias{show,Les-method}
 \alias{summary,Les-method}
-\alias{exportLambda,Les-method}
-\alias{export,Les-method}
 
 \title{Class 'Les'}
 
@@ -58,31 +51,15 @@
     \item{\code{nSigProbes}:}{Integer with the number of estimated
       significant probes.xs}
     \item{\code{regions}:}{Data frame with estimated Loci of Enhanced
-      Signifcance.}
+      Significance.}
     \item{\code{limit}:}{Numeric with the cutoff value for estimation of
       'regions'. Set by the user in the 'regions' function.}
     \item{\code{nChr}:}{Integer with the number of chromosomes.}
-    \item{\code{maxGap}:}{Integer specifing the largest gap allowed in
+    \item{\code{maxGap}:}{Integer specifying the largest gap allowed in
 	one region. Set by the user in the 'regions' function.}
-    \item{\code{minLength}:}{Integer specifing the minimal numberr of
+    \item{\code{minLength}:}{Integer specifying the minimal number of
 	  probes in one region. Set by the user in the 'regions'
 	  function.}
-  }
-}
-
-\section{Methods}{
-  \describe{
-    \item{[<-}{\code{signature(x = "Les")}: ... }
-    \item{[}{\code{signature(x = "Les")}: ... }
-    \item{ci}{\code{signature(object = "Les")}: ... }
-    \item{cutoff}{\code{signature(object = "Les")}: ... }
-    \item{plot}{\code{signature(x = "Les")}: ... }
-    \item{regions}{\code{signature(object = "Les")}: ... }
-    \item{show}{\code{signature(object = "Les")}: ... }
-    \item{summary}{\code{signature(object = "Les")}: ... }
-    \item{estimate}{\code{signature(object = "Les")}: ...}
-    \item{optimalKernel}{\code{signature(object = "Les")}: ...}
-    \item{exportLambda}{\code{signature(object = "Les")}: ...}
   }
 }
 
@@ -94,18 +71,19 @@
 
 \seealso{
   Package:
-  \code{\link{les-package}}
+  \code{\link[les]{les-package}}
 
   Class:
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link{create}}
-  \code{\link{estimate}}
-  \code{\link{threshold}}
-  \code{\link{regions}}
-  \code{\link{ci}}
-  \code{\link{exportLambda}}
+  \code{\link[les]{create}}
+  \code{\link[les]{estimate}}
+  \code{\link[les]{threshold}}
+  \code{\link[les]{regions}}
+  \code{\link[les]{ci}}
+  \code{\link[les]{export}}
+  \code{\link[les]{plot}}
 }
 
 \examples{

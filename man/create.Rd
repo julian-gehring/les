@@ -17,30 +17,30 @@ create(pos, pval, chr)
   \item{pos}{Integer vector containing the probe positions of one strand.}
   \item{pval}{Numeric vector containing the p-values corresponding to
     'pos'. It must be of the same length as 'pos'.}
-  \item{chr}{Vector specifing the chromosome each probe in located
+  \item{chr}{Vector specifying the chromosome each probe in located
     on. If missing all probes are located on one chromosome (default: 'chr0'). If
     specified it must be of the same length as 'pos'.}
 }
 
 \details{
-  This function gathers all data neccessary for subsequent computation,
+  This function gathers all data necessary for subsequent computation,
   checks for valid inputs and stores it in an object of class 'Les'.
 
   The data is checked for the following criteria:
   'pos' and 'chr' must not contain any NAs. 'pval' may contain NAs but
   such probes (including corresponding 'pos' and 'chr') are discarded
-  for subsequent computation since they contain no useable
+  for subsequent computation since they contain no usable
   information. Please note that in such a case fewer probes are stored
   in the resulting object then were passed to 'create'. In case of
   duplicate probe positions on one chromosome a warning is printed. This
   normally indicates that probes from both strands are present in the
-  data. For this analysis it is recommended to analyse only data from
+  data. For this analysis it is recommended to analyze only data from
   one strand at a time.
   
   After storing the experimental data with 'create' in an object the
   variables containing the original data can be deleted from the
   workspace. All further steps of 'les' will get their data from this
-  obejct. This can be useful in cases when memory useage is a critical
+  object. This can be useful in cases when memory usage is a critical
   factor.
 }
       
@@ -56,16 +56,20 @@ create(pos, pval, chr)
 }
 
 \seealso{
+  Package:
+  \code{\link[les]{les-package}}
+
   Class:
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link{create}}
-  \code{\link{estimate}}
-  \code{\link{threshold}}
-  \code{\link{regions}}
-  \code{\link{ci}}
-  \code{\link{exportLambda}}
+  \code{\link[les]{create}}
+  \code{\link[les]{estimate}}
+  \code{\link[les]{threshold}}
+  \code{\link[les]{regions}}
+  \code{\link[les]{ci}}
+  \code{\link[les]{export}}
+  \code{\link[les]{plot}}
 }
 
 \examples{
@@ -76,4 +80,5 @@ x <- create(pos, pval, chr)
 }
 
 \keyword{utilities}
+\keyword{IO}
 

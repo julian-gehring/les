@@ -25,12 +25,6 @@ setGeneric("threshold",
            {standardGeneric("threshold")}
            )
 
-setGeneric("exportLambda",
-           function(object, file, chr, range,
-                    description="Lambda", precision=4)
-           {standardGeneric("exportLambda")}
-           )
-
 setGeneric("export",
            function(object, file, format="bed", chr, range,
                     description="Lambda", strand=".", group="les",

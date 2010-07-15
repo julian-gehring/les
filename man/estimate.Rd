@@ -1,6 +1,8 @@
-\name{estimate}
+\name{estimate,Les-method}
 
 \alias{estimate}
+\alias{estimate-methods}
+\alias{estimate,Les-method}
 
 \title{estimate}
 
@@ -13,13 +15,15 @@
 estimate(object, win, weighting = triangWeight, grenander = FALSE, se =
 FALSE, nCores=NULL)
 
+\S4method{estimate}{Les}(object, win, weighting = triangWeight,
+grenander = FALSE, se = FALSE, nCores=NULL)
 }
 
 \arguments{
   \item{object}{Object of class 'Les' containing experimental data, as
     returned by 'create'.}
   \item{win}{Integer specifying window size for the weighting
-    function. This value is directely passed to the function specified
+    function. This value is directly passed to the function specified
     by 'weighting'. For details see the description for the used window
     function 'weighting'.}
   \item{weighting}{Function specifying the shape of the weighting
@@ -52,20 +56,20 @@ FALSE, nCores=NULL)
   The 'win' argument influences the amount of neighboring probes taken
   into account by the weighting function. The value is passed to the
   function specified in 'weighting'. Larger values result in a smoother
-  features. Details on a reasonable choise for this value can be found
+  features. Details on a reasonable choice for this value can be found
   in the references.
 
   With the 'weighting' argument the applied weighting function can be
-  specified from a predifined set or a custom function can be used. In
+  specified from a predefined set or a custom function can be used. In
   the 'les' package the three functions 'triangWeight', 'rectangWeight'
   and 'gaussWeight' are already supplied offering a triangular,
   rectangular or gaussian weighting function respectively. The
-  'triangWeight' is in general a good choise. For details on the
+  'triangWeight' is in general a good choice. For details on the
   functions itself and how to use custom ones please see the
   documentation of the single functions or the vignette.
 
-  The Grenander correction for the cumulative densityintroduces a bias
-  but decreases the variablity of the estimate. This may be reasonable
+  The Grenander correction for the cumulative density introduces a bias
+  but decreases the variability of the estimate. This may be reasonable
   in some cases.
 
   The 'multicore' package can be used to spread the computation over several
@@ -89,16 +93,20 @@ FALSE, nCores=NULL)
 }
 
 \seealso{
+  Package:
+  \code{\link[les]{les-package}}
+
   Class:
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link{create}}
-  \code{\link{estimate}}
-  \code{\link{threshold}}
-  \code{\link{regions}}
-  \code{\link{ci}}
-  \code{\link{exportLambda}}
+  \code{\link[les]{create}}
+  \code{\link[les]{estimate}}
+  \code{\link[les]{threshold}}
+  \code{\link[les]{regions}}
+  \code{\link[les]{ci}}
+  \code{\link[les]{export}}
+  \code{\link[les]{plot}}
 }
 
 \examples{
@@ -113,4 +121,4 @@ plot(x)
 }
 
 \keyword{htest}
-
+\keyword{methods}

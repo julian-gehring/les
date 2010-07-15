@@ -12,5 +12,5 @@ importClassesFrom(methods, data.frame, factor, "function", integer,
 
 export(create, triangWeight, rectangWeight, gaussWeight)
 exportClasses(Les)
-exportMethods(plot, show, summary, threshold, regions, ci, exportLambda, export, estimate)
+exportMethods(plot, show, summary, threshold, regions, ci, export, estimate)
 

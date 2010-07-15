@@ -550,12 +550,12 @@ setMethod("threshold", "Les",
 #          )
 
 setMethod("plot", "Les",
-          function(x, y, chr, region=FALSE,
+          function(x, y, ..., chr, region=FALSE,
                    xlim, ylim=c(0, 1), error="none",
                    probePch=20, probeCol="black",
                    sigPch=20, sigCol="red",
                    rug=FALSE, rugSide=1, limit=TRUE,
-                   main, ...)  {
+                   main)  {
 
   if(missing(chr))  {
     if(x@nChr == 1)  {
@@ -791,41 +791,6 @@ inVector <- function(pos, start, end)  {
   return(sig)
 }
 ## ok ##
-
-setMethod("exportLambda", "Les",
-          function(object, file, chr, range,
-                   description="Lambda", precision=4)  {
-
-  if(class(object) != "Les")
-    stop("'object' must be of class 'Les'")
-  if(missing(chr) || length(chr) > 1)
-    stop("'chr' must have one value.'")
-  
-  header <- c(sprintf("%s%s%s","track name=\"", description,
-                      "\" type=wiggle_0 viewLimits=0:1 autoScale=off"),
-              sprintf("%s%s %s", "variableStep chrom=", chr,  "span=1"))
-
-  if(missing(range))  {
-    ind <- object@chr %in% chr & !is.na(object@lambda)
-  }
-  else  {
-    ind <- object@chr %in% chr & object@pos <= min(range) &
-    object@pos >= max(range) & !is.na(object@lambda)
-  }
-
-  values <- format(round(object@lambda[ind], precision), scientific=16)
-  df <- data.frame(pos=object@pos[ind], value=values)
-  indDup <- duplicated(df$pos)
-  df <- df[!indDup, ]
-  indValid <- !is.na(df$value)
-  df <- df[indValid, ]
-
-  write(header, file)
-  utils::write.table(df, file, append=TRUE, quote=FALSE, sep="\t",
-              row.names=FALSE, col.names=FALSE)
-
-}
-)
 
 
 setMethod("export", "Les",

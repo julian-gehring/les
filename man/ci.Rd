@@ -1,6 +1,9 @@
-\name{ci}
+\name{ci,Les-method}
 
 \alias{ci}
+\alias{ci-methods}
+\alias{ci,Les}
+\alias{ci,Les-method}
 
 \title{ci}
 
@@ -10,6 +13,8 @@
 
 \usage{
 ci(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
+
+\S4method{ci}{Les}(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
 }
 
 \arguments{
@@ -63,16 +68,20 @@ ci(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
 }
 
 \seealso{
+  Package:
+  \code{\link[les]{les-package}}
+
   Class:
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link{create}}
-  \code{\link{estimate}}
-  \code{\link{threshold}}
-  \code{\link{regions}}
-  \code{\link{ci}}
-  \code{\link{exportLambda}}
+  \code{\link[les]{create}}
+  \code{\link[les]{estimate}}
+  \code{\link[les]{threshold}}
+  \code{\link[les]{regions}}
+  \code{\link[les]{ci}}
+  \code{\link[les]{export}}
+  \code{\link[les]{plot}}
 }
 
 \examples{
@@ -92,3 +101,4 @@ x <- ci(x, subset=1:100, nCores=2)
 }
 
 \keyword{htest}
+\keyword{methods}

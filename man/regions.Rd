@@ -1,16 +1,22 @@
-\name{regions}
+\name{regions,Les-method}
 
 \alias{regions}
+\alias{regions-methods}
+\alias{regions,Les}
+\alias{regions,Les-method}
 
 \title{regions}
 
 \description{
-  Estimates regions of continously elevated
+  Estimates regions of continuously elevated
   \eqn{\Lambda_i}{Lambda}. These are distinct regions of regulation.
 }
       
 \usage{
 regions(object, limit=NULL, minLength=2, maxGap=Inf, verbose = FALSE)
+
+\S4method{regions}{Les}(object, limit=NULL, minLength=2, maxGap=Inf,
+verbose = FALSE)
 }
 
 \arguments{
@@ -32,7 +38,7 @@ regions(object, limit=NULL, minLength=2, maxGap=Inf, verbose = FALSE)
 }
 
 \details{
-  This method finds distint regions in \eqn{\Lambda}{Lambda} by
+  This method finds distinct regions in \eqn{\Lambda}{Lambda} by
   thresholding with \eqn{\Theta}{Theta}. The regions have to fulfill the
   following criteria:
 
@@ -43,7 +49,7 @@ regions(object, limit=NULL, minLength=2, maxGap=Inf, verbose = FALSE)
   (3) The gap between to neighboring probes has to be smaller or equal
   to 'maxGap'.
 
-  Along with the bounderies of the regions the number of regulated
+  Along with the boundaries of the regions the number of regulated
   probes within each region is estimated. This is used to sort the
   regions in order to get a list of top regions. The resulting data
   frame containing the regions can be accessed with the '[' method.
@@ -74,16 +80,20 @@ regions(object, limit=NULL, minLength=2, maxGap=Inf, verbose = FALSE)
 }
 
 \seealso{
+  Package:
+  \code{\link[les]{les-package}}
+
   Class:
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link{create}}
-  \code{\link{estimate}}
-  \code{\link{threshold}}
-  \code{\link{regions}}
-  \code{\link{ci}}
-  \code{\link{exportLambda}}
+  \code{\link[les]{create}}
+  \code{\link[les]{estimate}}
+  \code{\link[les]{threshold}}
+  \code{\link[les]{regions}}
+  \code{\link[les]{ci}}
+  \code{\link[les]{export}}
+  \code{\link[les]{plot}}
 }
 
 \examples{
@@ -100,3 +110,4 @@ print(x["regions"])
 }
 
 \keyword{htest}
+\keyword{methods}
