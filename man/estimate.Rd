@@ -107,6 +107,7 @@ grenander = FALSE, se = FALSE, nCores=NULL)
   \code{\link[les]{ci}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
+  \code{\link[les]{weighting}}
 }
 
 \examples{
