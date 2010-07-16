@@ -14,9 +14,9 @@
 }
       
 \usage{
-  triangWeight(distance, win)
-  rectangWeight(distance, win)
-  gaussWeight(distance, win) 
+triangWeight(distance, win)
+rectangWeight(distance, win)
+gaussWeight(distance, win) 
 }
 
 \arguments{
@@ -71,9 +71,9 @@
 
 \examples{
 \dontrun{
-weight <- triangWeight(dist, win)
-weight <- rectangWeight(dist, win)
-weight <- gaussWeight(dist, win)
+weight <- triangWeight(distance, win)
+weight <- rectangWeight(distance, win)
+weight <- gaussWeight(distance, win)
 
 res <- estimate(res, win=20, weighting=rectangWeight)
 }

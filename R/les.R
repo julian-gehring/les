@@ -96,7 +96,8 @@ calcSingle <- function(ind0, pos, pval, win,
   
   distance <- posCut - pos0
   indValid <- abs(distance) <= win
-  nValidProbes <- length(unique(pvalCut[indValid]))
+  # nValidProbes <- length(unique(pvalCut[indValid]))
+  nValidProbes <- length(pvalCut[indValid])
 
   if(nValidProbes>1)  {
     ## if enough probes
@@ -115,7 +116,8 @@ calcSingle <- function(ind0, pos, pval, win,
                  cweight=weight[indWeight], nValidProbes=nWeight,
                  grenander=grenander, se=se)
       ## try not needed? TO DO !
-      ci <- try(boot::boot.ci(bo, conf, type="perc"), silent=TRUE)
+      suppressWarnings(ci <- try(boot::boot.ci(bo, conf, type="perc"),
+                                 silent=TRUE))
       if(class(ci) == "try-error")  ## TO DO: why this?
         res <- c(NA, NA)
       else
@@ -159,19 +161,19 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
       break
     x <- cdf$pval[rest:nValidProbes] - 1
     y <- cdf$cdf[rest:nValidProbes] - 1
-    if(length(unique(x)) == 1) # only for boot?
-      break
+#    if(length(unique(x)) == 1) # only for boot?
+#      break
     q <- GSRI:::slopeFast(x, y)
     restOld <- rest
   }
 
   ## return values
   if(noBoot == TRUE)  {
-    if(se == TRUE && length(x) > 1)
-      se <- seFast(x, y, q)
+    if(se == TRUE && length(unique(x)) > 1)
+      ses <- seFast(x, y, q)
     else
-      se <- NA
-    res <- c(1 - min(q, 1), se, nValidProbes)
+      ses <- NA
+    res <- c(1 - min(q, 1), ses, nValidProbes)
   }
   else  {
     res <- 1 - min(q, 1, na.rm=TRUE)
@@ -203,17 +205,8 @@ wcdf <- function(pval, weight, grenander)  {
     cdf <- GSRI:::grenanderInterp(pvalUnique, cdf)
   if(nProbes != nUnique)
       cdf <- rep.int(cdf, table(pvalSort))
-    
-#  if(nProbes != nUnique)
-#    cdf <- rep.int(cdf, table(pvalSort))
-#  if(grenander == TRUE)  {
-#    if(nProbes != nUnique)  {
-#      jit <- seq(1e-15, by=1e-15, len=nProbes-nUnique)
-#      pvalSort[!indUnique] <- pvalSort[!indUnique] + jit
-#    }
-#    cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
-#  }
-  cdf <- cdf - 0.5/nProbes  ## where to put this ??
+  
+  cdf <- cdf - 0.5/nUnique  ## where to put this ??
   res <- list(pval=pvalSort, cdf=cdf)
 
   return(res)
@@ -348,8 +341,10 @@ setMethod("regions", "Les",
     else
       limit <- object@theta
   }
-  if(is.na(limit) || limit <= 0 || limit >= 1)
-    stop("'limit' must be in the range [0,1].")
+  else  {
+    if(is.na(limit) || limit <= 0 || limit >= 1)
+      stop("'limit' must be in the range [0,1].")
+  }
   lambda <- object@lambda
   indNa <- is.na(lambda)
   lambda[indNa] <- 0
@@ -372,10 +367,12 @@ setMethod("regions", "Les",
     print(sprintf("%d %s%g", length(begin), "regions found for lambda>=", limit))
 
   ri <- matrix(NA, length(begin), 2)
-  for(i in 1:length(begin))  {
-    ri[i, ] <- gsri(object@pval[begin[i]:end[i]], se=TRUE)[c(1,2)]
+  if(length(begin) > 0)  {
+    for(i in 1:length(begin))  {
+      ri[i, ] <- gsri(object@pval[begin[i]:end[i]], se=TRUE)[c(1,2)]
+    }
+    rs <- ri[ ,1]/ri[ ,2]
   }
-  rs <- ri[ ,1]/ri[ ,2]
   
   size <- as.integer(object@pos[end]-object@pos[begin]+1)
   regions <- data.frame(chr=factor(object@chr[begin]),
@@ -440,122 +437,14 @@ setMethod("threshold", "Les",
 ##################################################
 ## plot
 ##################################################
-#setMethod("plot", "Les",
-#          function(x, y, chr, region=FALSE, limit=TRUE,
-#                   xlim, ylim=c(0,1),
-#                   error="none", semSpread=1.96,
-#                   patchCol="lightgray", borderCol="black",
-#                   markerCol="red", regionCol,
-#                   regionLty=2, regionLw=3, regionCex=NULL,
-#                   probeCol="black", probeCex=0.5, probePch=20)  {
-#
-#  pos <- x@pos
-#  lambda <- x@lambda
-#  
-#  if(error == "ci" && length(x@ci) == 0)  {
-#    warning("CI not computed so far")
-#    error <- "none"
-#  }
-#
-#  if(missing(chr))  {
-#    if(x@nChr != 1)
-#      indChr <- rep(TRUE, length(x@pos))
-#    else
-#      stop("Please specify 'chr'.")
-#  }
-#  else  {
-#    indChr <- x@chr %in% chr
-#  }
-#  
-#  if(!missing(y))  {
-#    par(mar=c(2.1,4.1,4.1,2.1))
-#    par(fig=c(0,1,0,0.3))
-#    plot.new()
-#    plot.window(x=xlim, y=c(0, 2))
-#    abline(h=0.5, col="gray32")
-#    indAnno <- reg2ind(y$reg, xlim)
-#    for(i in indAnno)  {
-#      polygon(c(y$pos[ ,i], rev(y$pos[ ,i])),
-#              c(0, 0, 1, 1), col=y$col[i])
-#    }
-#    text(x=0.5*(anno$pos[2,indAnno]+anno$pos[1,indAnno]),
-#         y=0.5,
-#         label=anno$name[indAnno],
-#         adj=c(0.5,0.5)
-#         )
-#    text(x=xlim[2], y=0.55,
-#         label="DNA", adj=c(0.5,0))
-#    ## for next plot
-#    par(fig=c(0,1,0.2,1), new=TRUE)
-#  }
-#  
-#  if(missing(xlim))
-#    xlim <- range(pos)
-#  ind <- (pos >= xlim[1]) & (pos <= xlim[2])  ## needed for plotting?
-#  
-#  if(is.logical(limit) && limit == TRUE)  {
-#    if(length(x@theta) != 0)
-#      limit <- x@theta
-#    else  {
-#                                        #warning("'cutoff' not estimated")
-#      limit <- FALSE  ## skip warning??
-#    }
-#  }
-#  if(region == TRUE && length(x@regions) != 0)
-#    regions <- x@regions
-#  if(!is.logical(region))
-#    regions <- region
-#  
-#  sig <- lambda >= limit
-#  plot(pos, lambda, type="n", xlim, ylim,
-#       xlab="Probe position", ylab=expression(Lambda))
-#  if(is.numeric(limit))
-#    abline(h=limit, col="gray")
-#  abline(h=0, col="lightgray")
-#  sfrac <- min(min(diff(pos[ind]))/(xlim[2]-xlim[1])/2, 0.01)
-#  suppressWarnings(
-#    switch(match(error, c("ci", "se", "none")),  {
-#      ss <- x@subset
-#      ci <- x@ci
-#      plotCI(pos[ss], lambda[ss],
-#             ui=ci$upper, li=ci$lower,
-#             gap=0, pch=".", col="azure4",
-#             add=TRUE, sfrac=sfrac)
-#    },  {
-#      se <- x@se
-#      plotCI(pos, lambda,
-#             uiw=se*semSpread, liw=se*semSpread,
-#             gap=0, pch=".", col="azure4",
-#             add=TRUE, sfrac=sfrac)
-#    }
-#           )
-#                   )
-#  
-#  points(pos, lambda, type="o",
-#         pch=probePch, col=probeCol, cex=probeCex)
-#  if(is.numeric(limit))  {
-#    points(pos[sig], lambda[sig],
-#           pch=probePch, col=markerCol, cex=probeCex)
-#  }
-#  
-#  if(!is.logical(region) && !is.numeric(region))
-#    stop("'region' must be logical or numeric")
-#  if(is.logical(region) && region == TRUE)
-#    region <- x@regions
-#  if(!is.logical(region) || region == TRUE)  {
-#    regionCol <- rep(brewer.pal(8, "Set1"), each=2)
-#    abline(v=region, col=regionCol)
-#  }
-#}
-#          )
-
 setMethod("plot", "Les",
-          function(x, y, ..., chr, region=FALSE,
+          function(x, y, chr, region=FALSE,
                    xlim, ylim=c(0, 1), error="none",
                    probePch=20, probeCol="black",
-                   sigPch=20, sigCol="red",
+                   sigPch=20, sigCol="red3", errorCol="azure4",
+                   regionCol=gray, 
                    rug=FALSE, rugSide=1, limit=TRUE,
-                   main)  {
+                   main=NULL, ...)  {
 
   if(missing(chr))  {
     if(x@nChr == 1)  {
@@ -578,9 +467,6 @@ setMethod("plot", "Les",
   else
     limit <- FALSE
 
-  if(missing(main))
-    main <- ""
-
   if(region == TRUE && length(x@regions) == 0)  {
     region <- FALSE
     warning("'No 'regions' estimated so far.")
@@ -593,7 +479,7 @@ setMethod("plot", "Les",
   plot(pos[ind], lambda[ind], type="n",
        xlim=xlim, ylim=ylim,
        xlab="Probe position", ylab=expression(Lambda), main=main)
-  abline(h=0, col="lightgray")
+  abline(h=c(0,1), col="lightgray")
 
   val <- pmatch(error, c("se", "ci"), NA)
   if(!is.na(val) && length(x@ci) != 0)  {
@@ -603,7 +489,7 @@ setMethod("plot", "Les",
       ci <- x@ci[indChr, ]
       gplots::plotCI(pos[ss[indChr]], lambda[ss[indChr]],
                      ui=ci$upper, li=ci$lower,
-                     gap=0, pch=".", col="azure4", add=TRUE,
+                     gap=0, pch=".", col=errorCol, add=TRUE,
                      sfrac=sfrac)
     })
   }
@@ -617,15 +503,18 @@ setMethod("plot", "Les",
   if(rug == TRUE)
     rug(pos[ind], side=rugSide)
 
-  if(region == TRUE)  {
+  if(region == TRUE && length(x@regions) != 0 && nrow(x@regions) != 0)  {
     regions <- x@regions
     regions <- regions[regions$chr %in% chr, ]
     indRegion <- (regions$start >= xlim[1] & regions$start <= xlim[2]) | (regions$end >= xlim[1] & regions$end <= xlim[2])
     regions <- regions[indRegion, ]
-    for(i in 1:nrow(regions))  {
-      rect(regions$start[i], -0.03, regions$end[i], -0.005,
-           col=gray(1-regions$ri[i]))
-    }
+    yr <- c(par()$usr[3], min(ylim)-par()$usr[3])
+    if(is.vector(regionCol))
+    rect(regions$start, yr[1]+0.2*yr[2], regions$end, yr[1]+0.8*yr[2],
+         col=rep(regionCol, length.out=nrow(regions)))    
+    else
+    rect(regions$start, yr[1]+0.2*yr[2], regions$end, yr[1]+0.8*yr[2],
+         col=regionCol(1-regions$ri))
   }
 }
           )
@@ -808,6 +697,10 @@ setMethod("export", "Les",
     if(length(object@regions) == 0)
       stop("'regions()' must be run first.")
     regions <- object@regions
+    if(nrow(regions) == 0)  {
+      warning("No regions to export, no output file written.")
+      choice <- 0
+    }
     if(missing(chr))
       ind <- rep(TRUE, nrow(regions))
     else
@@ -848,8 +741,10 @@ setMethod("export", "Les",
     df <- df[indValid, ]
   }
 
-  write(header, file)
-  utils::write.table(df, file, append=TRUE, quote=FALSE, sep="\t",
-              row.names=FALSE, col.names=FALSE)
+  if(choice != 0)  {
+    write(header, file)
+    utils::write.table(df, file, append=TRUE, quote=FALSE, sep="\t",
+                       row.names=FALSE, col.names=FALSE)
+  }
 }
 )

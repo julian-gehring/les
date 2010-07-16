@@ -15,9 +15,10 @@
 
 plot(x, y, ...)
 
-\S4method{plot}{Les}(x, y, ..., chr, region=FALSE, xlim, ylim=c(0, 1), error="none",
-probePch=20, probeCol="black", sigPch=20, sigCol="red",
-rug=FALSE, rugSide=1, limit=TRUE, main)
+\S4method{plot}{Les}(x, y, chr, region=FALSE, xlim, ylim=c(0, 1),
+error="none", probePch=20, probeCol="black", sigPch=20, sigCol="red3",
+errorCol="azure4", probeCol=gray, rug=FALSE, rugSide=1, limit=TRUE,
+main=NULL, ...)
 }
 
 \arguments{
@@ -37,14 +38,25 @@ rug=FALSE, rugSide=1, limit=TRUE, main)
     \eqn{\Lambda}{Lambda} should be plotted (default: "none"). Valid
     values are "none" for no error estimates and "ci" for confidence
     intervals computed by the 'ci' method.}
-  \item{probePch}{Symbol probes should be plotted with. For details see
-    'par'.}
-  \item{probeCol}{Color probes should be plotted with. For details see
-    'par'.}  
+  \item{probePch}{Symbol probes should be plotted with (default:
+    20). For details see 'par'.}
+  \item{probeCol}{Color probes should be plotted with (default:
+    "black"). For details see 'par'.}  
   \item{sigPch}{Symbol probes above the threshold should be plotted
-    with. For details see 'par'.}
+    with (default: 20). For details see 'par'.}
   \item{sigCol}{Color probes above the threshold should be plotted
-    with. For details see 'par'.}
+    with (default: "red3"). For details see 'par'.}
+  \item{errorCol}{Color error estimates should be plotted with (default:
+    "azure4").}
+  \item{regionCol}{Function or vector of color used plotting of regions
+    (default: gray). By default regions will be colored in grayscale
+    with darker colors corresponding to more significant regions. If a
+    function it has to return the color given 1-ri (see the 'regions'
+    method for details) of each region as an input argument. If a vector
+    of colors regions will be filled according to these colors. The vector
+    will be recycled if needed. Note that the ordering if by default
+    according to 'ri' from the 'regions' slot in the object, not the
+    location of the region.}
   \item{rug}{Logical whether the positions of the probes should be
     indicated along the x-axis (default: FALSE). For details see 'rug'.}
   \item{rugSide}{Integer specifying the side at which probe positions
@@ -52,7 +64,7 @@ rug=FALSE, rugSide=1, limit=TRUE, main)
   \item{limit}{Logical specifying whether the estimated threshold
     \eqn{\Theta}{Theta} should be indicated on the y-axis (default:
     TRUE) if estimated.}
-  \item{main}{Title of the plot. For details see 'main'}.
+  \item{main}{Title of the plot (default: no title). For details see 'main'}.
   \item{...}{Further arguments not used so far.}
 }
 

@@ -87,7 +87,11 @@
 }
 
 \examples{
-  showClass("Les")
+\dontrun{
+showClass("Les")
+show(object)
+summary(object)
+}
 }
 
 \keyword{classes}
