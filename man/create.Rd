@@ -1,12 +1,14 @@
 \name{create}
 
 \alias{create}
+\alias{create,Les}
 
 \title{create}
 
 \description{
-  Creates an object of class LES and stores experimental tiling
-  microarray data. This is the initial step for all further analysis.
+  Creates an object of class 'Les' and stores experimental tiling
+  microarray data. This is the initial step for all further analysis
+  with the 'les' package.
 }
 
 \usage{
@@ -19,7 +21,8 @@ create(pos, pval, chr)
     'pos'. It must be of the same length as 'pos'.}
   \item{chr}{Vector specifying the chromosome each probe in located
     on. If missing all probes are located on one chromosome (default: 'chr0'). If
-    specified it must be of the same length as 'pos'.}
+    specified it must be of the same length as 'pos'. Internally it will
+    be converted to and stored as a factor.}
 }
 
 \details{
@@ -76,6 +79,7 @@ create(pos, pval, chr)
 \dontrun{
 data(statTile)
 x <- create(pos, pval, chr)
+summary(x)
 }
 }
 

@@ -17,7 +17,7 @@ plot(x, y, ...)
 
 \S4method{plot}{Les}(x, y, chr, region=FALSE, xlim, ylim=c(0, 1),
 error="none", probePch=20, probeCol="black", sigPch=20, sigCol="red3",
-errorCol="azure4", probeCol=gray, rug=FALSE, rugSide=1, limit=TRUE,
+errorCol="azure4", regionCol=gray, rug=FALSE, rugSide=1, limit=TRUE,
 main=NULL, ...)
 }
 

@@ -9,7 +9,7 @@ Imports: boot, gplots, GSRI, RColorBrewer
 Depends: R (>= 2.11.0), methods, graphics, fdrtool
 Suggests: Biobase, limma
 Enhances: multicore
-Description: The 'les' package estimates Loci of Enhanced Significance (LES) in tiling microarray data. These are regions of regulation such as found in differential transcription, CHiP-chip or methylation experiments. The package provides a universal framework suitable of identifying regulatory effects in various data sets.
+Description: The 'les' package estimates Loci of Enhanced Significance (LES) in tiling microarray data. These are regions of regulation such as found in differential transcription, CHiP-chip or methylation experiments. The package provides a universal framework suitable of identifying regulatory effects in various data sets and is independent of the underlying statistics at the level of single probes.
 License: GPL-3
 LazyLoad: yes
-biocViews: Microarray, Transcription, Statistics, DifferentialExpression
+biocViews: Microarray, Bioinformatics, DifferentialExpression, CHiPchip, DNAMethylation, Transcription

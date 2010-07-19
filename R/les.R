@@ -151,7 +151,7 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
     cdf <- wcdf(pval, cweight, grenander)
   else
     cdf <- wcdf(pval[index], cweight[index], grenander)
-
+## browser()
   ## iterative fitting
   for(i in 1:maxIter)  {
     rest <- nValidProbes - ceiling(q*nValidProbes)
@@ -198,15 +198,17 @@ wcdf <- function(pval, weight, grenander)  {
 #  weightUnique <- weightSort[indUnique] 
   nUnique <- length(pvalUnique)
   nProbes <- length(pvalSort)
-  cdf <- cumsum(weightSort[indUnique])
-  cdf <- cdf/cdf[nUnique]
-
+  cdf <- cumsum(weightSort)
+  cdf <- cdf/cdf[length(pval)]
+#  cdf <- cumsum(weightSort[indUnique])
+#  cdf <- cdf/cdf[nUnique]
+browser()
   if(grenander == TRUE)
     cdf <- GSRI:::grenanderInterp(pvalUnique, cdf)
   if(nProbes != nUnique)
-      cdf <- rep.int(cdf, table(pvalSort))
+    cdf <- rep.int(cdf, table(pvalSort))
   
-  cdf <- cdf - 0.5/nUnique  ## where to put this ??
+  cdf <- cdf - 0.5/nProbes  ## where to put this ??
   res <- list(pval=pvalSort, cdf=cdf)
 
   return(res)
@@ -748,3 +750,13 @@ setMethod("export", "Les",
   }
 }
 )
+
+
+##################################################
+## slopeWeight
+##################################################
+slopeWeight <- function(x, y, c=diag(1, length(x)))  {
+  s <- t(x) %*% c  ## do outside and subset? possible since matrix?
+  b <- ((s %*% y) / (s %*% x))[1]  ## same as as.numeric
+  return(b)
+}

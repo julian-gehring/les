@@ -8,7 +8,7 @@
 \title{ci}
 
 \description{
-  Computes confidence intervals for \eqn{\Lambda}{Lambda} with bootstrapping.
+  Computes confidence intervals (CIs) for \eqn{\Lambda}{Lambda} using bootstrapping.
 }
 
 \usage{
@@ -32,7 +32,7 @@ ci(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
     'library(multicore)' has been called manually by the user before and if
     'nCores' is an integer unequal NULL specifying the number of cores
     to use. The value is passed directly to 'mclapply' as argument
-    'n.cores'. For details and benefits please see below.}
+    'n.cores'. For details and benefits please see the 'Details' section.}
 }
 
 \details{
@@ -86,7 +86,7 @@ ci(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
 
 \examples{
 \dontrun{
-data(resTile)
+data(statTile)
 
 x <- create(pos, pval, chr)
 x <- estimate(x, win=25)
@@ -94,7 +94,7 @@ x <- estimate(x, win=25)
 x <- ci(x, subset=1:100, conf=0.95)
 
 ## multicore computation
-## only available of certain platforms
+## only available on certain platforms
 library(multicore)
 x <- ci(x, subset=1:100, nCores=2)
 }
