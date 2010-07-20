@@ -15,9 +15,10 @@
 }
 
 \usage{
-threshold(object, grenander = FALSE, verbose = FALSE)
+threshold(object, grenander = FALSE, verbose = FALSE, ...)
 
-\S4method{threshold}{Les}(object, grenander = FALSE, verbose = FALSE)
+\S4method{threshold}{Les}(object, grenander = FALSE, verbose = FALSE,
+...)
 }
 
 \arguments{
@@ -29,6 +30,7 @@ threshold(object, grenander = FALSE, verbose = FALSE)
   \item{verbose}{Logical indicating whether a summary of the estimated
     number of regulated probes should be printed on screen (default:
     FALSE).}
+  \item{...}{Further arguments passed to subsequent functions.}
 }
 
 \details{

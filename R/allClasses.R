@@ -21,5 +21,6 @@ setClass("Les",
                  limit="numeric",
                  nChr="integer",
                  minLength="integer",
-                 maxGap="numeric")
+                 maxGap="numeric",
+                 minProbes="integer")
 )

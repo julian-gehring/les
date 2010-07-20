@@ -7,16 +7,18 @@
 \title{estimate}
 
 \description{
-  The 'estimate' method estimates the index for Loci of Enhanced
-  Significance \eqn{\Lambda}{Lambda} with a given weighting window.
+  The 'estimate' method estimates the fraction of probes with
+  significant effect in the local surrounding \eqn{\Lambda}{Lambda} with
+  a given weighting window. This is used to identify Loci of Enhanced
+  Significance.
 }
 
 \usage{
 estimate(object, win, weighting = triangWeight, grenander = FALSE, se =
-FALSE, nCores=NULL)
+FALSE, minProbes = 3, nCores=NULL, ...)
 
 \S4method{estimate}{Les}(object, win, weighting = triangWeight,
-grenander = FALSE, se = FALSE, nCores=NULL)
+grenander = FALSE, se = FALSE, minProbes = 3, nCores=NULL, ...)
 }
 
 \arguments{
@@ -29,23 +31,32 @@ grenander = FALSE, se = FALSE, nCores=NULL)
   \item{weighting}{Function specifying the shape of the weighting
     window. If not specified the supplied 'triangWeight' function with a
     triangular window will be used. For details on other window
-    functions and how to specify own function please see below.}
+    functions and how to specify own functions please see the 'Details'
+    section.}
   \item{grenander}{Logical indicating whether the Grenander correction
     for the cumulative density should be used (default: FALSE). For
-    details see below and at the 'GSRI' package.}
+    details see the 'Details' section and the 'GSRI' package.}
   \item{se}{Logical indicating whether the standard error from the final
     linear model should be computed and stored (default: FALSE). The
     standard error displays the goodness of fit for every probe, but is
     not needed for further computation. If computation time is a
     critical factor computation of the SE can be omitted to save some
     time.}
+  \item{minProbes}{Integer specifying the minimal number of unqiue
+    p-values that must be present for each fit (default: 3). For very
+    small number of p-values the cumulative density is not well defined
+    and therefore estimation has a high uncertainty. If the number of
+    unique p-values is smaller than 'minProbes' no estimation is
+    performed for this probe and \eqn{\Lambda=}{Lambda=}NA is returned.}
   \item{nCores}{Integer indicating the number of cores to use for
     computation. This feature requires the 'multicore' package which
     is only available for certain platforms. The package is used only if
     'library(multicore)' has been called manually by the user before and if
     'nCores' is an integer unequal NULL specifying the number of cores
     to use. The value is passed directly to 'mclapply' as argument
-    'n.cores'. For details and benefits please see below.}
+    'n.cores'. For details and benefits please see the 'Details'
+    section.}
+  \item{...}{Further arguments passed to subsequent functions.}
 }
 
 \details{
@@ -66,11 +77,12 @@ grenander = FALSE, se = FALSE, nCores=NULL)
   rectangular or gaussian weighting function respectively. The
   'triangWeight' is in general a good choice. For details on the
   functions itself and how to use custom ones please see the
-  documentation of the single functions or the vignette.
+  documentation of the single functions or the vignette of this package.
 
   The Grenander correction for the cumulative density introduces a bias
   but decreases the variability of the estimate. This may be reasonable
-  in some cases.
+  in some cases. More details about this can be found in the
+  documentation of the 'GSRI' package.
 
   The 'multicore' package can be used to spread the computation over several
   cores in a simple way. This can be useful on multi-core machines for
@@ -83,7 +95,7 @@ grenander = FALSE, se = FALSE, nCores=NULL)
       
 \value{
   Object of class 'Les' with additionally filled slots:
-  lambda, win, weighting, grenander, nProbes, se (if computed)
+  lambda, win, weighting, grenander, nProbes, se (se only if computed)
 }
 
 \author{

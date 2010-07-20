@@ -12,9 +12,10 @@
 }
 
 \usage{
-ci(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
+ci(object, subset, nBoot = 100, conf = 0.95, nCores = NULL, ...)
 
-\S4method{ci}{Les}(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
+\S4method{ci}{Les}(object, subset, nBoot = 100, conf = 0.95, nCores =
+NULL, ...)
 }
 
 \arguments{
@@ -32,7 +33,9 @@ ci(object, subset, nBoot = 100, conf = 0.95, nCores = NULL)
     'library(multicore)' has been called manually by the user before and if
     'nCores' is an integer unequal NULL specifying the number of cores
     to use. The value is passed directly to 'mclapply' as argument
-    'n.cores'. For details and benefits please see the 'Details' section.}
+    'n.cores'. For details and benefits please see the 'Details'
+    section.}
+  \item{...}{Further arguments passed to subsequent functions.}
 }
 
 \details{

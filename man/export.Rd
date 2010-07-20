@@ -8,17 +8,17 @@
 \title{export}
 
 \description{
-  Exports the results into files which are compatible with most genome
-  browsers. Estimated regions can be exported in 'bed' and 'gff' format,
+  Exports the results into files for interaction with other
+  software. Estimated regions can be exported in 'bed' and 'gff' format,
   \eqn{\Lambda}{Lambda} in 'wig' format.
 }
 
 \usage{
 export(object, file, format="bed", chr, range, description = "Lambda",
-strand=".", group="les", precision=4)
+strand=".", group="les", precision=4, ...)
 
 \S4method{export}{Les}(object, file, format="bed", chr, range,
-description = "Lambda", strand=".", group="les", precision=4)
+description = "Lambda", strand=".", group="les", precision=4, ...)
 }
 
 \arguments{
@@ -50,6 +50,7 @@ description = "Lambda", strand=".", group="les", precision=4)
   \item{precision}{Integer specifying the number of digits
     \eqn{\Lambda}{Lambda} should be rounded to for export to 'wig'
     format (default: 4).}
+  \item{...}{Further arguments passed to subsequent functions.}
 }
 
 \details{

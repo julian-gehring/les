@@ -21,7 +21,7 @@ gaussWeight(distance, win)
 
 \arguments{
   \item{distance}{Numeric vector specifying the distance of probes from
-    central probe. Negative values refer to probes upstream, positive
+    the central probe. Negative values refer to probes upstream, positive
     values to probes downstream.}
   \item{win}{Integer specifying maximum size of window.}
 }
@@ -39,7 +39,8 @@ gaussWeight(distance, win)
   functions please refer to the vignette of this package.
   
   Please note that the returned weights do not have to be normalized to
-  sum up to 1 since this is done at the computation of the weighted CDF.
+  sum up to 1 since this is done at the computation of the weighted
+  cumulative density function.
 }
       
 \value{

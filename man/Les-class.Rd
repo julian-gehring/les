@@ -47,19 +47,22 @@
       user in the 'ci' function.}
     \item{\code{subset}:}{Integer vector with indices of bootstrap
       subset. Set by the user in the 'ci' function.}
-    \item{\code{theta}:}{Numeric with the cutoff value Theta.}
+    \item{\code{theta}:}{Numeric with the threshold value Theta.}
     \item{\code{nSigProbes}:}{Integer with the number of estimated
       significant probes.xs}
     \item{\code{regions}:}{Data frame with estimated Loci of Enhanced
       Significance.}
-    \item{\code{limit}:}{Numeric with the cutoff value for estimation of
+    \item{\code{limit}:}{Numeric with the threshold value for estimation of
       'regions'. Set by the user in the 'regions' function.}
     \item{\code{nChr}:}{Integer with the number of chromosomes.}
-    \item{\code{maxGap}:}{Integer specifying the largest gap allowed in
+    \item{\code{maxGap}:}{Numeric specifying the largest gap allowed in
 	one region. Set by the user in the 'regions' function.}
     \item{\code{minLength}:}{Integer specifying the minimal number of
 	  probes in one region. Set by the user in the 'regions'
 	  function.}
+    \item{\code{minProbes}:}{Integer specifying the minimal number of
+	  unique p-values allowed for each fit. Set by the user in the
+	  'estimate' function.}	
   }
 }
 
@@ -89,8 +92,6 @@
 \examples{
 \dontrun{
 showClass("Les")
-show(object)
-summary(object)
 }
 }
 

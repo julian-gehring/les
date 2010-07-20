@@ -24,9 +24,9 @@ main=NULL, ...)
 \arguments{
   \item{x}{Object of class 'Les', as returned by 'estimate', 'threshold' or 'ci'.}
   \item{y}{Annotation object}
-  \item{chr}{Character or numeric specifying which chromosome to plot. Must have a
-    match 'chr' passed to 'create'. A value is required if the probes
-    are located on more than one chromosome.}
+  \item{chr}{Character or numeric specifying which chromosome to
+    plot. Must have a match in 'chr' passed to 'create'. A value is
+    required if the probes are located on more than one chromosome.}
   \item{region}{Logical indicating whether the estimated regions should
     be included in the plot. The 'regions' method must have been called
     beforehand.}
@@ -100,8 +100,10 @@ data(resTile)
 
 x <- create(pos, pval, chr)
 x <- estimate(x, win=25)
+x <- threshold(x)
+x <- regions(x)
 
-plot(x)
+plot(x, chr=1, region=TRUE)
 }
 }
 

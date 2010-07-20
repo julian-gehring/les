@@ -18,7 +18,7 @@ create <- function(pos, pval, chr)  {
   ## throw out NAs in pval
   indValid <- !is.na(pval)
   pos <- as.integer(pos[indValid])
-  pval <- round(pval[indValid], 12)
+  # pval <- round(pval[indValid], 12)
   chr <- factor(chr[indValid])
 
   ## sort
@@ -40,7 +40,7 @@ create <- function(pos, pval, chr)  {
 ##################################################
 setMethod("estimate", "Les",
           function(object, win, weighting=triangWeight,
-                   grenander=FALSE, se=FALSE, nCores=NULL)  {
+                   grenander=FALSE, se=FALSE, minProbes=3, nCores=NULL, ...)  {
             
   ## check input
   if(class(object) != "Les")
@@ -50,6 +50,7 @@ setMethod("estimate", "Les",
   if(win %% 1 != 0)
     warning("'win' was rounded to nearest integer.")
   win <- as.integer(win)
+  minProbes <- as.integer(minProbes - 1)
   chrLevel <- levels(object@chr)
 
   ## for each chr
@@ -61,7 +62,8 @@ setMethod("estimate", "Les",
 
     ## apply
     cs <- mcsapply(indProbes, calcSingle, pos, pval,
-                   win, weighting, grenander, se, nBoot=FALSE, mc.cores=nCores)
+                   win, weighting, grenander, se, nBoot=FALSE,
+                   minProbes=minProbes, mc.cores=nCores)
     
     ## extract result
     object@lambda[indChr] <- cs[1, ]
@@ -73,6 +75,7 @@ setMethod("estimate", "Les",
   object@win <- win
   object@weighting <- weighting
   object@grenander <- grenander
+  object@minProbes <- minProbes
   
   return(object)
 }
@@ -86,7 +89,7 @@ setMethod("estimate", "Les",
 ##################################################
 calcSingle <- function(ind0, pos, pval, win,
                        weighting, grenander, se,
-                       nBoot, conf)  {
+                       nBoot, conf, minProbes)  {
 
   ## cut down
   pos0 <- pos[ind0]
@@ -98,8 +101,9 @@ calcSingle <- function(ind0, pos, pval, win,
   indValid <- abs(distance) <= win
   # nValidProbes <- length(unique(pvalCut[indValid]))
   nValidProbes <- length(pvalCut[indValid])
+  nUniqueProbes <- length(unique(pvalCut[indValid]))
 
-  if(nValidProbes>1)  {
+  if(nUniqueProbes > minProbes)  {
     ## if enough probes
     dis <- distance[indValid]
     weight <- weighting(dis, win)
@@ -148,9 +152,12 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
   q <- 1
   noBoot <- is.null(index)
   if(noBoot == TRUE)
-    cdf <- wcdf(pval, cweight, grenander)
+    cdf <- wcdf2(pval, cweight, grenander)
   else
-    cdf <- wcdf(pval[index], cweight[index], grenander)
+    cdf <- wcdf2(pval[index], cweight[index], grenander)
+  cw <- diagSquare(cweight, length(pval))
+  #if(any(cdf$cdf < 0))
+  #  stop("weights < 0")
 ## browser()
   ## iterative fitting
   for(i in 1:maxIter)  {
@@ -161,9 +168,11 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
       break
     x <- cdf$pval[rest:nValidProbes] - 1
     y <- cdf$cdf[rest:nValidProbes] - 1
+    z <- cw[rest:nValidProbes, rest:nValidProbes]
 #    if(length(unique(x)) == 1) # only for boot?
 #      break
-    q <- GSRI:::slopeFast(x, y)
+    #q <- GSRI:::slopeFast(x, y)
+    q <- slopeWeight(x, y, z)
     restOld <- rest
   }
 
@@ -185,34 +194,49 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
 
 
 ##################################################
-## wcdf
+## wcdf2
 ##################################################
-wcdf <- function(pval, weight, grenander)  {
+wcdf2 <- function(pval, weight, grenander=FALSE)  {
   
   ord <- sort.list(pval, method="quick", na.last=NA)
   pvalSort <- pval[ord]
   weightSort <- weight[ord]
+  nPval <- length(pvalSort)
 
-  indUnique <- !duplicated(pvalSort)
-  pvalUnique <- pvalSort[indUnique]
-#  weightUnique <- weightSort[indUnique] 
-  nUnique <- length(pvalUnique)
-  nProbes <- length(pvalSort)
-  cdf <- cumsum(weightSort)
-  cdf <- cdf/cdf[length(pval)]
-#  cdf <- cumsum(weightSort[indUnique])
-#  cdf <- cdf/cdf[nUnique]
-browser()
+  if(any(duplicated(pvalSort)))  {
+    tabCount <- rle(pvalSort)$lengths  ## table()
+    tabWeight <- table(pvalSort, weightSort)
+    weightSum <- tabWeight %*% sort(unique(weightSort))
+    cdf1 <- cumsum(weightSum)
+    cdf1r <- rep.int(cdf1, tabCount)
+    cdf2r <- rep.int(c(0, cdf1[-length(cdf1)]), tabCount)
+    cdf2r <- cdf2r/cdf1r[nPval]
+    cdf1r <- cdf1r/cdf1r[nPval]
+    cdf <- cdf1r - (cdf1r - cdf2r)/2
+    # weight2 <- rep.int(cdf, tabCount)
+  }
+  else  {
+    cdf <- cumsum(weightSort)
+    cdf <- cdf/cdf[nPval]
+    cdf <- cdf - (cdf-c(0, cdf[-nPval]))/2
+  }
+
   if(grenander == TRUE)
-    cdf <- GSRI:::grenanderInterp(pvalUnique, cdf)
-  if(nProbes != nUnique)
-    cdf <- rep.int(cdf, table(pvalSort))
+    cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
+
+#  nPval <- length(pval)
+#  y <- rep(NA, nPval)
+#  for(i in 1:nPval)  {
+#    y[i] <- sum(weightSort[pvalSort <= pvalSort[i]])
+#  }
+#browser()
+#  y <- y/sum(weightSort)
+#  y <- y - 1/(2*sum(weightSort))
   
-  cdf <- cdf - 0.5/nProbes  ## where to put this ??
   res <- list(pval=pvalSort, cdf=cdf)
 
   return(res)
-}
+  }
 
 
 ##################################################
@@ -290,7 +314,8 @@ mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
 ## ci
 ##################################################
 setMethod("ci", "Les",
-          function(object, subset, nBoot=100, conf=0.95, nCores=NULL)  {
+          function(object, subset, nBoot=100, conf=0.95,
+                   nCores=NULL, ...)  {
 
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'")
@@ -315,7 +340,7 @@ setMethod("ci", "Les",
     pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
     bs <- mcsapply(indProbes, calcSingle, pos, pval,
                    win, object@weighting, object@grenander, se=FALSE,
-                   nBoot, conf, mc.cores=nCores)
+                   nBoot, conf, minProbes=object@minProbes, mc.cores=nCores)
     bc <- cbind(bc, bs)
   }
   
@@ -333,7 +358,8 @@ setMethod("ci", "Les",
 ## regions
 ##################################################
 setMethod("regions", "Les",
-          function(object, limit=NULL, minLength=2, maxGap=Inf, verbose=FALSE)  {
+          function(object, limit=NULL, minLength=2,
+                   maxGap=Inf, verbose=FALSE, ...)  {
 
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'.")
@@ -373,8 +399,8 @@ setMethod("regions", "Les",
     for(i in 1:length(begin))  {
       ri[i, ] <- gsri(object@pval[begin[i]:end[i]], se=TRUE)[c(1,2)]
     }
-    rs <- ri[ ,1]/ri[ ,2]
   }
+  rs <- ri[ ,1]/ri[ ,2]
   
   size <- as.integer(object@pos[end]-object@pos[begin]+1)
   regions <- data.frame(chr=factor(object@chr[begin]),
@@ -411,7 +437,7 @@ gsri <- function(pval, grenander=FALSE, se=TRUE)  {
 ## threshold
 ##################################################
 setMethod("threshold", "Les",
-          function(object, grenander=FALSE, verbose=FALSE)  {
+          function(object, grenander=FALSE, verbose=FALSE, ...)  {
   
   if(class(object) != "Les")
     stop("'object' must be of class 'Les'")
@@ -687,7 +713,7 @@ inVector <- function(pos, start, end)  {
 setMethod("export", "Les",
           function(object, file, format="bed", chr, range,
                    description="Lambda", strand=".", group="les",
-                   precision=4)  {
+                   precision=4, ...)  {
 
   choice <- pmatch(format, c("gff", "bed", "wig"))          
   if(class(object) != "Les")
@@ -755,8 +781,25 @@ setMethod("export", "Les",
 ##################################################
 ## slopeWeight
 ##################################################
-slopeWeight <- function(x, y, c=diag(1, length(x)))  {
-  s <- t(x) %*% c  ## do outside and subset? possible since matrix?
-  b <- ((s %*% y) / (s %*% x))[1]  ## same as as.numeric
+slopeWeight <- function(x, y, c)  {
+  s <- t(x) %*% c  ## do outside and subset? possible since matrix? no !
+  b <- ((s %*% y) / (s %*% x))[1]  ## same as as.numeric()
   return(b)
 }
+
+
+diagSquare <- function(w, n)  {
+  y <- array(0, c(n, n))
+  y[1+0:(n-1)*(n+1)] <- w
+  return(y)
+}
+
+
+tablet <- function(x, y)  {
+  ord <- order(x, y)
+  rl1 <- rle(x[ord])
+  rl2 <- rle(y[ord])
+
+  z <- matrix(NA, length(rl1$lengths), max(rl2$lengths))
+}
+

@@ -8,33 +8,36 @@
 \title{regions}
 
 \description{
-  Estimates regions of continuously elevated
-  \eqn{\Lambda_i}{Lambda}. These are distinct regions of regulation.
+  Estimates distinct regions of continuously elevated
+  \eqn{\Lambda_i}{Lambda} above a threshold \eqn{\Theta}{Theta}.
 }
       
 \usage{
-regions(object, limit=NULL, minLength=2, maxGap=Inf, verbose = FALSE)
+regions(object, limit=NULL, minLength=2, maxGap=Inf, verbose = FALSE,
+...)
 
 \S4method{regions}{Les}(object, limit=NULL, minLength=2, maxGap=Inf,
-verbose = FALSE)
+verbose = FALSE, ...)
 }
 
 \arguments{
   \item{object}{Object of class 'Les' as returned by 'threshold'.}
   \item{limit}{Numeric specifying the threshold \eqn{\Theta}{Theta} for
     \eqn{\Lambda}{Lambda} with regions are defined as
-    \eqn{\Lambda_i\geq\Theta}{Lambda>=Theta}. If missing
+    \eqn{\Lambda_i\geq\Theta}{Lambda>=Theta} (default: NULL). If 'NULL'
     \eqn{\Theta}{Theta} will be derived from the estimated number of
     regulated probes as computed by 'threshold'.}
   \item{minLength}{Integer specifying the minimum number of probes in a
-    region. If not specified regions can have arbitrary small size.}
+    region (default: 2). If not specified regions can have arbitrary
+    small size.}
   \item{maxGap}{Integer specifying maximum gap in base pairs between two
-    neighboring probes in a region. If this value is exceeded the region
-    will be split into smaller ones such that maxGap is not exceed by
-    any pair of neighboring probes. If not specified arbitrary large gap
-    sizes are allowed.}
+    neighboring probes in a region (defualt: Inf). If this value is
+    exceeded the region will be split into smaller ones such that maxGap
+    is not exceedby any pair of neighboring probes. If not specified
+    arbitrary large gap sizes are allowed.}
   \item{verbose}{Logical indicating whether a summary of the estimated
     regions should be printed on screen (default: FALSE).}
+  \item{...}{Further arguments passed to subsequent functions.}
 }
 
 \details{
@@ -64,13 +67,13 @@ verbose = FALSE)
   \item{start}{Position of the beginning of the region.}
   \item{end}{Position of the end of the region.}
   \item{size}{Extend of the region in base pairs (measured in the same
-    units as input 'pos').}
+    units as input 'pos', normally base pairs).}
   \item{nProbes}{Number of probes in the region.}
   \item{ri}{Regulation Index of the region indicating the fraction of
     regulated probes in the region.}
   \item{se}{Standard error of the estimation of 'ri'.}
   \item{rs}{Regulation score defined as 'ri'/'se'. The data frame is
-    sorted by this variable.}
+    sorted according to this variable.}
 }
 
 \author{
