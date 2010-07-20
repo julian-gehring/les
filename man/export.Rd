@@ -32,10 +32,9 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
     the probes. If 'bed' or 'gff' the method 'regions' has to be run
     beforehand. Partial matches are also possible.}  
   \item{chr}{Character string specifying the chromosome from which
-    results should be exported in 'wig' format. This value must be set
-    if 'format' is set to 'wig', for other formats it has no
-    effect. 'chr' must have exactly one match in the 'chr' argument
-    specified in 'create'.}
+    results should be exported. This value must be set if exporting to
+    'wig' format, for other formats is optional. 'chr' must have exactly
+    one match in the 'chr' argument specified in 'create'.}
   \item{range}{Numeric vector specifying the probe range in position
     which should be exported. If missing all probes of the chromosome
     will be exported. This value has only an effect if 'format' is set
@@ -89,10 +88,10 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
 
 \examples{
 \dontrun{
-data(resTile)
+data(statTile)
 
 x <- create(pos, pval, chr)
-x <- estimate(x, win=25)
+x <- estimate(x, win=50)
 x <- threshold(x)
 x <- regions(x)
 

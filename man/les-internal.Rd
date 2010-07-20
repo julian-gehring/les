@@ -26,7 +26,8 @@ reg2log(reg, x)
 reg2ind(reg, x)
 log2reg(log)
 ind2reg(ind, n)
-scaling(x)
+slopeWeight(x, y, c)
+diagSquare(w, n)
 }
 
 \details{

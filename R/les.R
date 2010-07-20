@@ -14,6 +14,8 @@ create <- function(pos, pval, chr)  {
     stop("'pos' must not contain NAs.")
   if(any(pos %% 1 != 0))
     stop("'pos' must be a vector of integers.")
+  if(!is.numeric(pval) || min(pval, na.rm=TRUE) < 0 || max(pval, na.rm=TRUE) > 1)
+    stop("'pval' must contain numerics in the range [0,1].")
 
   ## throw out NAs in pval
   indValid <- !is.na(pval)
@@ -43,10 +45,10 @@ setMethod("estimate", "Les",
                    grenander=FALSE, se=FALSE, minProbes=3, nCores=NULL, ...)  {
             
   ## check input
-  if(class(object) != "Les")
-    stop("'object' must be of class 'Les'")
   if(missing(win))
     stop("'win' must be specified.")
+  if(win < 1)
+    stop("'win' must be a positive integer.")
   if(win %% 1 != 0)
     warning("'win' was rounded to nearest integer.")
   win <- as.integer(win)
@@ -317,8 +319,6 @@ setMethod("ci", "Les",
           function(object, subset, nBoot=100, conf=0.95,
                    nCores=NULL, ...)  {
 
-  if(class(object) != "Les")
-    stop("'object' must be of class 'Les'")
   if(missing(subset))
     subset <- rep(TRUE, length(object@pos))
     #subset <- seq(along=object@pos)
@@ -361,8 +361,6 @@ setMethod("regions", "Les",
           function(object, limit=NULL, minLength=2,
                    maxGap=Inf, verbose=FALSE, ...)  {
 
-  if(class(object) != "Les")
-    stop("'object' must be of class 'Les'.")
   if(is.null(limit))  {
     if(length(object@theta) == 0)
       stop("'limit' must be specified.")
@@ -403,11 +401,13 @@ setMethod("regions", "Les",
   rs <- ri[ ,1]/ri[ ,2]
   
   size <- as.integer(object@pos[end]-object@pos[begin]+1)
-  regions <- data.frame(chr=factor(object@chr[begin]),
-                        start=object@pos[begin], end=object@pos[end],
-                        size=size, nProbes=nProbes, ri=round(ri[ ,1], 4),
-                        se=round(ri[ ,2], 4), rs=round(rs, 4))
-  regions <- regions[order(rs, ri[ ,1], nProbes, size, decreasing=TRUE), ]
+  ord <- order(rs, ri[ ,1], nProbes, size, decreasing=TRUE)
+  regions <- data.frame(chr=factor(object@chr[begin])[ord],
+                        start=object@pos[begin][ord],
+                        end=object@pos[end][ord],
+                        size=size[ord], nProbes=nProbes[ord],
+                        ri=round(ri[ ,1], 4)[ord], se=round(ri[ ,2], 4)[ord],
+                        rs=round(rs, 4)[ord])
 
   object@regions <- regions
   object@limit <- limit
@@ -438,9 +438,6 @@ gsri <- function(pval, grenander=FALSE, se=TRUE)  {
 ##################################################
 setMethod("threshold", "Les",
           function(object, grenander=FALSE, verbose=FALSE, ...)  {
-  
-  if(class(object) != "Les")
-    stop("'object' must be of class 'Les'")
   
   pval <- object@pval
   nProbes <- length(pval)
@@ -480,7 +477,8 @@ setMethod("plot", "Les",
       indChr <- rep(TRUE, length(x@pos))
     }
     else
-      stop("'chr' must be specified.")
+      stop(c("'chr' must be specified. Possible values are: ",
+             paste(levels(x@chr), collapse=", ")))
   }
   else  {
     if(length(chr) == 1 && any(x@chr %in% chr))
@@ -687,37 +685,12 @@ ind2reg <- function(ind, n)  {
 ## ok ##
 
 
-scaling <- function(x)  {
-
-  x <- x - min(x)
-  x <- x/max(x)
-
-  return(x)
-}
-## ok ##
-
-
-inVector <- function(pos, start, end)  {
-  if(length(start) != length(end))
-    stop("not same length")
-  sig <- logical(length(pos))
-  for(i in 1:length(start))  {
-    ind <- pos >= start[i] & pos <= end[i]
-    sig[ind] <- TRUE
-  }
-  return(sig)
-}
-## ok ##
-
-
 setMethod("export", "Les",
           function(object, file, format="bed", chr, range,
                    description="Lambda", strand=".", group="les",
                    precision=4, ...)  {
 
   choice <- pmatch(format, c("gff", "bed", "wig"))          
-  if(class(object) != "Les")
-    stop("'object' must be of class 'Les'")
   if(is.na(choice))
     stop("'format' must be 'gff', 'bed' or 'wig'")
 
@@ -749,7 +722,8 @@ setMethod("export", "Les",
   }
   if(choice == 3)  {
     if(missing(chr) || length(chr) > 1)
-      stop("'chr' must have one value for 'wig' export")
+      stop(c("'chr' must have one value for 'wig' export. Possible values are: ",
+             paste(levels(object@chr), collapse=", ")))
     header <- c(sprintf("%s%s%s","track name=\"", description,
                         "\" type=wiggle_0 viewLimits=0:1 autoScale=off"),
                 sprintf("%s%s %s", "variableStep chrom=", chr,  "span=1"))
@@ -757,8 +731,8 @@ setMethod("export", "Les",
     if(missing(range))
       ind <- object@chr %in% chr & !is.na(object@lambda)
     else  {
-      ind <- object@chr %in% chr & object@pos <= min(range) &
-      object@pos >= max(range) & !is.na(object@lambda)
+      ind <- object@chr %in% chr & object@pos >= min(range) &
+      object@pos <= max(range) & !is.na(object@lambda)
     }
     
     values <- format(round(object@lambda[ind], precision), scientific=16)

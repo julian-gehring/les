@@ -124,12 +124,13 @@ grenander = FALSE, se = FALSE, minProbes = 3, nCores=NULL, ...)
 
 \examples{
 \dontrun{
-data(resTile)
+data(statTile)
 
 x <- create(pos, pval, chr)
 x <- estimate(x, win=25)
 
-plot(x)
+summary(x)
+plot(x, chr=1)
 }
 }
 

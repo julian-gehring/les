@@ -96,7 +96,7 @@ main=NULL, ...)
 
 \examples{
 \dontrun{
-data(resTile)
+data(statTile)
 
 x <- create(pos, pval, chr)
 x <- estimate(x, win=25)

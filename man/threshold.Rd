@@ -85,9 +85,10 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
 
 \examples{
 \dontrun{
-data(resTile)
+data(statTile)
 
 x <- create(pos, pval, chr)
+x <- estimate(x, win=50)
 x <- threshold(x, verbose=TRUE)
 }
 }
