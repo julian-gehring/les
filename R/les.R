@@ -42,7 +42,7 @@ create <- function(pos, pval, chr)  {
 ##################################################
 setMethod("estimate", "Les",
           function(object, win, weighting=triangWeight,
-                   grenander=FALSE, se=FALSE, minProbes=3, nCores=NULL, ...)  {
+                   se=FALSE, minProbes=3, nCores=NULL, ...)  {
             
   ## check input
   if(missing(win))
@@ -54,6 +54,12 @@ setMethod("estimate", "Les",
   win <- as.integer(win)
   minProbes <- as.integer(minProbes - 1)
   chrLevel <- levels(object@chr)
+
+  ## silent default for grenander
+  arg <- list(...)
+  grenander <- FALSE
+  if(any(names(arg) == "grenander"))
+    grenander <- arg[[which(names(arg) == "grenander")]]
 
   ## for each chr
   for(c in 1:object@nChr)  {
@@ -763,8 +769,9 @@ slopeWeight <- function(x, y, c)  {
 
 
 diagSquare <- function(w, n)  {
-  y <- array(0, c(n, n))
+  y <- rep(0, n*n)
   y[1+0:(n-1)*(n+1)] <- w
+  dim(y) <- c(n, n)
   return(y)
 }
 

@@ -14,11 +14,11 @@
 }
 
 \usage{
-estimate(object, win, weighting = triangWeight, grenander = FALSE, se =
-FALSE, minProbes = 3, nCores=NULL, ...)
+estimate(object, win, weighting = triangWeight, se = FALSE,
+minProbes = 3, nCores=NULL, ...)
 
 \S4method{estimate}{Les}(object, win, weighting = triangWeight,
-grenander = FALSE, se = FALSE, minProbes = 3, nCores=NULL, ...)
+se = FALSE, minProbes = 3, nCores=NULL, ...)
 }
 
 \arguments{
@@ -33,9 +33,6 @@ grenander = FALSE, se = FALSE, minProbes = 3, nCores=NULL, ...)
     triangular window will be used. For details on other window
     functions and how to specify own functions please see the 'Details'
     section.}
-  \item{grenander}{Logical indicating whether the Grenander correction
-    for the cumulative density should be used (default: FALSE). For
-    details see the 'Details' section and the 'GSRI' package.}
   \item{se}{Logical indicating whether the standard error from the final
     linear model should be computed and stored (default: FALSE). The
     standard error displays the goodness of fit for every probe, but is
@@ -78,11 +75,6 @@ grenander = FALSE, se = FALSE, minProbes = 3, nCores=NULL, ...)
   'triangWeight' is in general a good choice. For details on the
   functions itself and how to use custom ones please see the
   documentation of the single functions or the vignette of this package.
-
-  The Grenander correction for the cumulative density introduces a bias
-  but decreases the variability of the estimate. This may be reasonable
-  in some cases. More details about this can be found in the
-  documentation of the 'GSRI' package.
 
   The 'multicore' package can be used to spread the computation over several
   cores in a simple way. This can be useful on multi-core machines for
