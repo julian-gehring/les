@@ -163,10 +163,12 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
     cdf <- wcdf2(pval, cweight, grenander)
   else
     cdf <- wcdf2(pval[index], cweight[index], grenander)
-  cw <- diagSquare(cweight, length(pval))
+  #cw <- diagSquare(cweight, length(pval))
   #if(any(cdf$cdf < 0))
   #  stop("weights < 0")
 ## browser()
+  x <- cdf$pval - 1
+  y <- cdf$cdf - 1
   ## iterative fitting
   for(i in 1:maxIter)  {
     rest <- nValidProbes - ceiling(q*nValidProbes)
@@ -174,13 +176,15 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
     rest <- min(c(nValidProbes-1, rest))
     if(is.na(rest) || restOld == rest)
       break
-    x <- cdf$pval[rest:nValidProbes] - 1
-    y <- cdf$cdf[rest:nValidProbes] - 1
-    z <- cw[rest:nValidProbes, rest:nValidProbes]
+    #x <- cdf$pval[rest:nValidProbes] - 1
+    #y <- cdf$cdf[rest:nValidProbes] - 1
+    #z <- cw[rest:nValidProbes, rest:nValidProbes]
 #    if(length(unique(x)) == 1) # only for boot?
 #      break
     #q <- GSRI:::slopeFast(x, y)
-    q <- slopeWeight(x, y, z)
+    ind <- rest:nValidProbes
+    q <- qrSlope(as.matrix(x[ind]), y[ind], cweight[ind])
+    #q <- slopeWeight(x, y, z)
     restOld <- rest
   }
 
@@ -767,6 +771,11 @@ slopeWeight <- function(x, y, c)  {
   return(b)
 }
 
+
+qrSlope <- function(x, y, w)  {
+  b <- as.numeric(lm.wfit(x, y, w)$coefficients)
+  return(b)
+}
 
 diagSquare <- function(w, n)  {
   y <- rep(0, n*n)
