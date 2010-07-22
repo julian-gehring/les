@@ -15,10 +15,10 @@
 
 \usage{
 estimate(object, win, weighting = triangWeight, se = FALSE,
-minProbes = 3, nCores=NULL, ...)
+minProbes = 3, method = "la", nCores = NULL, ...)
 
 \S4method{estimate}{Les}(object, win, weighting = triangWeight,
-se = FALSE, minProbes = 3, nCores=NULL, ...)
+se = FALSE, minProbes = 3, method = "la", nCores = NULL, ...)
 }
 
 \arguments{
@@ -45,6 +45,13 @@ se = FALSE, minProbes = 3, nCores=NULL, ...)
     and therefore estimation has a high uncertainty. If the number of
     unique p-values is smaller than 'minProbes' no estimation is
     performed for this probe and \eqn{\Lambda=}{Lambda=}NA is returned.}
+  \item{method}{Character string specifying the method used for linear
+    regression (default: 'la'). Possible options are 'la' for a method
+    based on linear algebra or 'qr' for a method based on qr
+    decomposition. 'la' will be faster for few probes, 'qr' for many
+    probes in a window. The best choice varies between data sets,
+    parameters and machines. However this option only influences
+    computation time but not the results.}
   \item{nCores}{Integer indicating the number of cores to use for
     computation. This feature requires the 'multicore' package which
     is only available for certain platforms. The package is used only if

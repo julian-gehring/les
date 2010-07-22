@@ -4,6 +4,7 @@
 \alias{triangWeight}
 \alias{rectangWeight}
 \alias{gaussWeight}
+\alias{epWeight}
 
 \title{
   Weighting functions
@@ -16,7 +17,8 @@
 \usage{
 triangWeight(distance, win)
 rectangWeight(distance, win)
-gaussWeight(distance, win) 
+gaussWeight(distance, win)
+epWeight(distance, win)
 }
 
 \arguments{
@@ -27,10 +29,11 @@ gaussWeight(distance, win)
 }
 
 \details{
-  The functions 'triangWeight', 'rectangWeight' and 'gaussWeight'
-  provide a triangular and rectangular weighting window
-  respectively. The weighting function can be specified by the
-  'weightingFunction' argument in the 'estimate' method.
+  The functions 'triangWeight', 'rectangWeight', 'epWeight' and
+  'gaussWeight' provide a triangular, rectangular, Epanechnikov and
+  gaussian weighting window respectively. The weighting function can be
+  specified by the 'weightingFunction' argument in the 'estimate'
+  method.
 
   This way it is also possible to use custom weighting functions. In
   general they have to be called the same way as the functions mentioned
@@ -75,10 +78,12 @@ gaussWeight(distance, win)
 weight <- triangWeight(distance, win)
 weight <- rectangWeight(distance, win)
 weight <- gaussWeight(distance, win)
+weight <- epWeight(distance, win)
 
 res <- estimate(res, win=20, weighting=rectangWeight)
 }
 }
 
 \keyword{htest}
+\keyword{smooth}
 

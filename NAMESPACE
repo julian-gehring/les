@@ -10,7 +10,7 @@ importMethodsFrom(methods, show)
 importClassesFrom(methods, data.frame, factor, "function", integer,
                   logical, numeric)
 
-export(create, triangWeight, rectangWeight, gaussWeight)
+export(create, triangWeight, rectangWeight, gaussWeight, epWeight)
 exportClasses(Les)
 exportMethods(plot, show, summary, threshold, regions, ci, export, estimate)
 

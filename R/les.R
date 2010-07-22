@@ -14,8 +14,9 @@ create <- function(pos, pval, chr)  {
     stop("'pos' must not contain NAs.")
   if(any(pos %% 1 != 0))
     stop("'pos' must be a vector of integers.")
-  if(!is.numeric(pval) || min(pval, na.rm=TRUE) < 0 || max(pval, na.rm=TRUE) > 1)
-    stop("'pval' must contain numerics in the range [0,1].")
+  #if(!is.numeric(pval) || min(pval, na.rm=TRUE) < 0 || max(pval, na.rm=TRUE) > 1)
+  #  stop("'pval' must contain numerics in the range [0,1].")
+  ## bring back later !!!!
 
   ## throw out NAs in pval
   indValid <- !is.na(pval)
@@ -42,7 +43,7 @@ create <- function(pos, pval, chr)  {
 ##################################################
 setMethod("estimate", "Les",
           function(object, win, weighting=triangWeight,
-                   se=FALSE, minProbes=3, nCores=NULL, ...)  {
+                   se=FALSE, minProbes=3, method="la", nCores=NULL, ...)  {
             
   ## check input
   if(missing(win))
@@ -51,6 +52,9 @@ setMethod("estimate", "Les",
     stop("'win' must be a positive integer.")
   if(win %% 1 != 0)
     warning("'win' was rounded to nearest integer.")
+  custom <- pmatch(method, c("la", "qr"), NA) == 1
+  if(is.na(custom))
+    stop("'method' must be 'la' or 'qr'")
   win <- as.integer(win)
   minProbes <- as.integer(minProbes - 1)
   chrLevel <- levels(object@chr)
@@ -71,7 +75,7 @@ setMethod("estimate", "Les",
     ## apply
     cs <- mcsapply(indProbes, calcSingle, pos, pval,
                    win, weighting, grenander, se, nBoot=FALSE,
-                   minProbes=minProbes, mc.cores=nCores)
+                   minProbes=minProbes, custom=custom, mc.cores=nCores)
     
     ## extract result
     object@lambda[indChr] <- cs[1, ]
@@ -84,6 +88,7 @@ setMethod("estimate", "Les",
   object@weighting <- weighting
   object@grenander <- grenander
   object@minProbes <- minProbes
+  object@method <- method
   
   return(object)
 }
@@ -97,7 +102,7 @@ setMethod("estimate", "Les",
 ##################################################
 calcSingle <- function(ind0, pos, pval, win,
                        weighting, grenander, se,
-                       nBoot, conf, minProbes)  {
+                       nBoot, conf, minProbes, custom)  {
 
   ## cut down
   pos0 <- pos[ind0]
@@ -121,12 +126,13 @@ calcSingle <- function(ind0, pos, pval, win,
     ## apply
     if(nBoot == FALSE)  {
       res <- fitGSRI(pvalCut[indValid][indWeight], index=NULL,
-                     weight[indWeight], nWeight, grenander, se)
+                     weight[indWeight], nWeight, grenander, se,
+                     custom)
     }
     else  {
       bo <- boot::boot(pvalCut[indValid][indWeight], fitGSRI, nBoot,
                  cweight=weight[indWeight], nValidProbes=nWeight,
-                 grenander=grenander, se=se)
+                 grenander=grenander, se=se, custom=custom)
       ## try not needed? TO DO !
       suppressWarnings(ci <- try(boot::boot.ci(bo, conf, type="perc"),
                                  silent=TRUE))
@@ -152,7 +158,8 @@ calcSingle <- function(ind0, pos, pval, win,
 ##################################################
 ## fitGSRI
 ##################################################
-fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
+fitGSRI <- function(pval, index=NULL, cweight,
+                    nValidProbes, grenander, se, custom)  {
   
   maxIter <- nValidProbes
   restOld <- 0
@@ -163,10 +170,10 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
     cdf <- wcdf2(pval, cweight, grenander)
   else
     cdf <- wcdf2(pval[index], cweight[index], grenander)
-  #cw <- diagSquare(cweight, length(pval))
-  #if(any(cdf$cdf < 0))
-  #  stop("weights < 0")
-## browser()
+  if(custom == TRUE)
+    cw <- diagSquare(cweight, nValidProbes)
+  if(any(cdf$cdf < 0))
+    stop("weights < 0")
   x <- cdf$pval - 1
   y <- cdf$cdf - 1
   ## iterative fitting
@@ -176,15 +183,19 @@ fitGSRI <- function(pval, index=NULL, cweight, nValidProbes, grenander, se)  {
     rest <- min(c(nValidProbes-1, rest))
     if(is.na(rest) || restOld == rest)
       break
-    #x <- cdf$pval[rest:nValidProbes] - 1
-    #y <- cdf$cdf[rest:nValidProbes] - 1
-    #z <- cw[rest:nValidProbes, rest:nValidProbes]
 #    if(length(unique(x)) == 1) # only for boot?
 #      break
-    #q <- GSRI:::slopeFast(x, y)
     ind <- rest:nValidProbes
-    q <- qrSlope(as.matrix(x[ind]), y[ind], cweight[ind])
-    #q <- slopeWeight(x, y, z)
+    nRest <- length(ind)
+    if(custom == TRUE)  {
+      q <- slopeWeight(x[ind], y[ind], cw[ind,ind])
+    }
+    else  {
+      xi <- x[ind]
+      dim(xi) <- c(nRest, 1)
+      q <- qrSlope(xi, y[ind], cweight[ind])
+    }
+    
     restOld <- rest
   }
 
@@ -235,15 +246,6 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
 
   if(grenander == TRUE)
     cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
-
-#  nPval <- length(pval)
-#  y <- rep(NA, nPval)
-#  for(i in 1:nPval)  {
-#    y[i] <- sum(weightSort[pvalSort <= pvalSort[i]])
-#  }
-#browser()
-#  y <- y/sum(weightSort)
-#  y <- y - 1/(2*sum(weightSort))
   
   res <- list(pval=pvalSort, cdf=cdf)
 
@@ -254,7 +256,7 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
 ##################################################
 ## seFast
 ##################################################
-seFast <- function(x, y, b) {
+seFast <- function(x, y, b)  {
   
   si     <- sum((y-b*x)^2)/(length(x)-1)
   se     <- as.numeric(sqrt(si/(t(x)%*%x)))
@@ -302,6 +304,17 @@ rectangWeight <- function(distance, win)  {
 
 
 ##################################################
+## epWeight
+##################################################
+epWeight <- function(distance, win)  {
+  
+  weight <- 0.75*(1 - (distance/win)^2)
+    
+  return(weight)
+}
+
+
+##################################################
 ## mcapply
 ##################################################
 mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
@@ -338,6 +351,7 @@ setMethod("ci", "Les",
   #  subset <- reg2log(subset, object@pos)
   nBoot <- as.integer(nBoot)
   win <- object@win
+  custom <- object@method == 1
   chrLevel <- levels(factor(object@chr[subset]))
   nChr <- length(chrLevel)
 
@@ -350,7 +364,8 @@ setMethod("ci", "Les",
     pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
     bs <- mcsapply(indProbes, calcSingle, pos, pval,
                    win, object@weighting, object@grenander, se=FALSE,
-                   nBoot, conf, minProbes=object@minProbes, mc.cores=nCores)
+                   nBoot, conf, minProbes=object@minProbes, custom=custom,
+                   mc.cores=nCores)
     bc <- cbind(bc, bs)
   }
   
@@ -432,10 +447,11 @@ setMethod("regions", "Les",
 ##################################################
 ## gsri
 ##################################################
-gsri <- function(pval, grenander=FALSE, se=TRUE)  {
+gsri <- function(pval, grenander=FALSE, se=TRUE, custom=FALSE)  {
 
   cweight <- rep(1, length(pval))
-  res <- fitGSRI(pval, NULL, cweight, length(pval), grenander, se)
+  res <- fitGSRI(pval, NULL, cweight, length(pval),
+                 grenander=grenander, se=se, custom=custom)
   res <- c(res, res[1]*res[3])
   names(res) <- c("GSRI", "se", "n", "nReg")
 
@@ -596,7 +612,7 @@ setMethod("show", "Les",
   if(length(lambda) != 0)
     cat(sprintf("* %s [%g, %g] %s %d\n", "Lambda in range",
                 min(lambda, na.rm=TRUE), max(lambda, na.rm=TRUE),
-                "with kernel size", object@win))
+                "with window size", object@win))
   if(length(object@ci) != 0)
     cat(sprintf("* %g %s %d %s\n", object@conf, "confidence intervals computed for",
                 length(object@subset), "probes"))
@@ -640,57 +656,6 @@ ind2log <- function(ind, n)  {
   log[ind] <- TRUE
 
   return(log)
-}
-## ok ##
-
-
-reg2log <- function(reg, x)  {
-
-  if(ncol(reg) != 2)
-    stop("'reg' must have 2 columns")
-  log <- logical(length(x))
-  for(i in 1:nrow(reg))  {
-    ind <- x >= min(reg[i, ]) & x <= max(reg[i, ])
-    log[ind] <- TRUE
-  }
-
-  return(log)
-}
-## ok ##
-
-
-reg2ind <- function(reg, x)  {
-
-  log <- reg2log(reg, x)
-  ind <- log2ind(log)
-
-  return(ind)
-}
-## ok ##
-
-
-log2reg <- function(log)  {
-
-  ind <- c(FALSE, log, FALSE)
-  d <- diff(ind)
-  s <- seq(along=d)
-  begin <- s[d == 1]
-  end <- s[d == -1] - 1
-  #ind <- begin != end
-  reg <- cbind(begin, end)
-  colnames(reg) <- c("begin", "end")
-
-  return(reg)
-}
-## ok ##
-
-
-ind2reg <- function(ind, n)  {
-
-  log <- ind2log(ind, n)
-  reg <- log2reg(log)
-
-  return(reg)
 }
 ## ok ##
 
@@ -777,19 +742,11 @@ qrSlope <- function(x, y, w)  {
   return(b)
 }
 
+
 diagSquare <- function(w, n)  {
   y <- rep(0, n*n)
   y[1+0:(n-1)*(n+1)] <- w
   dim(y) <- c(n, n)
   return(y)
-}
-
-
-tablet <- function(x, y)  {
-  ord <- order(x, y)
-  rl1 <- rle(x[ord])
-  rl2 <- rle(y[ord])
-
-  z <- matrix(NA, length(rl1$lengths), max(rl2$lengths))
 }
 

@@ -56,13 +56,15 @@
       'regions'. Set by the user in the 'regions' function.}
     \item{\code{nChr}:}{Integer with the number of chromosomes.}
     \item{\code{maxGap}:}{Numeric specifying the largest gap allowed in
-	one region. Set by the user in the 'regions' function.}
+      one region. Set by the user in the 'regions' function.}
     \item{\code{minLength}:}{Integer specifying the minimal number of
-	  probes in one region. Set by the user in the 'regions'
-	  function.}
+      probes in one region. Set by the user in the 'regions'
+      function.}
     \item{\code{minProbes}:}{Integer specifying the minimal number of
-	  unique p-values allowed for each fit. Set by the user in the
-	  'estimate' function.}	
+      unique p-values allowed for each fit. Set by the user in the
+      'estimate' function.}
+    \item{\code{method}:}{Character specifying the method used for
+      linear regression.}
   }
 }
 

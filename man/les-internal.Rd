@@ -3,9 +3,13 @@
 \alias{les-internal}
 \alias{calcSingle}
 \alias{fitGSRI}
-\alias{wcdf}
+\alias{wcdf2}
 \alias{mcsapply}
 \alias{seFast}
+\alias{log2ind}
+\alias{ind2log}
+\alias{slopeWeight}
+\alias{qrSlope}
 
 \title{
   Internal functions of the 'les' package.
@@ -14,20 +18,18 @@
 \description{Internal les functions}
 
 \usage{
-calcSingle(ind0, pos, pval, win, weighting, grenander, se, nBoot, conf, minProbes)
-fitGSRI(pval, index, cweight, nValidProbes, grenander, se)
-gsri(pval, grenander, se)
+calcSingle(ind0, pos, pval, win, weighting, grenander, se, nBoot, conf,
+minProbes, custom)
+fitGSRI(pval, index, cweight, nValidProbes, grenander, se, custom)
+gsri(pval, grenander=FALSE, se=TRUE, custom=FALSE)
 wcdf2(pval, weight, grenander=FALSE)
 mcsapply(X, FUN, ..., mc.cores=NULL)
 seFast(x, y, b)
 log2ind(log)
 ind2log(ind, n)
-reg2log(reg, x)
-reg2ind(reg, x)
-log2reg(log)
-ind2reg(ind, n)
 slopeWeight(x, y, c)
 diagSquare(w, n)
+qrSlope(x, y, w) 
 }
 
 \details{
