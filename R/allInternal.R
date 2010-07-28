@@ -26,12 +26,12 @@ calcSingle <- function(ind0, pos, pval, win,
 
     ## apply
     if(nBoot == FALSE)  {
-      res <- fitGSRI(pvalCut[indValid][indWeight], index=NULL,
+      res <- fitGsri(pvalCut[indValid][indWeight], index=NULL,
                      weight[indWeight], nWeight, grenander, se,
                      custom)
     }
     else  {
-      bo <- boot::boot(pvalCut[indValid][indWeight], fitGSRI, nBoot,
+      bo <- boot::boot(pvalCut[indValid][indWeight], fitGsri, nBoot,
                  cweight=weight[indWeight], nValidProbes=nWeight,
                  grenander=grenander, se=se, custom=custom)
       ## try not needed? TO DO !
@@ -57,26 +57,37 @@ calcSingle <- function(ind0, pos, pval, win,
 
 
 ##################################################
-## fitGSRI
+## fitGsri
 ##################################################
-fitGSRI <- function(pval, index=NULL, cweight,
+fitGsri <- function(pval, index=NULL, cweight,
                     nValidProbes, grenander, se, custom)  {
   
-  maxIter <- nValidProbes
-  restOld <- 0
-  rest <- restOld
-  q <- 1
   noBoot <- is.null(index)
   if(noBoot == TRUE)
     cdf <- wcdf2(pval, cweight, grenander)
   else
     cdf <- wcdf2(pval[index], cweight[index], grenander)
-  if(custom == TRUE)
-    cw <- diagSquare(cweight, nValidProbes)
   if(any(cdf$cdf < 0))
     stop("weights < 0")
   x <- cdf$pval - 1
   y <- cdf$cdf - 1
+  res <- itLinReg(x, y, cweight, nValidProbes, se, custom, noBoot)
+  
+  return(res)
+}
+
+
+##################################################
+## itLinReg
+##################################################
+itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
+  
+  maxIter <- nValidProbes
+  restOld <- 0
+  rest <- restOld
+  q <- 1
+  if(custom == TRUE)
+    cw <- diagSquare(cweight, nValidProbes)
   ## iterative fitting
   for(i in 1:maxIter)  {
     rest <- nValidProbes - ceiling(q*nValidProbes)
@@ -84,8 +95,6 @@ fitGSRI <- function(pval, index=NULL, cweight,
     rest <- min(c(nValidProbes-1, rest))
     if(is.na(rest) || restOld == rest)
       break
-#    if(length(unique(x)) == 1) # only for boot?
-#      break
     ind <- rest:nValidProbes
     nRest <- length(ind)
     if(custom == TRUE)  {
@@ -96,7 +105,6 @@ fitGSRI <- function(pval, index=NULL, cweight,
       dim(xi) <- c(nRest, 1)
       q <- qrSlope(xi, y[ind], cweight[ind])
     }
-    
     restOld <- rest
   }
 
@@ -114,7 +122,6 @@ fitGSRI <- function(pval, index=NULL, cweight,
   
   return(res)
 }
-## ok ## needs testing, nValidProbes
 
 
 ##################################################
@@ -197,7 +204,7 @@ mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
 gsri <- function(pval, grenander=FALSE, se=TRUE, custom=FALSE)  {
 
   cweight <- rep(1, length(pval))
-  res <- fitGSRI(pval, NULL, cweight, length(pval),
+  res <- fitGsri(pval, NULL, cweight, length(pval),
                  grenander=grenander, se=se, custom=custom)
   res <- c(res, res[1]*res[3])
   names(res) <- c("GSRI", "se", "n", "nReg")

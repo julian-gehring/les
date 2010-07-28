@@ -2,7 +2,7 @@
 
 \alias{les-internal}
 \alias{calcSingle}
-\alias{fitGSRI}
+\alias{fitGsri}
 \alias{wcdf2}
 \alias{mcsapply}
 \alias{seFast}
@@ -10,6 +10,7 @@
 \alias{ind2log}
 \alias{slopeWeight}
 \alias{qrSlope}
+\alias{itLinReg}
 
 \title{
   Internal functions of the 'les' package.
@@ -20,7 +21,8 @@
 \usage{
 calcSingle(ind0, pos, pval, win, weighting, grenander, se, nBoot, conf,
 minProbes, custom)
-fitGSRI(pval, index, cweight, nValidProbes, grenander, se, custom)
+fitGsri(pval, index, cweight, nValidProbes, grenander, se, custom)
+itLinReg(x, y, cweight, nValidProbes, se, custom, noBoot)
 gsri(pval, grenander=FALSE, se=TRUE, custom=FALSE)
 wcdf2(pval, weight, grenander=FALSE)
 mcsapply(X, FUN, ..., mc.cores=NULL)
