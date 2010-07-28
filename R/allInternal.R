@@ -79,7 +79,7 @@ fitGsri <- function(pval, index=NULL, cweight,
 ## itLinReg
 ##################################################
 itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
-  browser()
+
   maxIter <- nValidProbes
   restOld <- 0
   rest <- restOld
