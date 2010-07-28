@@ -69,9 +69,7 @@ fitGsri <- function(pval, index=NULL, cweight,
     cdf <- wcdf2(pval[index], cweight[index], grenander)
   if(any(cdf$cdf < 0))
     stop("weights < 0")
-  x <- cdf$pval - 1
-  y <- cdf$cdf - 1
-  res <- itLinReg(x, y, cweight, nValidProbes, se, custom, noBoot)
+  res <- itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
   
   return(res)
 }
@@ -81,11 +79,13 @@ fitGsri <- function(pval, index=NULL, cweight,
 ## itLinReg
 ##################################################
 itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
-  
+  browser()
   maxIter <- nValidProbes
   restOld <- 0
   rest <- restOld
   q <- 1
+  x <- x - 1
+  y <- y - 1
   if(custom == TRUE)
     cw <- diagSquare(cweight, nValidProbes)
   ## iterative fitting
@@ -96,13 +96,12 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
     if(is.na(rest) || restOld == rest)
       break
     ind <- rest:nValidProbes
-    nRest <- length(ind)
     if(custom == TRUE)  {
       q <- slopeWeight(x[ind], y[ind], cw[ind,ind])
     }
     else  {
       xi <- x[ind]
-      dim(xi) <- c(nRest, 1)
+      dim(xi) <- c(length(ind), 1)
       q <- qrSlope(xi, y[ind], cweight[ind])
     }
     restOld <- rest
