@@ -64,14 +64,37 @@ fitGsri <- function(pval, index=NULL, cweight,
   
   noBoot <- is.null(index)
   if(noBoot == TRUE)
-    cdf <- wcdf2(pval, cweight, grenander)
+    cdf <- les:::wcdf2(pval, cweight, FALSE)
   else
-    cdf <- wcdf2(pval[index], cweight[index], grenander)
-  if(any(cdf$cdf < 0))
+    cdf <- les:::wcdf2(pval[index], cweight[index], FALSE)
+  
+  if(any(cdf$cdf < 0))  ## REMOVE THIS AFTER TESTING 
     stop("weights < 0")
-  res <- itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
+
+  res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
+  
+  if(grenander == TRUE)  {
+    cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res[1])
+    cdf$cdf <- GSRI:::grenanderInterp(cdf$pval, cdf$cdf)
+    res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
+  }
   
   return(res)
+}
+
+
+##################################################
+## cdfCorrect
+##################################################
+cdfCorrect <- function(x, y, q0)  {
+
+  z <- y
+  indLower <- y < q0*x
+  indUpper <- y > 1 - q0*(1 - x)
+  z[indLower] <- q0*x[indLower]
+  z[indUpper] <- 1 - q0*(1 - x[indUpper])
+
+  return(z)
 }
 
 
@@ -87,7 +110,7 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
   x <- x - 1
   y <- y - 1
   if(custom == TRUE)
-    cw <- diagSquare(cweight, nValidProbes)
+    cw <- les:::diagSquare(cweight, nValidProbes)
   ## iterative fitting
   for(i in 1:maxIter)  {
     rest <- nValidProbes - ceiling(q*nValidProbes)
@@ -97,7 +120,7 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
       break
     ind <- rest:nValidProbes
     if(custom == TRUE)  {
-      q <- slopeWeight(x[ind], y[ind], cw[ind,ind])
+      q <- les:::slopeWeight(x[ind], y[ind], cw[ind,ind])
     }
     else  {
       xi <- x[ind]
@@ -171,8 +194,6 @@ seFast <- function(x, y, b)  {
   return(se)
 }
 ## ok ##
-
-
 
 
 ##################################################

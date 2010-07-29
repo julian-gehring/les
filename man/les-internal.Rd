@@ -11,6 +11,7 @@
 \alias{slopeWeight}
 \alias{qrSlope}
 \alias{itLinReg}
+\alias{cdfCorrect}
 
 \title{
   Internal functions of the 'les' package.
@@ -31,7 +32,8 @@ log2ind(log)
 ind2log(ind, n)
 slopeWeight(x, y, c)
 diagSquare(w, n)
-qrSlope(x, y, w) 
+qrSlope(x, y, w)
+cdfCorrect(x, y, q0) 
 }
 
 \details{
