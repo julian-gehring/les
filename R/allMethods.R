@@ -360,6 +360,21 @@ setMethod("export", "Les",
                    description="Lambda", strand=".", group="les",
                    precision=4, ...)  {
 
+  if(missing(chr))  {
+    if(object@nChr == 1)  {
+      chr <- levels(object@chr)
+    }
+    else  {
+      stop(c("'chr' must be specified. Possible values are: ",
+             paste(levels(object@chr), collapse=", ")))
+    }
+  }
+  else  {
+    if(length(chr) != 1 || !any(object@chr %in% chr))
+      stop(c("'chr' must have one match. Possible values are: ",
+             paste(levels(object@chr), collapse=", ")))
+  }            
+
   choice <- pmatch(format, c("gff", "bed", "wig"))          
   if(is.na(choice))
     stop("'format' must be 'gff', 'bed' or 'wig'")
