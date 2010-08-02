@@ -281,7 +281,6 @@ of probes are shown.
 
 <<plotOptions, fig=TRUE, echo=TRUE>>=
 plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated data", probePch=NA, sigCol="lightblue", xlim=c(50, 200), limit=FALSE)
-#plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated data", #probePch=NA, sigCol="lightblue", xlim=c(50, 200))
 @
 
 

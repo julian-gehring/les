@@ -905,11 +905,6 @@ plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated
 \begin_inset Newline newline
 \end_inset
 
-#plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated
- data", #probePch=NA, sigCol="lightblue", xlim=c(50, 200))
-\begin_inset Newline newline
-\end_inset
-
 @
 \end_layout
 

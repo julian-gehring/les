@@ -21,7 +21,6 @@ create <- function(pos, pval, chr)  {
   ## throw out NAs in pval
   indValid <- !is.na(pval)
   pos <- as.integer(pos[indValid])
-  # pval <- round(pval[indValid], 12)
   chr <- factor(chr[indValid])
 
   ## sort

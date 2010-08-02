@@ -4,7 +4,7 @@
 setMethod("estimate", "Les",
           function(object, win, weighting=triangWeight,
                    se=FALSE, minProbes=3, method="la", nCores=NULL, ...)  {
-            
+
   ## check input
   if(missing(win))
     stop("'win' must be specified.")
@@ -33,10 +33,10 @@ setMethod("estimate", "Les",
     pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
 
     ## apply
-    cs <- mcsapply(indProbes, calcSingle, pos, pval,
-                   win, weighting, grenander, se, nBoot=FALSE,
-                   minProbes=minProbes, custom=custom, mc.cores=nCores)
-    
+    cs <- les:::mcsapply(indProbes, les:::calcSingle, pos, pval,
+                         win, weighting, grenander, se, nBoot=FALSE,
+                         minProbes=minProbes, custom=custom, mc.cores=nCores)
+
     ## extract result
     object@lambda[indChr] <- cs[1, ]
     object@nProbes[indChr] <- as.integer(cs[3, ])
@@ -54,9 +54,6 @@ setMethod("estimate", "Les",
 }
 )
 
-## ok ##
-
-
 
 ##################################################
 ## ci
@@ -67,11 +64,8 @@ setMethod("ci", "Les",
 
   if(missing(subset))
     subset <- rep(TRUE, length(object@pos))
-    #subset <- seq(along=object@pos)
   if(!is.logical(subset) & is.vector(subset))
     subset <- ind2log(subset, length(object@pos))
-  #if(is.matrix(subset))  ## TO DO: implement
-  #  subset <- reg2log(subset, object@pos)
   nBoot <- as.integer(nBoot)
   win <- object@win
   custom <- object@method == 1
@@ -85,10 +79,10 @@ setMethod("ci", "Les",
     indProbes <- seq(win+1, win+length(object@pos[indChr]))[subset[indChr]]
     pos <- c(rep(-Inf, win), object@pos[indChr], rep(Inf, win))
     pval <- c(rep(NA, win), object@pval[indChr], rep(NA, win))
-    bs <- mcsapply(indProbes, calcSingle, pos, pval,
-                   win, object@weighting, object@grenander, se=FALSE,
-                   nBoot, conf, minProbes=object@minProbes, custom=custom,
-                   mc.cores=nCores)
+    bs <- les:::mcsapply(indProbes, les:::calcSingle, pos, pval,
+                         win, object@weighting, object@grenander, se=FALSE,
+                         nBoot, conf, minProbes=object@minProbes, custom=custom,
+                         mc.cores=nCores)
     bc <- cbind(bc, bs)
   }
   
@@ -143,7 +137,7 @@ setMethod("regions", "Les",
   ri <- matrix(NA, length(begin), 2)
   if(length(begin) > 0)  {
     for(i in 1:length(begin))  {
-      ri[i, ] <- gsri(object@pval[begin[i]:end[i]], se=TRUE)[c(1,2)]
+      ri[i, ] <- les:::gsri(object@pval[begin[i]:end[i]], se=TRUE)[c(1,2)]
     }
   }
   rs <- ri[ ,1]/ri[ ,2]
@@ -165,8 +159,6 @@ setMethod("regions", "Les",
   return(object)
 }
 )
-
-
 
 
 ##################################################
@@ -193,7 +185,6 @@ setMethod("threshold", "Les",
   return(object)
 }
 )
-
 
 
 ##################################################
@@ -239,10 +230,10 @@ setMethod("plot", "Les",
     xlim <- range(pos)
   ind <- pos >= xlim[1] & pos <= xlim[2]
 
-  plot(pos[ind], lambda[ind], type="n",
-       xlim=xlim, ylim=ylim,
-       xlab="Probe position", ylab=expression(Lambda), main=main)
-  abline(h=c(0,1), col="lightgray")
+  graphics::plot(pos[ind], lambda[ind], type="n",
+                 xlim=xlim, ylim=ylim,
+                 xlab="Probe position", ylab=expression(Lambda), main=main)
+  graphics::abline(h=c(0,1), col="lightgray")
 
   val <- pmatch(error, c("se", "ci"), NA)
   if(!is.na(val) && length(x@ci) != 0)  {
@@ -257,14 +248,14 @@ setMethod("plot", "Les",
     })
   }
   
-  points(pos[ind], lambda[ind], type="o", pch=probePch)
+  graphics::points(pos[ind], lambda[ind], type="o", pch=probePch)
   if(limit == TRUE)  {
     sig <- lambda[ind] >= theta
-    abline(h=theta, col="gray")
-    points(pos[ind][sig], lambda[ind][sig], pch=sigPch, col=sigCol)
+    graphics::abline(h=theta, col="gray")
+    graphics::points(pos[ind][sig], lambda[ind][sig], pch=sigPch, col=sigCol)
   }
   if(rug == TRUE)
-    rug(pos[ind], side=rugSide)
+    graphics::rug(pos[ind], side=rugSide)
 
   if(region == TRUE && length(x@regions) != 0 && nrow(x@regions) != 0)  {
     regions <- x@regions
@@ -273,14 +264,14 @@ setMethod("plot", "Les",
     regions <- regions[indRegion, ]
     yr <- c(par()$usr[3], min(ylim)-par()$usr[3])
     if(is.vector(regionCol))
-    rect(regions$start, yr[1]+0.2*yr[2], regions$end, yr[1]+0.8*yr[2],
-         col=rep(regionCol, length.out=nrow(regions)))    
+    graphics::rect(regions$start, yr[1]+0.2*yr[2], regions$end, yr[1]+0.8*yr[2],
+                   col=rep(regionCol, length.out=nrow(regions)))    
     else
-    rect(regions$start, yr[1]+0.2*yr[2], regions$end, yr[1]+0.8*yr[2],
+    graphics::rect(regions$start, yr[1]+0.2*yr[2], regions$end, yr[1]+0.8*yr[2],
          col=regionCol(1-regions$ri))
   }
 }
-          )
+)
 
 
 ##################################################
@@ -292,7 +283,6 @@ setMethod("[", "Les",
             return(value)
           }
 )
-## ok ##
 
 
 ##################################################
@@ -305,7 +295,6 @@ setReplaceMethod("[", "Les",
                    return(x)
                  }
 )
-## ok ##  is this function needed by the user ? ##
 
 
 ##################################################

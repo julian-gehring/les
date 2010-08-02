@@ -25,18 +25,17 @@ calcSingle <- function(ind0, pos, pval, win,
 
     ## apply
     if(nBoot == FALSE)  {
-      res <- fitGsri(pvalCut[indValid][indWeight], index=NULL,
-                     weight[indWeight], nWeight, grenander, se,
-                     custom)
+      res <- les:::fitGsri(pvalCut[indValid][indWeight], index=NULL,
+                           weight[indWeight], nWeight, grenander, se,
+                           custom)
     }
     else  {
-      bo <- boot::boot(pvalCut[indValid][indWeight], fitGsri, nBoot,
-                 cweight=weight[indWeight], nValidProbes=nWeight,
-                 grenander=grenander, se=se, custom=custom)
-      ## try not needed? TO DO !
+      bo <- boot::boot(pvalCut[indValid][indWeight], les:::fitGsri, nBoot,
+                       cweight=weight[indWeight], nValidProbes=nWeight,
+                       grenander=grenander, se=se, custom=custom)
       suppressWarnings(ci <- try(boot::boot.ci(bo, conf, type="perc"),
                                  silent=TRUE))
-      if(class(ci) == "try-error")  ## TO DO: why this?
+      if(class(ci) == "try-error")
         res <- c(NA, NA)
       else
         res <- ci$perc[4:5]
@@ -60,15 +59,16 @@ calcSingle <- function(ind0, pos, pval, win,
 ##################################################
 fitGsri <- function(pval, index=NULL, cweight,
                     nValidProbes, grenander, se, custom)  {
-  
-  noBoot <- is.null(index)
-  if(noBoot == TRUE)
-    cdf <- les:::wcdf2(pval, cweight, FALSE)
-  else
-    cdf <- les:::wcdf2(pval[index], cweight[index], FALSE)
 
+  noBoot <- is.null(index)
+  if(noBoot == TRUE)  {
+    cdf <- les:::wcdf2(pval, cweight, FALSE)
+  }
+  else  {
+    cdf <- les:::wcdf2(pval[index], cweight[index], FALSE)
+  }
   res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
-  
+
   if(grenander == TRUE)  {
     cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res[1])
     cdf$cdf <- GSRI:::grenanderInterp(cdf$pval, cdf$cdf)
@@ -105,29 +105,32 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
   q <- 1
   x <- x - 1
   y <- y - 1
-  if(custom == TRUE)
+  if(custom == TRUE)  {
     cw <- les:::diagSquare(cweight, nValidProbes)
-  else
-    dim(x) <- c(nValidProbes, 1)
+  }
   ## iterative fitting
   for(i in 1:maxIter)  {
     rEst <- nValidProbes - ceiling(q*nValidProbes)
     rEst <- max(c(rEstOld, rEst, 1))
     rEst <- min(c(nValidProbes, rEst))  ## rEst <- min(c(nValidProbes-1, rEst))
-    if(is.na(rEst) || rEstOld == rEst)  ## why na?
+    if(is.na(rEst) || rEstOld == rEst)
       break
     ind <- rEst:nValidProbes
-    if(custom == TRUE)
+    if(custom == TRUE)  {
       q <- les:::slopeWeight(x[ind], y[ind], cw[ind,ind])
-    else
-      q <- qrSlope(x[ind,1], y[ind], cweight[ind])
+    }
+    else  {  ## must stay that way !
+      xi <- x[ind]
+      dim(xi) <- c(length(ind), 1)
+      q <- les:::qrSlope(xi, y[ind], cweight[ind])
+    }
     rEstOld <- rEst
   }
 
   ## return values
   if(noBoot == TRUE)  {
     if(se == TRUE && length(unique(x)) > 1)
-      ses <- seFast(x, y, q)
+      ses <- les:::seFast(x, y, q)
     else
       ses <- NA
     res <- c(1 - min(q, 1), ses, nValidProbes)
@@ -156,10 +159,10 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
     cdf <- cdf - (cdf-c(0, cdf[-nPval]))/2
   }
   else  {
-    cdf <- cdfDuplicates(pvalSort, weightSort)
+    cdf <- les:::cdfDuplicates(pvalSort, weightSort)
   }
   res <- list(pval=pvalSort, cdf=cdf)
-  
+
   return(res)
 }
 
@@ -168,7 +171,8 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
 ## cdfDuplicates
 ##################################################
 cdfDuplicates <- function(pvalSort, weightSort)  {
-  
+
+  nPval <- length(pvalSort)
   tabCount <- rle(pvalSort)$lengths  ## table()
   tabWeight <- table(pvalSort, weightSort)
   weightSum <- tabWeight %*% sort(unique(weightSort))
@@ -217,15 +221,14 @@ mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
 ## ok ##
 
 
-
 ##################################################
 ## gsri
 ##################################################
 gsri <- function(pval, grenander=FALSE, se=TRUE, custom=FALSE)  {
 
   cweight <- rep(1, length(pval))
-  res <- fitGsri(pval, NULL, cweight, length(pval),
-                 grenander=grenander, se=se, custom=custom)
+  res <- les:::fitGsri(pval, NULL, cweight, length(pval),
+                       grenander=grenander, se=se, custom=custom)
   res <- c(res, res[1]*res[3])
   names(res) <- c("GSRI", "se", "n", "nReg")
 
@@ -240,7 +243,6 @@ log2ind <- function(log)  {
 
   return(ind)
 }
-## ok ##
 
 
 ind2log <- function(ind, n)  {
@@ -250,16 +252,14 @@ ind2log <- function(ind, n)  {
 
   return(log)
 }
-## ok ##
-
 
 
 ##################################################
 ## slopeWeight
 ##################################################
 slopeWeight <- function(x, y, c)  {
-  s <- t(x) %*% c  ## do outside and subset? possible since matrix? no !
-  b <- ((s %*% y) / (s %*% x))[1]  ## same as as.numeric()
+  s <- t(x) %*% c
+  b <- ((s %*% y) / (s %*% x))[1]
   return(b)
 }
 
@@ -276,4 +276,3 @@ diagSquare <- function(w, n)  {
   dim(y) <- c(n, n)
   return(y)
 }
-
