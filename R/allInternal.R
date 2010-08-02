@@ -13,7 +13,6 @@ calcSingle <- function(ind0, pos, pval, win,
   
   distance <- posCut - pos0
   indValid <- abs(distance) <= win
-  # nValidProbes <- length(unique(pvalCut[indValid]))
   nValidProbes <- length(pvalCut[indValid])
   nUniqueProbes <- length(unique(pvalCut[indValid]))
 
@@ -67,9 +66,6 @@ fitGsri <- function(pval, index=NULL, cweight,
     cdf <- les:::wcdf2(pval, cweight, FALSE)
   else
     cdf <- les:::wcdf2(pval[index], cweight[index], FALSE)
-  
-  if(any(cdf$cdf < 0))  ## REMOVE THIS AFTER TESTING 
-    stop("weights < 0")
 
   res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
   
@@ -104,30 +100,28 @@ cdfCorrect <- function(x, y, q0)  {
 itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
 
   maxIter <- nValidProbes
-  restOld <- 0
-  rest <- restOld
+  rEstOld <- 0
+  rEst <- rEstOld
   q <- 1
   x <- x - 1
   y <- y - 1
   if(custom == TRUE)
     cw <- les:::diagSquare(cweight, nValidProbes)
+  else
+    dim(x) <- c(nValidProbes, 1)
   ## iterative fitting
   for(i in 1:maxIter)  {
-    rest <- nValidProbes - ceiling(q*nValidProbes)
-    rest <- max(c(restOld, rest, 1))
-    rest <- min(c(nValidProbes-1, rest))
-    if(is.na(rest) || restOld == rest)
+    rEst <- nValidProbes - ceiling(q*nValidProbes)
+    rEst <- max(c(rEstOld, rEst, 1))
+    rEst <- min(c(nValidProbes, rEst))  ## rEst <- min(c(nValidProbes-1, rEst))
+    if(is.na(rEst) || rEstOld == rEst)  ## why na?
       break
-    ind <- rest:nValidProbes
-    if(custom == TRUE)  {
+    ind <- rEst:nValidProbes
+    if(custom == TRUE)
       q <- les:::slopeWeight(x[ind], y[ind], cw[ind,ind])
-    }
-    else  {
-      xi <- x[ind]
-      dim(xi) <- c(length(ind), 1)
-      q <- qrSlope(xi, y[ind], cweight[ind])
-    }
-    restOld <- rest
+    else
+      q <- qrSlope(x[ind,1], y[ind], cweight[ind])
+    rEstOld <- rEst
   }
 
   ## return values
@@ -156,31 +150,37 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
   weightSort <- weight[ord]
   nPval <- length(pvalSort)
 
-  if(any(duplicated(pvalSort)))  {
-    tabCount <- rle(pvalSort)$lengths  ## table()
-    tabWeight <- table(pvalSort, weightSort)
-    weightSum <- tabWeight %*% sort(unique(weightSort))
-    cdf1 <- cumsum(weightSum)
-    cdf1r <- rep.int(cdf1, tabCount)
-    cdf2r <- rep.int(c(0, cdf1[-length(cdf1)]), tabCount)
-    cdf2r <- cdf2r/cdf1r[nPval]
-    cdf1r <- cdf1r/cdf1r[nPval]
-    cdf <- cdf1r - (cdf1r - cdf2r)/2
-    # weight2 <- rep.int(cdf, tabCount)
-  }
-  else  {
+  if(!any(duplicated(pvalSort)))  {
     cdf <- cumsum(weightSort)
     cdf <- cdf/cdf[nPval]
     cdf <- cdf - (cdf-c(0, cdf[-nPval]))/2
   }
-
-  if(grenander == TRUE)
-    cdf <- GSRI:::grenanderInterp(pvalSort, cdf)
-  
-  res <- list(pval=pvalSort, cdf=cdf)
-
-  return(res)
+  else  {
+    cdf <- cdfDuplicates(pvalSort, weightSort)
   }
+  res <- list(pval=pvalSort, cdf=cdf)
+  
+  return(res)
+}
+
+
+##################################################
+## cdfDuplicates
+##################################################
+cdfDuplicates <- function(pvalSort, weightSort)  {
+  
+  tabCount <- rle(pvalSort)$lengths  ## table()
+  tabWeight <- table(pvalSort, weightSort)
+  weightSum <- tabWeight %*% sort(unique(weightSort))
+  cdf1 <- cumsum(weightSum)
+  cdf1r <- rep.int(cdf1, tabCount)
+  cdf2r <- rep.int(c(0, cdf1[-length(cdf1)]), tabCount)
+  cdf2r <- cdf2r/cdf1r[nPval]
+  cdf1r <- cdf1r/cdf1r[nPval]
+  cdf <- cdf1r - (cdf1r - cdf2r)/2
+
+  return(cdf)
+}
 
 
 ##################################################
@@ -265,7 +265,7 @@ slopeWeight <- function(x, y, c)  {
 
 
 qrSlope <- function(x, y, w)  {
-  b <- as.numeric(lm.wfit(x, y, w)$coefficients)
+  b <- as.numeric(stats:::lm.wfit(x, y, w)$coefficients)
   return(b)
 }
 

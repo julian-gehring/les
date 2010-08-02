@@ -12,6 +12,7 @@
 \alias{qrSlope}
 \alias{itLinReg}
 \alias{cdfCorrect}
+\alias{cdfDuplicates}
 
 \title{
   Internal functions of the 'les' package.
@@ -33,7 +34,8 @@ ind2log(ind, n)
 slopeWeight(x, y, c)
 diagSquare(w, n)
 qrSlope(x, y, w)
-cdfCorrect(x, y, q0) 
+cdfCorrect(x, y, q0)
+cdfDuplicates(pvalSort, weightSort)
 }
 
 \details{

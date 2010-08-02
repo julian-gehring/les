@@ -4,7 +4,7 @@ importFrom(graphics, abline, plot, points, rect)
 importFrom(grDevices, gray)
 importFrom(methods, "@<-", new, slot, "slot<-", slotNames, validObject)
 importFrom(RColorBrewer, brewer.pal)
-importFrom(stats, dnorm, runif)
+importFrom(stats, dnorm, runif, lm.wfit)
 importFrom(utils, write.table)
 importMethodsFrom(methods, show)
 importClassesFrom(methods, data.frame, factor, "function", integer,
