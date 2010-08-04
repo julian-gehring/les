@@ -79,7 +79,7 @@ create(pos, pval, chr)
 \dontrun{
 data(statTile)
 x <- create(pos, pval, chr)
-summary(x)
+x
 }
 }
 

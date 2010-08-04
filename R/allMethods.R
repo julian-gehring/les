@@ -349,25 +349,27 @@ setMethod("export", "Les",
                    description="Lambda", strand=".", group="les",
                    precision=4, ...)  {
 
-  if(missing(chr))  {
-    if(object@nChr == 1)  {
-      chr <- levels(object@chr)
-    }
-    else  {
-      stop(c("'chr' must be specified. Possible values are: ",
-             paste(levels(object@chr), collapse=", ")))
-    }
-  }
-  else  {
-    if(length(chr) != 1 || !any(object@chr %in% chr))
-      stop(c("'chr' must have one match. Possible values are: ",
-             paste(levels(object@chr), collapse=", ")))
-  }            
-
   choice <- pmatch(format, c("gff", "bed", "wig"))          
   if(is.na(choice))
     stop("'format' must be 'gff', 'bed' or 'wig'")
 
+  if(choice == 3)  {
+    if(missing(chr))  {
+      if(object@nChr == 1)  {
+        chr <- levels(object@chr)
+      }
+      else  {
+        stop(c("'chr' must be specified. Possible values are: ",
+               paste(levels(object@chr), collapse=", ")))
+      }
+    }
+    else  {
+      if(length(chr) != 1 || !any(object@chr %in% chr))
+        stop(c("'chr' must have one match. Possible values are: ",
+               paste(levels(object@chr), collapse=", ")))
+    }
+  }
+  
   if(choice %in% 1:2)  {
     if(length(object@regions) == 0)
       stop("'regions()' must be run first.")
@@ -378,8 +380,12 @@ setMethod("export", "Les",
     }
     if(missing(chr))
       ind <- rep(TRUE, nrow(regions))
-    else
+    else  {
+      if(!any(object@chr %in% chr))
+        stop(c("'chr' must have one match. Possible values are: ",
+               paste(levels(object@chr), collapse=", ")))
       ind <- regions$chr %in% chr
+    }
     chrom <- paste("chr", regions$chr[ind], sep="")
     header <- sprintf("%s%s%s", "track name=LES description=\"",
                       description, "\" useScore=1")

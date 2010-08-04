@@ -126,9 +126,9 @@ se = FALSE, minProbes = 3, method = "la", nCores = NULL, ...)
 data(statTile)
 
 x <- create(pos, pval, chr)
-x <- estimate(x, win=25)
+x <- estimate(x, 25)
 
-summary(x)
+x
 plot(x, chr=1)
 }
 }

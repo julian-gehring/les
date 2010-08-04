@@ -69,10 +69,13 @@ x <- create(pos, pval, chr)
 x <- estimate(x, 25)
 x <- threshold(x)
 x <- regions(x)
-x <- ci(x)
+x <- ci(x, subset=(chr == 1))
 
-plot(x)
-export(x)
+## plot and export data from chromosome 1
+plot(x, chr=1, region=TRUE)
+plot(x, chr=1, region=TRUE, error="ci")
+export(x, file="les_out.bed", chr=1)
+export(x, file="les_out.wig", format="wig", chr=1)
 }
 }
 
