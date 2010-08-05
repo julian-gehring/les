@@ -71,6 +71,7 @@ fitGsri <- function(pval, index=NULL, cweight,
 
   if(grenander == TRUE)  {
     cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res[1])
+    cdf$cdf <- les:::grenanderPass(cdf$pval, cdf$cdf, cdf$unique)
     cdf$cdf <- GSRI:::grenanderInterp(cdf$pval, cdf$cdf)
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
   }
@@ -152,8 +153,9 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
   pvalSort <- pval[ord]
   weightSort <- weight[ord]
   nPval <- length(pvalSort)
+  un <- !any(duplicated(pvalSort))
 
-  if(!any(duplicated(pvalSort)))  {
+  if(un == TRUE)  {
     cdf <- cumsum(weightSort)
     cdf <- cdf/cdf[nPval]
     cdf <- cdf - (cdf-c(0, cdf[-nPval]))/2
@@ -161,7 +163,7 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
   else  {
     cdf <- les:::cdfDuplicates(pvalSort, weightSort)
   }
-  res <- list(pval=pvalSort, cdf=cdf)
+  res <- list(pval=pvalSort, cdf=cdf, unique=un)
 
   return(res)
 }
@@ -184,6 +186,24 @@ cdfDuplicates <- function(pvalSort, weightSort)  {
   cdf <- cdf1r - (cdf1r - cdf2r)/2
 
   return(cdf)
+}
+
+
+##################################################
+## grenanderPass
+##################################################
+grenanderPass <- function(x, y, un)  {
+
+  if(un == TRUE)  {
+    z <- GSRI:::grenanderInterp(x, y)
+  }
+  else  {
+    ind <- !duplicated(x)
+    z <- GSRI:::grenanderInterp(x[ind], y[ind])
+    z <- rep.int(y[ind], rle(x)$lengths)
+  }
+
+  return(z)
 }
 
 

@@ -13,6 +13,7 @@
 \alias{itLinReg}
 \alias{cdfCorrect}
 \alias{cdfDuplicates}
+\alias{grenanderPass}
 
 \title{
   Internal functions of the 'les' package.
@@ -36,6 +37,7 @@ diagSquare(w, n)
 qrSlope(x, y, w)
 cdfCorrect(x, y, q0)
 cdfDuplicates(pvalSort, weightSort)
+grenanderPass(x, y, un)
 }
 
 \details{
