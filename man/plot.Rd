@@ -16,9 +16,9 @@
 plot(x, y, ...)
 
 \S4method{plot}{Les}(x, y, chr, region=FALSE, xlim, ylim=c(0, 1),
-error="none", probePch=20, probeCol="black", sigPch=20, sigCol="red3",
-errorCol="azure4", regionCol=gray, rug=FALSE, rugSide=1, limit=TRUE,
-main=NULL, ...)
+error="none", probePch=20, probeCol="black", lty=1, sigPch=20,
+sigCol="red3", errorCol="azure4", regionCol=gray, rug=FALSE, rugSide=1,
+limit=TRUE, main=NULL, ...)
 }
 
 \arguments{
@@ -41,7 +41,10 @@ main=NULL, ...)
   \item{probePch}{Symbol probes should be plotted with (default:
     20). For details see 'par'.}
   \item{probeCol}{Color probes should be plotted with (default:
-    "black"). For details see 'par'.}  
+    "black"). For details see 'par'.}
+  \item{lty}{Line type for lines connecting the
+    \eqn{\Lambda_i}{Lambda_i} of probes (default: 1). For details see
+    'par'}.
   \item{sigPch}{Symbol probes above the threshold should be plotted
     with (default: 20). For details see 'par'.}
   \item{sigCol}{Color probes above the threshold should be plotted

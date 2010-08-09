@@ -31,7 +31,7 @@ epWeight(distance, win)
 \details{
   The functions 'triangWeight', 'rectangWeight', 'epWeight' and
   'gaussWeight' provide a triangular, rectangular, Epanechnikov and
-  gaussian weighting window respectively. The weighting function can be
+  Gaussian weighting window, respectively. The weighting function can be 
   specified by the 'weightingFunction' argument in the 'estimate'
   method.
 
@@ -41,9 +41,9 @@ epWeight(distance, win)
   the argument 'distance'. For more details on how to use own weighting
   functions please refer to the vignette of this package.
   
-  Please note that the returned weights do not have to be normalized to
-  sum up to 1 since this is done at the computation of the weighted
-  cumulative density function.
+  Please note that the returned weights do not have to be normalized
+  since this is done at the computation of the weighted cumulative
+  density.
 }
       
 \value{

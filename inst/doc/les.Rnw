@@ -5,7 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{babel}
 
-\usepackage[numbers]{natbib}
+\usepackage{varioref}
 \usepackage[unicode=true, pdfusetitle,
  bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
  breaklinks=true,pdfborder={0 0 0},backref=false,colorlinks=false]
@@ -40,8 +40,8 @@ Identifying Loci of Enhanced Significance in Tiling Array Data}
 In this vignette we describe using the \Rpackage{les} package for
 finding Loci of Enhanced Significance (LES) in tiling microarray data.
 With an example of a general framework we illustrate how to apply
-the package for exploring regions of regulation with differential
-design experiments.
+the package for exploring data to identify regions of differential
+regulation.
 \end{abstract}
 
 \section{Introduction}
@@ -51,45 +51,51 @@ of regulation in expression and DNA-protein interaction. Due to their
 lower bias towards annotation compared to other microarray platforms
 they provide an powerful tool for biological research.
 
-Beside the analysis of single microarrays the investigation of differential
-effects between experimental conditions is important for current research.
-A common approach consists in applying some suitable statistical tests
-on the level of single probes and thereby computing p-values $p_{i}$
-for each probe $i$ independently. Since the targets of such experiments
-cover regions with several probes a reasonable next step involves
-combining information from neighboring probes. Many approaches use
-a smoothing window to obtain this. While these methods may work well
-most of them produce a feature that lacks any statistical interpretation.
+Beside the analysis of transcription for single conditions investigation
+of regulation between multiple experimental conditions is important
+for current research. A common approach consists in applying some
+suitable statistical tests on the level of single probes and thereby
+computing p-values $p_{i}$ for each probe $i$ independently. Since
+the targets of such experiments cover regions with several probes
+a reasonable next step involves combining information from neighboring
+probes. Many approaches use a smoothing window to obtain this. While
+these methods may work well most of them produce a feature that lacks
+a statistical interpretation.
 
 In regions with differential effects the test statistics change their
 distribution and are referred to as \emph{Loci of Enhanced Significance
-(LES)}. The changes in the test statistics depend on the underlying
+(LES)}. The changes of the test statistics depend on the underlying
 test applied.
 
-The \Rpackage{les} package provides the ability to detect such LES
+The \Rpackage{les} package provides the ability to detect such \emph{LES}
 independent of the underlying statistical test and can therefore be
 used for a wide range of applications. This vignette illustrates how
-LES can be found in tiling microarray data sets.
+\emph{LES} can be identified with a general framework in tiling microarray
+data sets.
 
 <<echo=false>>=
+set.seed(1)
 options(width=65)
 @
 
 
 \section{Data and statistics on probe level}
 
-For this analysis we will use a simulated data set describing differential
-expression between two conditions.
+For the analysis in this vignette we will use a simulated data set
+describing differential expression between two conditions. Please
+note that this data does not reflect real biological data. It is rather
+meant to illustrate the workflow than to provide real life data.
 
-Please note that this data does not reflect real biological data.
-It is rather meant to illustrate the workflow than to provide real
-life data.
+The data set consists of 1000 probes and two groups, e.g. treatment
+and control, each measured with three replicates. The expression values
+are stored in an expression set. We will extract the position of the
+probes, the conditions of the samples and the expression intensities.
+There are two regions of regulation present in the data each 50 bp
+long.
 
-The data set contains 1000 probes with 3 chips each for the conditions
-treatment and control. The expression values are stored in an expression
-set. We will extract the position of the probes, the conditions of
-the samples and the expression values. There are two regions of regulation
-present in the data each 50 bp long.
+For experimental data, the positions of the probes are given by the
+design of the microarray. For simplicity we assume regularly spaced
+probes with 1 bp resolution in this illustration.
 
 <<loadData>>=
 library(les)
@@ -104,19 +110,23 @@ cols <- rep(c("lightblue3", "lightgreen"), each=2)
 
 Next we have a look at the expression values.
 
+\begin{center}
+
 <<plotExpressionValues, fig=TRUE, echo=TRUE>>=
 matplot(exprs, pch=".", xlab="Probe position", ylab="Expression")
 abline(v=regions, col=cols)
 @
 
-In the next step we will compute the statistics of changes between
-the two conditions for each probe. Since the sample size as for most
-tiling microarray experiments is small we will use a modified t-test
-provided by the \Rpackage{les} package.\citep{smyth_limma:_2005}
+\end{center}
+
+In the next step we will compute compute a test statistics assessing
+regulatory changes between the two conditions for each probe. Since
+the sample size as for most tiling microarray experiments is small
+we will use a modified t-test provided by the \Rpackage{limma} package
+\cite{smyth_limma:_2005}.
 
 We will also plot the p-values $p_{i}$ against the probe positions
-$i$. By looking at the raw p-values it may be hard to detect the
-\emph{LES}.
+$i$.
 
 <<estimateProbeLevelStatistics>>=
 library(limma)
@@ -126,31 +136,36 @@ fit <- eBayes(fit)
 pval <- as.numeric(fit$p.value[, "diff"])
 @
 
+\begin{center}
+
 <<plotProbeLevelStatistics, fig=TRUE, echo=TRUE>>=
-plot(pos, pval, pch=20, xlab="Probe position", ylab="P-value")
+plot(pos, pval, pch=".", xlab="Probe position", ylab="P-value")
 abline(v=regions, col=cols)
 @
 
+\end{center}
 
-\section{Incorporation information from neighboring p-values}
 
-In any well designed tiling array experiments the potential targets
-will cover several neighboring probes. Thereby neighboring p-values
-should contain mutual information and incorporation of such will be
-beneficial.
+\section{Incorporation information of neighboring probes}
+
+In tiling array experiments regions of regulation extend over several
+neighboring probes. Thereby p-values belonging to neighboring probes
+matching of the same region should contain mutual information and
+incorporation of such will be beneficial.
 
 In the \Rpackage{les} package this in done in the following manner:
-For each probe $i$ the the surrounding p-values $p_{i}$ get weights
+For each probe $i$ the surrounding p-values $p_{i}$ get weights
 assigned by a windowing function. A weighted cumulative density is
 then computed and the fraction of significant $p_{i}$ is estimated
 by iterative linear fitting. The method is based on the fact that
-p-values under the null hypothesis $H_{0}$ come from a uniform distribution
-whereas p-values violating $H_{0}$ are shifted towards smaller values.\citep{bartholom_estimation_2009}
-This results in the index $\Lambda_{i}$ which measures the fraction
-of p-values violating $H_{0}$ in the window and therefore the degree
-of regulation in the local surrounding. It should be noted that this
-approach is closely related to the estimation of a false discovery
-rate and $\Lambda_{i}$ can be interpreted in a similar way.
+p-values are uniformly distributed under the null hypothesis $H_{0}$
+whereas p-values violating $H_{0}$ are shifted towards smaller values
+\cite{bartholom_estimation_2009}. This results in $\Lambda_{i}$
+constituting an estimate of the fraction of p-values violating $H_{0}$
+around the evaluated position and therefore the degree of significance
+in the local surrounding. It should be noted that this approach is
+closely related to the estimation of a false discovery rate and $\Lambda_{i}$
+can be interpreted in a similar way.
 
 For the analysis we will first store our data in an object of class
 \Rclass{Les} by calling the \Rfunction{create} function. The only
@@ -163,17 +178,18 @@ res <- create(pos, pval)
 @
 
 Then we can compute our first estimate of $\Lambda_{i}$ for which
-we have to specify a window size. The power of the detection will
-be high if the size of the window matches the size of the target.
-In many experiments a rough prior knowledge on the target size is
-available which will be sufficient of the first step. Here we will
-chose a small window size to start with.
+we have to specify a window size. The power of detecting a region
+will be high if the size of the window matches approximately the size
+of the regulated region. In many experiments a rough prior knowledge
+on the region size is available which can be sufficient for choosing
+a window size.
 
 By default a triangular weighting function will be chosen. We can
-also take a rectangular window or write our own function and pass
-it via the weighting argument. We can further on specify whether we
-want to include the Grenander correction for the cumulative density
-or use multicore processing on some platforms.
+also take different weighting functions such as a rectangular one
+or write our own function and pass it with the \Rfunarg{weighting}
+argument. This step is described below in section \vref{sec:Specification-of-own}.
+Further we can specify whether we want to include the Grenander correction
+for the cumulative density or use multicore processing.
 
 <<estimateLes>>=
 win <- 30
@@ -184,11 +200,15 @@ All data, results and parameters are now stored in the object named
 \Robject{res}. We can get a short summary on the results by calling
 \Rmethod{print}, \Rmethod{summary} or by plotting it.
 
+\begin{center}
+
 <<showPlotLes, fig=TRUE, echo=TRUE>>=
 res
 plot(res)
 abline(v=regions, col=cols)
 @
+
+\end{center}
 
 For comparison we will analyze and plot the same data with a different
 window size. This allows us to explore our data set.
@@ -198,11 +218,15 @@ win2 <- 50
 res <- estimate(res, win2)
 @
 
+\begin{center}
+
 <<showPlotLes2, fig=TRUE, echo=TRUE>>=
 res
 plot(res)
 abline(v=regions, col=cols)
 @
+
+\end{center}
 
 We can already see two distinct peaks that correspond well to the
 simulated regions of regulation.
@@ -223,13 +247,12 @@ The content of any slot can be accessed by using the \Rmethod{[}-method.
 res <- threshold(res, grenander=TRUE, verbose=TRUE)
 @
 
-Based on $\Theta$ we can search for regions that have a continuous
+Based on $\Theta$ we can look for regions that have a continuous
 $\Lambda_{i}\geq\Theta$. The \Rmethod{regions} method takes by default
 the estimated $\hat{\Theta}$ as shown before. We can also pass our
 own estimate for $\Theta$ with the \Rfunarg{limit} argument. Further
-restrictions can be imposed on the regions search such as the minimal
-length of a region and the maximum gap allowed between probes of one
-region.
+restrictions can be imposed on the regions such as the minimal length
+of a region and the maximum gap allowed between probes of one region.
 
 A data frame with the estmated regions can be accessed with the \Rmethod{[}-method.
 This can also be used to access any other data slot of a \Robject{LES}
@@ -242,6 +265,8 @@ res
 res["regions"]
 @
 
+\begin{center}
+
 <<plotRegions, fig=TRUE, echo=TRUE>>=
 region <- res["regions"]
 borders <- c(region$start, region$end)
@@ -250,14 +275,16 @@ abline(v=regions, col=cols)
 abline(v=borders, col="darkgray", lty=2)
 @
 
+\end{center}
+
 
 \section{Calculation of confidence intervals}
 
-In some cases it is also useful to provide confidence (CI) intervals
+In some cases it is also useful to provide confidence intervals (CI)
 for $\Lambda_{i}$. These are computed by bootstrapping the probes
 in the window. Since bootstrapping is by its nature computationally
 demanding and CI are primarily interesting in regions of interest
-it it possible to compute CIs for a subset of probes and to specify
+it it possible to compute CI for a subset of probes and to specify
 the number of bootstraps.
 
 <<ci>>=
@@ -265,54 +292,64 @@ subset <- pos >= 580 & pos <= 670
 res <- ci(res, subset, nBoot=50)
 @
 
+\begin{center}
+
 <<plotCi, fig=TRUE, echo=TRUE>>=
 plot(res, error="ci", limit=theta, xlim=c(580, 670))
 @
 
+\end{center}
+
 
 \section{Plotting capabilities}
 
-The \Rmethod{plot} method provides many options for customizing result
-graphics.
+The \Rmethod{plot} method provides many arguments for customizing
+figures.
 
 The following command plots a smaller region of the chromosome with
-confidence intervals. Additionally the estimated regions, the position
-of probes are shown.
+confidence intervals and the estimated region. Further the positions
+of the probes are shown at the top and the representation of the probes
+are changed.
+
+\begin{center}
 
 <<plotOptions, fig=TRUE, echo=TRUE>>=
-plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated data", probePch=NA, sigCol="lightblue", xlim=c(50, 200), limit=FALSE)
+plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated data", probePch="*", probeCol="lightblue", errorCol="lightgray", regionCol="lightgreen", xlim=c(580, 670) , ylim=c(0, 0.8), limit=FALSE, lty=0)
 @
+
+\end{center}
 
 
 \section{Exporting result to external software}
 
-In some cases it can be useful to analyze results of this analysis
-in other software than R alone. For this purpose both the estimated
-regions as well as $\Lambda$ can be saved to a file with the \Rmethod{export}
-method. Available formats for the regions are the \emph{bed} and \emph{gff},
-for $\Lambda$ \emph{wig}. Since these formats are widely used they
-can be directly loaded into many genome software packages and browsers.
+The estimated regions as well as $\Lambda$ can be saved to a file
+with the \Rmethod{export} method. The regions can be exported to
+the \emph{bed} and \emph{gff} formats, the test statistic $\Lambda$
+to the \emph{wig} format. These formats can be directly loaded into
+many genome software packages and browsers.
 
 
-\section{Specification of own window functions}
+\section{Specification of own window functions\label{sec:Specification-of-own}}
 
-With the \Rfunction{triangWeight}, \Rfunction{rectangWeight}and
-\Rfunction{gaussWeight} three window functions are already include
-in the \Rpackage{les} package. We can also specify own window functions
-and pass it via the \Rfunarg{weighting} argument in the \Rmethod{estimate}
-method. They have to be specified in the following format, here described
-with a triangular weighting.
+With the \Rfunction{triangWeight}, \Rfunction{rectangWeight}, \Rfunction{epWeight}
+and \Rfunction{gaussWeight} four window functions are already included
+in the \Rpackage{les} package, providing a triangular, rectangular,
+Epanechnikov and Gaussian window, respectively. We can also specify
+own window functions and pass it via the \Rfunarg{weighting} argument
+in the \Rmethod{estimate} method. They have to be specified in the
+following format, here illustrated with a triangular weighting.
 
-<<weightFcn>>=
-weightFcn <- function(distance, win)  {
-weight <- 1 - distance/weight
+<<customWeightingFunction>>=
+weightFoo <- function(distance, win) {
+weight <- 1 - distance/win
 return(weight)
 }
+res2 <- estimate(res, 20, weighting=weightFoo)
 @
 
 \newpage{}
 
-\bibliographystyle{plainnat}
+\bibliographystyle{plain}
 \bibliography{ref_les}
 
 

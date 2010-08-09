@@ -10,8 +10,8 @@ setGeneric("ci",
 
 setGeneric("estimate",
            function(object, win, weighting=triangWeight,
-                    se=FALSE, minProbes=3, method="la",
-                    nCores=NULL, ...)
+                    grenander=FALSE, se=FALSE, minProbes=3,
+                    method="la", nCores=NULL, ...)
            {standardGeneric("estimate")}
            )
 

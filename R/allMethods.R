@@ -2,7 +2,7 @@
 ## estimate
 ##################################################
 setMethod("estimate", "Les",
-          function(object, win, weighting=triangWeight,
+          function(object, win, weighting=triangWeight, grenander=FALSE, 
                    se=FALSE, minProbes=3, method="la", nCores=NULL, ...)  {
 
   ## check input
@@ -20,10 +20,10 @@ setMethod("estimate", "Les",
   chrLevel <- levels(object@chr)
 
   ## silent default for grenander
-  arg <- list(...)
-  grenander <- FALSE
-  if(any(names(arg) == "grenander"))
-    grenander <- arg[[which(names(arg) == "grenander")]]
+  ##arg <- list(...)
+  ##grenander <- FALSE
+  ##if(any(names(arg) == "grenander"))
+  ##  grenander <- arg[[which(names(arg) == "grenander")]]
 
   ## for each chr
   for(c in 1:object@nChr)  {
@@ -193,7 +193,7 @@ setMethod("threshold", "Les",
 setMethod("plot", "Les",
           function(x, y, chr, region=FALSE,
                    xlim, ylim=c(0, 1), error="none",
-                   probePch=20, probeCol="black",
+                   probePch=20, probeCol="black", lty=1, 
                    sigPch=20, sigCol="red3", errorCol="azure4",
                    regionCol=gray, 
                    rug=FALSE, rugSide=1, limit=TRUE,
@@ -242,13 +242,14 @@ setMethod("plot", "Les",
       ss <- ind2log(x@subset, length(x@pos))
       ci <- x@ci[indChr, ]
       gplots::plotCI(pos[ss[indChr]], lambda[ss[indChr]],
-                     ui=ci$upper, li=ci$lower,
-                     gap=0, pch=".", col=errorCol, add=TRUE,
-                     sfrac=sfrac)
+                     ui=ci$upper, li=ci$lower, gap=0,
+                     pch=NA, barcol=errorCol, col=probeCol,
+                     add=TRUE, sfrac=sfrac)
     })
   }
   
-  graphics::points(pos[ind], lambda[ind], type="o", pch=probePch)
+  graphics::points(pos[ind], lambda[ind], type="o", pch=probePch,
+                   col=probeCol, lty=lty)
   if(limit == TRUE)  {
     sig <- lambda[ind] >= theta
     graphics::abline(h=theta, col="gray")

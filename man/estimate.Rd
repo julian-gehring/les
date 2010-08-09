@@ -14,11 +14,12 @@
 }
 
 \usage{
-estimate(object, win, weighting = triangWeight, se = FALSE,
-minProbes = 3, method = "la", nCores = NULL, ...)
+estimate(object, win, weighting = triangWeight, grenander = FALSE,
+se = FALSE, minProbes = 3, method = "la", nCores = NULL, ...)
 
 \S4method{estimate}{Les}(object, win, weighting = triangWeight,
-se = FALSE, minProbes = 3, method = "la", nCores = NULL, ...)
+grenander = FALSE, se = FALSE, minProbes = 3, method = "la", nCores =
+NULL, ...)
 }
 
 \arguments{
@@ -33,8 +34,11 @@ se = FALSE, minProbes = 3, method = "la", nCores = NULL, ...)
     triangular window will be used. For details on other window
     functions and how to specify own functions please see the 'Details'
     section.}
-  \item{se}{Logical indicating whether the standard error from the final
-    linear model should be computed and stored (default: FALSE). The
+  \item{grenander}{Logical specifying if the Grenander correction for
+    the cumulative density should be used (default: FALSE). For details
+    see the 'Details' section.}
+  \item{se}{Logical indicating whether the standard error (SE) from the
+    final linear model should be computed and stored (default: FALSE). The
     standard error displays the goodness of fit for every probe, but is
     not needed for further computation. If computation time is a
     critical factor computation of the SE can be omitted to save some
@@ -82,6 +86,12 @@ se = FALSE, minProbes = 3, method = "la", nCores = NULL, ...)
   'triangWeight' is in general a good choice. For details on the
   functions itself and how to use custom ones please see the
   documentation of the single functions or the vignette of this package.
+
+  The Grenander correction for the cumulative density includes the
+  general knowledge about the concave shape of the cumulative
+  density. This generally reduces the variance of the estimates, but
+  introduces a bias. Please note that using this feature may
+  significantly increase computation time.
 
   The 'multicore' package can be used to spread the computation over several
   cores in a simple way. This can be useful on multi-core machines for
