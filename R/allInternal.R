@@ -51,7 +51,6 @@ calcSingle <- function(ind0, pos, pval, win,
   
   return(res)
 }
-## ok ## nValidProbes as input?
 
 
 ##################################################
@@ -113,14 +112,14 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
   for(i in 1:maxIter)  {
     rEst <- nValidProbes - ceiling(q*nValidProbes)
     rEst <- max(c(rEstOld, rEst, 1))
-    rEst <- min(c(nValidProbes, rEst))  ## rEst <- min(c(nValidProbes-1, rEst))
+    rEst <- min(c(nValidProbes, rEst))
     if(is.na(rEst) || rEstOld == rEst)
       break
     ind <- rEst:nValidProbes
     if(custom == TRUE)  {
       q <- les:::slopeWeight(x[ind], y[ind], cw[ind,ind])
     }
-    else  {  ## must stay that way !
+    else  {
       xi <- x[ind]
       dim(xi) <- c(length(ind), 1)
       q <- les:::qrSlope(xi, y[ind], cweight[ind])
@@ -175,7 +174,7 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
 cdfDuplicates <- function(pvalSort, weightSort)  {
 
   nPval <- length(pvalSort)
-  tabCount <- rle(pvalSort)$lengths  ## table()
+  tabCount <- rle(pvalSort)$lengths
   tabWeight <- table(pvalSort, weightSort)
   weightSum <- tabWeight %*% sort(unique(weightSort))
   cdf1 <- cumsum(weightSum)
@@ -217,7 +216,6 @@ seFast <- function(x, y, b)  {
   
   return(se)
 }
-## ok ##
 
 
 ##################################################
@@ -238,7 +236,6 @@ mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
 
   return(res)
 }
-## ok ##
 
 
 ##################################################

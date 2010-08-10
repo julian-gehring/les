@@ -1,8 +1,8 @@
 Package: les
 Type: Package
 Title: Loci of Enhanced Significance in Tiling Microarray Data
-Version: 0.9.23
-Date: 2010-08-09
+Version: 0.9.24
+Date: 2010-08-10
 Author: Julian Gehring, Clemens Kreutz
 Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
 Imports: boot, gplots, GSRI, RColorBrewer

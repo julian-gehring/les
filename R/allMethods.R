@@ -19,12 +19,6 @@ setMethod("estimate", "Les",
   minProbes <- as.integer(minProbes - 1)
   chrLevel <- levels(object@chr)
 
-  ## silent default for grenander
-  ##arg <- list(...)
-  ##grenander <- FALSE
-  ##if(any(names(arg) == "grenander"))
-  ##  grenander <- arg[[which(names(arg) == "grenander")]]
-
   ## for each chr
   for(c in 1:object@nChr)  {
     indChr <- object@chr == chrLevel[c]
@@ -173,7 +167,6 @@ setMethod("threshold", "Les",
   nSigProbes <- erg[1]*nProbes
   nSigLower <- floor(nSigProbes)
   cutoff <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
-  ## +1: access right probe due to floor !
   
   if(verbose == TRUE)
     print(sprintf("%g %s%g", nSigLower,
