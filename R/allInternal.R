@@ -112,8 +112,7 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
   ## iterative fitting
   for(i in 1:maxIter)  {
     rEst <- nValidProbes - ceiling(q*nValidProbes)
-    rEst <- max(c(rEstOld, rEst, 1))
-    rEst <- min(c(nValidProbes, rEst))  ## rEst <- min(c(nValidProbes-1, rEst))
+    rEst <- max(c(rEst, 1))
     if(is.na(rEst) || rEstOld == rEst)
       break
     ind <- rEst:nValidProbes
