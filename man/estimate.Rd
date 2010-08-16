@@ -15,11 +15,12 @@
 
 \usage{
 estimate(object, win, weighting = triangWeight, grenander = FALSE,
-se = FALSE, minProbes = 3, method = "la", nCores = NULL, ...)
+se = FALSE, minProbes = 3, method = "la", nCores = NULL, verbose =
+FALSE, ...)
 
 \S4method{estimate}{Les}(object, win, weighting = triangWeight,
 grenander = FALSE, se = FALSE, minProbes = 3, method = "la", nCores =
-NULL, ...)
+NULL, verbose = FALSE, ...)
 }
 
 \arguments{
@@ -64,6 +65,8 @@ NULL, ...)
     to use. The value is passed directly to 'mclapply' as argument
     'n.cores'. For details and benefits please see the 'Details'
     section.}
+  \item{verbose}{Logical indicating whether the progress of the
+    computation should be printed on screen (default: FALSE).}
   \item{...}{Further arguments passed to subsequent functions.}
 }
 

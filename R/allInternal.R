@@ -71,7 +71,6 @@ fitGsri <- function(pval, index=NULL, cweight,
   if(grenander == TRUE)  {
     cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res[1])
     cdf$cdf <- les:::grenanderPass(cdf$pval, cdf$cdf, cdf$unique)
-    cdf$cdf <- GSRI:::grenanderInterp(cdf$pval, cdf$cdf)
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
   }
   
@@ -111,8 +110,7 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
   ## iterative fitting
   for(i in 1:maxIter)  {
     rEst <- nValidProbes - ceiling(q*nValidProbes)
-    rEst <- max(c(rEstOld, rEst, 1))
-    rEst <- min(c(nValidProbes, rEst))
+    rEst <- max(c(rEst, 1))
     if(is.na(rEst) || rEstOld == rEst)
       break
     ind <- rEst:nValidProbes

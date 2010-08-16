@@ -3,7 +3,8 @@
 ##################################################
 setMethod("estimate", "Les",
           function(object, win, weighting=triangWeight, grenander=FALSE, 
-                   se=FALSE, minProbes=3, method="la", nCores=NULL, ...)  {
+                   se=FALSE, minProbes=3, method="la", nCores=NULL,
+                   verbose=FALSE, ...)  {
 
   ## check input
   if(missing(win))
@@ -21,6 +22,9 @@ setMethod("estimate", "Les",
 
   ## for each chr
   for(c in 1:object@nChr)  {
+    if(verbose == TRUE)
+      print(sprintf("%s '%s' (%d/%d)",
+                    "Chromosome", chrLevel[c], c, object@nChr))
     indChr <- object@chr == chrLevel[c]
     indProbes <- seq(win+1, win+length(object@pos[indChr]))
     pos <- c(rep(-Inf, win), object@pos[indChr], rep(Inf, win))
