@@ -72,7 +72,6 @@ fitGsri <- function(pval, index=NULL, cweight,
   if(grenander == TRUE)  {
     cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res[1])
     cdf$cdf <- les:::grenanderPass(cdf$pval, cdf$cdf, cdf$unique)
-    cdf$cdf <- GSRI:::grenanderInterp(cdf$pval, cdf$cdf)
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
   }
   
