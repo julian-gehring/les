@@ -44,7 +44,7 @@ limit=TRUE, main=NULL, ...)
     "black"). For details see 'par'.}
   \item{lty}{Line type for lines connecting the
     \eqn{\Lambda_i}{Lambda_i} of probes (default: 1). For details see
-    'par'}.
+    'par'.}
   \item{sigPch}{Symbol probes above the threshold should be plotted
     with (default: 20). For details see 'par'.}
   \item{sigCol}{Color probes above the threshold should be plotted
@@ -63,11 +63,11 @@ limit=TRUE, main=NULL, ...)
   \item{rug}{Logical whether the positions of the probes should be
     indicated along the x-axis (default: FALSE). For details see 'rug'.}
   \item{rugSide}{Integer specifying the side at which probe positions
-    should be plotted (default: 1). For details see 'rug'}.
+    should be plotted (default: 1). For details see 'rug'.}
   \item{limit}{Logical specifying whether the estimated threshold
     \eqn{\Theta}{Theta} should be indicated on the y-axis (default:
     TRUE) if estimated.}
-  \item{main}{Title of the plot (default: no title). For details see 'main'}.
+  \item{main}{Title of the plot (default: no title). For details see 'main'.}
   \item{...}{Further arguments not used so far.}
 }
 
