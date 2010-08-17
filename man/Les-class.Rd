@@ -25,7 +25,9 @@
       the user through the 'create' function.}
     \item{\code{chr}:}{Factor with chromosomes for each probe. Provided
       by the user through the 'create' function.}
-    \item{\code{lambda}:}{Numeric vector with Lambda for each probe}
+    \item{\code{lambda}:}{Numeric vector with Lambda for each probe.}
+    \item{\code{lambda0}:}{Numeric vector with Lambda0 for each probe if
+      'grenander' is TRUE.}
     \item{\code{se}:}{Numeric vector with standard error from linear
       fitting for each probe.}
     \item{\code{nProbes}:}{Integer with number of probes used in fit for

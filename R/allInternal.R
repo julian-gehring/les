@@ -44,14 +44,13 @@ calcSingle <- function(ind0, pos, pval, win,
   else  {
     ## if not enough probes
     if(nBoot == FALSE)
-      res <- c(NA, NA, nValidProbes)
+      res <- c(NA, NA, nValidProbes, NA)
     else
       res <- c(NA, NA)
   }
   
   return(res)
 }
-## ok ## nValidProbes as input?
 
 
 ##################################################
@@ -70,11 +69,13 @@ fitGsri <- function(pval, index=NULL, cweight,
   res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
 
   if(grenander == TRUE)  {
-    cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res[1])
+    res0 <- res[1]
+    cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res0)
     cdf$cdf <- les:::grenanderPass(cdf$pval, cdf$cdf, cdf$unique)
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
+    if(noBoot == TRUE)
+      res[4] <- res0
   }
-  
   return(res)
 }
 
@@ -132,12 +133,11 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
       ses <- les:::seFast(x, y, q)
     else
       ses <- NA
-    res <- c(1 - min(q, 1), ses, nValidProbes)
+    res <- c(1 - min(q, 1), ses, nValidProbes, NA)
   }
   else  {
     res <- 1 - min(q, 1, na.rm=TRUE)
   }
-  
   return(res)
 }
 

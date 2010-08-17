@@ -40,6 +40,8 @@ setMethod("estimate", "Les",
     object@nProbes[indChr] <- as.integer(cs[3, ])
     if(se == TRUE)
       object@se[indChr] <- cs[2, ]
+    if(grenander == TRUE)
+      object@lambda0[indChr] <- cs[4, ]
   }
 
   object@win <- win
@@ -47,7 +49,7 @@ setMethod("estimate", "Les",
   object@grenander <- grenander
   object@minProbes <- minProbes
   object@method <- method
-  
+
   return(object)
 }
 )
