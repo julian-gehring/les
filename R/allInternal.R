@@ -66,15 +66,17 @@ fitGsri <- function(pval, index=NULL, cweight,
   else  {
     cdf <- les:::wcdf2(pval[index], cweight[index], FALSE)
   }
-  res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
-
   if(grenander == TRUE)  {
+    res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, FALSE, custom, noBoot)
     res0 <- res[1]
     cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res0)
     cdf$cdf <- les:::grenanderPass(cdf$pval, cdf$cdf, cdf$unique)
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
     if(noBoot == TRUE)
       res[4] <- res0
+  }
+  else  {
+    res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
   }
   return(res)
 }
