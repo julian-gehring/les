@@ -129,10 +129,15 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
 
   ## return values
   if(noBoot == TRUE)  {
-    if(se == TRUE && length(unique(x)) > 1)
-      ses <- les:::seFast(x, y, q)
-    else
+    if(se == TRUE && length(unique(x)) > 1)  {
+      xi <- x[ind]
+      dim(xi) <- c(length(ind), 1)
+      fit <- stats::lm.wfit(xi, y[ind], cweight[ind])
+      ses <- les:::seSlopeWeight(fit, length(ind))
+    }
+    else  {
       ses <- NA
+    }
     res <- c(1 - min(q, 1), ses, nValidProbes, NA)
   }
   else  {
@@ -285,6 +290,15 @@ slopeWeight <- function(x, y, c)  {
 qrSlope <- function(x, y, w)  {
   b <- as.numeric(stats:::lm.wfit(x, y, w)$coefficients)
   return(b)
+}
+
+
+seSlopeWeight <- function(fit, n=length(fit$weights))  {
+  R <- fit$qr$qr[1]^-2  ## = chol2inv(fit$qr$qr[1])
+  rss <- sum(fit$weights*fit$residuals^2)
+  resvar <- rss/(n - 1)
+  se <- sqrt(R*resvar)
+  return(se)
 }
 
 

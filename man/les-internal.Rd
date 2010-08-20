@@ -14,6 +14,7 @@
 \alias{cdfCorrect}
 \alias{cdfDuplicates}
 \alias{grenanderPass}
+\alias{seSlopeWeight}
 
 \title{
   Internal functions of the 'les' package.
@@ -38,6 +39,7 @@ qrSlope(x, y, w)
 cdfCorrect(x, y, q0)
 cdfDuplicates(pvalSort, weightSort)
 grenanderPass(x, y, un)
+seSlopeWeight(fit, n=length(fit$weights)) 
 }
 
 \details{
