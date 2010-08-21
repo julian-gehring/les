@@ -431,3 +431,68 @@ setMethod("export", "Les",
   }
 }
 )
+
+
+##################################################
+## chi2
+##################################################
+setMethod("chi2", "Les",
+          function(object, winSize, regions, offset, fdr="lfdr", method, scaling=les:::scaleNorm, nCores=NULL, verbose=FALSE, ...)  {
+
+  ## check input arguments
+  if(missing(regions))  {
+    if(length(object@regions) != 0)  {
+      if(missing(offset))
+        warning("A 'offset' should be defined if working with estimated regions.")
+      regions <- object@regions
+    }
+    else  {
+      stop("'regions' must be specified.")
+    }
+  }
+  if(!is.data.frame(regions) || is.null(regions$start) || is.null(regions$end))  {
+    stop("'regions' must be a data frame with variables 'start' and 'end'.")
+  }
+  if(!missing(offset))  {
+    regions$start <- regions$start - offset
+    regions$end <- regions$end + offset
+  }
+
+  nReg <- nrow(regions)
+  nWin <- length(winSize)
+
+  ## get fdr
+  if(is.character(fdr))  {
+    fdrMethod <- c("lfdr", "qval")
+    choice <- pmatch(fdr, fdrMethod)
+    if(!is.na(choice))
+      fdr <- fdrtool::fdrtool(object@pval, "pvalue", verbose=FALSE, plot=FALSE)[[fdrMethod[choice]]]
+    else
+      stop("'fdr' is not a valid fdr method.")
+  }
+  else  {
+    if(length(fdr) != length(object@pos))
+      stop("'fdr' must have the same size as 'pos'.")
+  }
+
+  ## set weighting in options
+  if(length(object@weighting) == 0)
+    stop("'weighting' function must be set in the 'estimate' method.")
+  oldOpt <- getOption("weighting")
+  options(weighting=object@weighting)
+
+  ## create data object
+  if(missing(method))
+    method <- object@method
+
+  chi2 <- les:::mcsapply(1:nReg, optimalSingleRegion, regions, object, winSize, fdr, method, scaling, nCores, verbose=verbose)
+
+  rownames(chi2) <- winSize
+  colnames(chi2) <- rownames(regions)
+
+  ## unset weighting in options
+  options(weighting=oldOpt)
+
+  return(chi2)
+}
+)
