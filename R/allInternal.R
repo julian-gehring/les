@@ -279,6 +279,18 @@ ind2log <- function(ind, n)  {
 }
 
 
+reg2log <- function(reg, pos, chr)  {
+
+  if(length(reg$chr) == 0)
+    indChr <- !logical(length(pos))
+  else
+    indChr <- chr %in% reg$chr
+  ind <- indChr & pos >= reg$start & pos <= reg$end
+
+  return(ind)
+}
+
+
 ##################################################
 ## slopeWeight
 ##################################################
@@ -309,4 +321,53 @@ diagSquare <- function(w, n)  {
   y[1+0:(n-1)*(n+1)] <- w
   dim(y) <- c(n, n)
   return(y)
+}
+
+
+scaleNorm <- function(x)  {
+
+  x <- x - min(x, na.rm=TRUE)
+  m <- max(x, na.rm=TRUE)
+  if(m != 0)
+    x <- x/m
+  return(x)
+}
+
+
+xvalWeight <- function(distance, win)  {
+
+  weighting <- getOption("weighting")
+  weight <- weighting(distance, win)
+  weight[distance == 0] <- 0
+  
+  return(weight)
+}
+
+
+optimalSingleRegion <- function(i, reg, object, winSize, fdr, method, scaling, nCores, verbose, ...)  {
+  
+  nWin <- length(winSize)
+  chi2 <- vector("numeric", nWin)
+  ind <- les:::reg2log(reg[i, ], object@pos, object@chr)
+  resc <- les::create(object@pos[ind], object@pval[ind])
+
+  if(verbose == TRUE)
+    print(sprintf("%s %d/%d", "Region", i, nrow(reg)))
+  if(sum(ind) == 0)
+    warning(sprintf("%s %d", "No probes in region", i))
+  
+  for(w in 1:nWin)  {
+    lesi <- les::estimate(resc, winSize[w], weighting=les:::xvalWeight,
+                          grenander=object@grenander, se=FALSE,
+                          minProbes=object@minProbes, method=method,
+                          nCores=nCores, verbose=FALSE)@lambda
+    
+    ## take only non-NAs into account
+    indValid <- !is.na(lesi) & !is.na(fdr[ind])
+    
+    chi2[w] <- sum((scaling(lesi[indValid]) -
+                    scaling(1 - fdr[ind][indValid]))^2)/sum(indValid)
+  }
+  
+  return(chi2)
 }

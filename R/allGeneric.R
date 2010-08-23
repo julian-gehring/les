@@ -32,3 +32,10 @@ setGeneric("export",
                     precision=4, ...)
            {standardGeneric("export")}
            )
+
+setGeneric("chi2",
+           function(object, winSize, regions, offset, fdr="lfdr",
+                    method, scaling=les:::scaleNorm, nCores=NULL,
+                    verbose=FALSE, ...)
+           {standardGeneric("chi2")}
+           )
