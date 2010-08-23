@@ -437,7 +437,9 @@ setMethod("export", "Les",
 ## chi2
 ##################################################
 setMethod("chi2", "Les",
-          function(object, winSize, regions, offset, fdr="lfdr", method, scaling=les:::scaleNorm, nCores=NULL, verbose=FALSE, ...)  {
+          function(object, winSize, regions, offset,
+                   fdr="lfdr", method, scaling=les:::scaleNorm,
+                   nCores=NULL, verbose=FALSE, ...)  {
 
   ## check input arguments
   if(missing(regions))  {
@@ -458,6 +460,7 @@ setMethod("chi2", "Les",
     regions$end <- regions$end + offset
   }
 
+  winSize <- as.integer(winSize)
   nReg <- nrow(regions)
   nWin <- length(winSize)
 
@@ -493,6 +496,9 @@ setMethod("chi2", "Les",
   ## unset weighting in options
   options(weighting=oldOpt)
 
-  return(chi2)
+  object@winSize <- winSize
+  object@chi2 <- chi2
+
+  return(object)
 }
 )

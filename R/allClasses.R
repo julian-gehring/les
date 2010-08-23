@@ -24,5 +24,7 @@ setClass("Les",
                  ci="data.frame",
                  theta="numeric",
                  nSigProbes="numeric",
-                 regions="data.frame")
+                 regions="data.frame",
+                 winSize="integer",
+                 chi2="matrix")
          )

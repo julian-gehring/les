@@ -337,6 +337,8 @@ optimalSingleRegion <- function(i, reg, object, winSize, fdr, method, scaling, n
 
   if(verbose == TRUE)
     print(sprintf("%s %d/%d", "Region", i, nrow(reg)))
+  if(sum(ind) == 0)
+    warning(sprintf("%s %d", "No probes in region", i))
   
   for(w in 1:nWin)  {
     lesi <- les::estimate(resc, winSize[w], weighting=les:::xvalWeight,

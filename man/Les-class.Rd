@@ -67,6 +67,10 @@
       'estimate' function.}
     \item{\code{method}:}{Character specifying the method used for
       linear regression.}
+    \item{\code{winSize}:}{Integer vector specifying the window sizes
+      used for chi2 computation.}
+    \item{\code{chi2}:}{Matrix containing the chi2 values for different
+      window sizes.}    
   }
 }
 

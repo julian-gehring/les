@@ -7,10 +7,10 @@
 \title{chi2}
 
 \description{
-  The 'estimate' method estimates the fraction of probes with
-  significant effect in the local surrounding \eqn{\Lambda}{Lambda} with
-  a given weighting window. This is used to identify Loci of Enhanced
-  Significance.
+  The 'chi2' method can be used to optimize the window size for defined
+  regions of interest. It computes \eqn{\chi^2(w)}{chi^2(w)} for window
+  sizes w based on the estimates of \eqn{\Lambda}{Lambda} and the
+  false-discovery rate.
 }
 
 \usage{
@@ -22,12 +22,13 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
 }
 
 \arguments{
-  \item{object}{Object of class 'Les' as returned by 'estimate'.}
-  \item{winSize}{Integer vector specifying the window sizes chi^2 should
-    be computed. For each value of 'winSize' and each region a
-    computation as for 'estimate' is run. For details please see the
-    'win' argument in 'estimate'.}
-  \item{regions}{Data frame containing the regions of interest. Has to
+  \item{object}{Object of class 'Les' as returned by 'estimate'or a
+    subsequent step.}
+  \item{winSize}{Integer vector specifying the window sizes
+    \eqn{\chi^2(w)}{chi^2(w)} should be computed. For each value of
+    'winSize' and each region a computation as for 'estimate' is
+    run. For details please see the 'win' argument in 'estimate'.}
+  \item{regions}{Data frame containing the regions of interest. It has to
     contain the columns 'start', 'end' and 'chr' specifying the start
     and end position for each region as well the chromosome if more than
     one chromosome is present. The structure is related to the 'regions'
@@ -37,19 +38,18 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
   \item{offset}{Integer or vector of integers specifying the offset for
     the regions given by the 'regions' input argument. If missing the
     regions will be taken as specified. If present start and end of each
-    regions will be taken as 'start-offset' and 'end+offset'.}
-  \item{fdr}{Character string specifying the fdr method to use for chi^2
-    computation (default: 'lfdr'). Possible values are 'lfdr' for local
-    fdr and 'qval' for q-values. For details see the 'Details' section
-    below and the 'fdrtool' package.}
+    regions will be taken as 'start - offset' and 'end + offset'.}
+  \item{fdr}{Character string specifying the fdr method to use for
+    \eqn{\chi^2}{chi^2} computation (default: 'lfdr'). Possible values
+    are 'lfdr' for local fdr and 'qval' for q-values. For details see
+    the 'Details' section below and the 'fdrtool' package.}
   \item{method}{Character string specifying the method used for linear
     regression. Equivalent to the 'method' argument in the 'estimate'
     method. If missing the value set in the 'estimate' method will be
     used.}
   \item{scaling}{Function specifying the scaling of Lambda and fdr
     (default:les:::scaleNorm). By default both will be scaled to the
-    range [0,1]. For details please see the 'Description' section
-    below.}
+    range [0,1].}
   \item{nCores}{Integer indicating the number of cores to use for
     computation. This feature requires the 'multicore' package which
     is only available for certain platforms. The package is used only if
@@ -64,12 +64,17 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
 }
 
 \details{
-  With this method goodness-of-fit for a region can be computed. 
+  The 'chi2' method can be used to optimize the window size for defined
+  regions of interest. It computes \eqn{\chi^2(w)}{chi^2(w)} for each
+  window size w based on the estimates of false-discovery rate (fdr) and
+  \eqn{\Lambda(w)}{Lambda(w)} with a Leave-One-Out Cross Validation
+  (LOOCV). The shape of the \eqn{\chi^2(w)}{chi^2(w)} landscape can
+  restrain the suitable values for 'w'.
 }
       
 \value{
   Object of class 'Les' with additionally filled slots:
-  lambda, win, weighting, grenander, nProbes, se (se only if computed)
+  winSize, chi2
 }
 
 \author{
@@ -81,6 +86,7 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
 \seealso{
   Package:
   \code{\link[les]{les-package}}
+  \code{\link[fdrtool]{fdrtool}}
 
   Class:
   \code{\linkS4class{Les}}
