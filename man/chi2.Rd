@@ -108,11 +108,12 @@ data(statTile)
 
 x <- create(pos, pval, chr)
 x <- estimate(x, 25)
-x <- regions(x, limit=0.1)
+x <- regions(x, limit=0.5)
 
 regions <- x["regions"]
-winsize <- seq(5, 50, by=5)
+winsize <- seq(10, 100, by=10)
 x <- chi2(x, winsize, regions, offset=250)
+chi2 <- x["chi2"]
 }
 }
 
