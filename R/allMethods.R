@@ -172,6 +172,7 @@ setMethod("threshold", "Les",
   erg <- les:::gsri(pval, grenander, se=FALSE)
   nSigProbes <- erg[1]*nProbes
   nSigLower <- floor(nSigProbes)
+  names(nSigLower) <- NULL
   cutoff <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
   ## +1: access right probe due to floor !
   
@@ -179,7 +180,7 @@ setMethod("threshold", "Les",
     print(sprintf("%g %s%g", nSigLower,
                   "significant probes estimated with limit Lambda>=", cutoff))
   
-  object@nSigProbes <- nSigProbes
+  object@nSigProbes <- nSigLower
   object@theta <- cutoff
   
   return(object)
