@@ -88,10 +88,12 @@ fitGsri <- function(pval, index=NULL, cweight,
 cdfCorrect <- function(x, y, q0)  {
 
   z <- y
-  indLower <- y < q0*x
-  indUpper <- y > 1 - q0*(1 - x)
-  z[indLower] <- q0*x[indLower]
-  z[indUpper] <- 1 - q0*(1 - x[indUpper])
+  zLower <- q0*x
+  zUpper <- 1 - q0*(1 - x)
+  indLower <- y < zLower
+  indUpper <- y > zUpper
+  z[indLower] <- zLower[indLower]
+  z[indUpper] <- zUpper[indUpper]
 
   return(z)
 }
