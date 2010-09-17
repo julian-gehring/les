@@ -168,13 +168,13 @@ closely related to the estimation of a false discovery rate and $\Lambda_{i}$
 can be interpreted in a similar way.
 
 For the analysis we will first store our data in an object of class
-\Rclass{Les} by calling the \Rfunction{create} function. The only
-data required for the analysis are the position of the probes $i$,
-the corresponding p-values $p_{i}$ from the statistical test and
-optionally their chromosomal location.
+\Rclass{Les} by calling the \Rfunction{Les} function. The only data
+required for the analysis are the position of the probes $i$, the
+corresponding p-values $p_{i}$ from the statistical test and optionally
+their chromosomal location.
 
-<<createLes>>=
-res <- create(pos, pval)
+<<constructLes>>=
+res <- Les(pos, pval)
 @
 
 Then we can compute our first estimate of $\Lambda_{i}$ for which

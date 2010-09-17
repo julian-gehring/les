@@ -25,7 +25,7 @@ limit=TRUE, main=NULL, ...)
   \item{x}{Object of class 'Les', as returned by 'estimate', 'threshold' or 'ci'.}
   \item{y}{Annotation object}
   \item{chr}{Character or numeric specifying which chromosome to
-    plot. Must have a match in 'chr' passed to 'create'. A value is
+    plot. Must have a match in 'chr' passed to 'Les'. A value is
     required if the probes are located on more than one chromosome.}
   \item{region}{Logical indicating whether the estimated regions should
     be included in the plot. The 'regions' method must have been called
@@ -88,26 +88,25 @@ limit=TRUE, main=NULL, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, win=25)
+x <- Les(pos, pval, chr)
+x <- estimate(x, 50)
 x <- threshold(x)
 x <- regions(x)
 
 plot(x, chr=1, region=TRUE)
-}
 }
 
 \keyword{utilities}

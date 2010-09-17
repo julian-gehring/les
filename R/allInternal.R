@@ -232,9 +232,9 @@ seFast <- function(x, y, b)  {
 ##################################################
 mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
 
-  mcLoaded <- any(.packages() %in% "multicore") &&
+  mcLoaded <- "multicore" %in% .packages() &&
   any("mclapply" %in% objects("package:multicore"))
-  
+
   if(mcLoaded == TRUE && !is.null(mc.cores))  {
     res <- multicore::mclapply(X, FUN, ..., mc.cores=mc.cores)
     res <- sapply(res, c)
@@ -351,7 +351,7 @@ optimalSingleRegion <- function(i, reg, object, winSize, fdr, method, scaling, n
   nWin <- length(winSize)
   chi2 <- vector("numeric", nWin)
   ind <- les:::reg2log(reg[i, ], object@pos, object@chr)
-  resc <- les::create(object@pos[ind], object@pval[ind])
+  resc <- les::Les(object@pos[ind], object@pval[ind])
 
   if(verbose == TRUE)
     print(sprintf("%s %d/%d", "Region", i, nrow(reg)))
@@ -372,4 +372,23 @@ optimalSingleRegion <- function(i, reg, object, winSize, fdr, method, scaling, n
   }
   
   return(chi2)
+}
+
+
+setState <- function(state, flag)  {
+
+  if(!(flag %in% state))
+    state <- c(state, flag)
+
+  return(state)
+}
+
+
+checkState <- function(state, flag, text=as.character(flag))  {
+
+  status <- flag %in% state
+  if(all(!status))
+    stop(sprintf("'%s' %s", text, "must be called first."))
+
+  return(status)
 }

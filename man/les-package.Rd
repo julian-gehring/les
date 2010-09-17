@@ -52,28 +52,31 @@
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, 25)
+x <- Les(pos, pval, chr)
+x <- estimate(x, 50)
 x <- threshold(x)
 x <- regions(x)
-x <- ci(x, subset=(chr == 1))
+x <- ci(x, subset=150:200, conf=0.90, nBoot=50)
 
-## plot and export data from chromosome 1
+## plot data from chromosome 1
 plot(x, chr=1, region=TRUE)
 plot(x, chr=1, region=TRUE, error="ci")
+
+\dontrun{
+## export data from chromosome 1
 export(x, file="les_out.bed", chr=1)
 export(x, file="les_out.wig", format="wig", chr=1)
 }

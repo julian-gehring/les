@@ -90,26 +90,25 @@ verbose = FALSE, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
+x <- Les(pos, pval, chr)
 x <- estimate(x, win=50)
 x <- threshold(x, grenander=TRUE, verbose=TRUE)
 x <- regions(x, verbose=TRUE)
 
 print(x["regions"])
-}
 }
 
 \keyword{htest}

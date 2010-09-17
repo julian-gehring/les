@@ -69,7 +69,7 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
   window size w based on the estimates of false-discovery rate (fdr) and
   \eqn{\Lambda(w)}{Lambda(w)} with a Leave-One-Out Cross Validation
   (LOOCV). The shape of the \eqn{\chi^2(w)}{chi^2(w)} landscape can
-  restrain the suitable values for 'w'.
+  constrain suitable values for 'w'.
 }
       
 \value{
@@ -92,11 +92,12 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
   \code{\link[les]{weighting}}
@@ -106,13 +107,13 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
 \dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, 25)
+x <- Les(pos, pval, chr)
+x <- estimate(x, 50)
 x <- regions(x, limit=0.5)
 
 regions <- x["regions"]
 winsize <- seq(10, 100, by=10)
-x <- chi2(x, winsize, regions, offset=250)
+x <- chi2(x, winsize, regions, offset=250, verbose=TRUE)
 chi2 <- x["chi2"]
 }
 }

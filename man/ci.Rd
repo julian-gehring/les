@@ -8,7 +8,8 @@
 \title{ci}
 
 \description{
-  Computes confidence intervals (CIs) for \eqn{\Lambda}{Lambda} using bootstrapping.
+  Computes confidence intervals (CIs) for \eqn{\Lambda}{Lambda} using
+  bootstrapping.
 }
 
 \usage{
@@ -20,7 +21,7 @@ NULL, ...)
 
 \arguments{
   \item{object}{Object of class 'Les' as returned by 'estimate' or
-    subsequent methods.}
+    'regions'.}
   \item{subset}{Vector of logical specifying the probes for which the CIs
     should be computed. If missing CIs will be computed for all probes.}
   \item{nBoot}{Integer specifying the number of bootstrap samples
@@ -39,9 +40,8 @@ NULL, ...)
 }
 
 \details{
-  Computes confidence intervals by bootstrapping probes in each
-  window. Since based on percentiles the resulting CIs are
-  unsymmetrical.
+  Computes confidence intervals (CI) by bootstrapping probes in each
+  window. Since based on percentiles the resulting CIs are asymmetrical.
 
   All arguments for computation are taken from 'object' and thereby kept
   the same as for the results from 'estimation'.
@@ -52,11 +52,11 @@ NULL, ...)
 
   The 'multicore' package can be used to spread the computation over several
   cores in a simple way. This can be useful on multi-core machines for
-  large datasets and intensive CI computations. The 'multicore' package
-  is not available on all platforms. To use multicore processing
-  'library(multicore)' has to be called beforehand and a number of cores
-  to use has to be specified in 'nCores'. For details see the
-  documentation of the 'multicore' package.
+  large datasets or computation of confidence intervals for many
+  probes. The 'multicore' package is not available on all platforms. To
+  use multicore processing 'library(multicore)' has to be called
+  beforehand and a number of cores to use has to be specified in
+  'nCores'. For details see the documentation of the 'multicore' package.
 }
 
 \value{
@@ -78,28 +78,31 @@ NULL, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, win=25)
+x <- Les(pos, pval, chr)
+x <- estimate(x, win=50, grenander=FALSE)
 
-x <- ci(x, subset=1:100, conf=0.95)
+x <- ci(x, subset=150:200, conf=0.90, nBoot=50)
 
+plot(x, chr=1, error="ci")
+
+\dontrun{
 ## multicore computation
 ## only available on certain platforms
 library(multicore)
-x <- ci(x, subset=1:100, nCores=2)
+x <- ci(x, subset=150:200, conf=0.90, nBoot=50, nCores=2)
 }
 }
 

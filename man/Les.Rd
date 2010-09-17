@@ -1,18 +1,18 @@
-\name{create}
+\name{Les}
 
-\alias{create}
-\alias{create,Les}
+\alias{Les}
+\alias{Les,Les}
 
-\title{create}
+\title{Les}
 
 \description{
-  Creates an object of class 'Les' and stores experimental tiling
+  Constructs an object of class 'Les' and stores experimental tiling
   microarray data. This is the initial step for all further analysis
   with the 'les' package.
 }
 
 \usage{
-create(pos, pval, chr)
+Les(pos, pval, chr)
 }
 
 \arguments{
@@ -34,13 +34,13 @@ create(pos, pval, chr)
   such probes (including corresponding 'pos' and 'chr') are discarded
   for subsequent computation since they contain no usable
   information. Please note that in such a case fewer probes are stored
-  in the resulting object then were passed to 'create'. In case of
+  in the resulting object then were passed to 'Les'. In case of
   duplicate probe positions on one chromosome a warning is printed. This
   normally indicates that probes from both strands are present in the
   data. For this analysis it is recommended to analyze only data from
   one strand at a time.
   
-  After storing the experimental data with 'create' in an object the
+  After storing the experimental data with 'Les' in an object the
   variables containing the original data can be deleted from the
   workspace. All further steps of 'les' will get their data from this
   object. This can be useful in cases when memory usage is a critical
@@ -66,21 +66,20 @@ create(pos, pval, chr)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }
 
 \examples{
-\dontrun{
 data(statTile)
-x <- create(pos, pval, chr)
+x <- Les(pos, pval, chr)
 x
-}
 }
 
 \keyword{utilities}

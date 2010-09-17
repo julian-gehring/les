@@ -34,7 +34,7 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
   \item{chr}{Character string specifying the chromosome from which
     results should be exported. This value must be set if exporting to
     'wig' format, for other formats is optional. 'chr' must have exactly
-    one match in the 'chr' argument specified in 'create'.}
+    one match in the 'chr' argument specified in 'Les'.}
   \item{range}{Numeric vector specifying the probe range in position
     which should be exported. If missing all probes of the chromosome
     will be exported. This value has only an effect if 'format' is set
@@ -77,7 +77,7 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
@@ -90,8 +90,8 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
 \dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, win=50)
+x <- Les(pos, pval, chr)
+x <- estimate(x, 50)
 x <- threshold(x)
 x <- regions(x)
 

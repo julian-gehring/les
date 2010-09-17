@@ -26,5 +26,6 @@ setClass("Les",
                  nSigProbes="numeric",
                  regions="data.frame",
                  winSize="integer",
-                 chi2="matrix")
+                 chi2="matrix",
+                 state="character")
          )

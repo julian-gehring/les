@@ -23,7 +23,7 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
 
 \arguments{
   \item{object}{Object of class 'Les' as returned by 'estimate' or
-    'create'.}
+    'Les'.}
   \item{grenander}{Logical indicating whether the Grenander correction
     for the cumulative density should be used (default: FALSE). For
     details see below and at the 'GSRI' package.}
@@ -74,7 +74,7 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
@@ -84,13 +84,11 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
+x <- Les(pos, pval, chr)
 x <- estimate(x, win=50)
 x <- threshold(x, verbose=TRUE)
-}
 }
 
 \keyword{htest}

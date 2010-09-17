@@ -16,15 +16,15 @@
 }
 
 \section{Objects from the Class}{
-  Objects of class 'Les' are created by calling the function 'create'.
+  Objects of class 'Les' are constructed by calling the function 'Les'.
 }
        
 \section{Slots}{
   \describe{
     \item{\code{pos}:}{Integer vector with probe positions. Provided by
-      the user through the 'create' function.}
+      the user through the 'Les' function.}
     \item{\code{chr}:}{Factor with chromosomes for each probe. Provided
-      by the user through the 'create' function.}
+      by the user through the 'Les' function.}
     \item{\code{lambda}:}{Numeric vector with Lambda for each probe.}
     \item{\code{lambda0}:}{Numeric vector with Lambda0 for each probe if
       'grenander' is TRUE.}
@@ -33,7 +33,7 @@
     \item{\code{nProbes}:}{Integer with number of probes used in fit for
       each probe}
     \item{\code{pval}:}{Numeric vector with p-values for each
-      probe. Provided by the user through the 'create' function.}
+      probe. Provided by the user through the 'Les' function.}
     \item{\code{win}:}{Integer with the window size. Set by the user in
       the 'estimate' function.}
     \item{\code{weighting}:}{Function with the weighting function used
@@ -70,7 +70,9 @@
     \item{\code{winSize}:}{Integer vector specifying the window sizes
       used for chi2 computation.}
     \item{\code{chi2}:}{Matrix containing the chi2 values for different
-      window sizes.}    
+      window sizes.}
+    \item{\code{state}:}{Character vector containing the analysis steps
+      applied on the data object. Used for internal consistency checks.}
   }
 }
 
@@ -88,19 +90,18 @@
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }
 
 \examples{
-\dontrun{
 showClass("Les")
-}
 }
 
 \keyword{classes}

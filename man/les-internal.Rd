@@ -15,6 +15,8 @@
 \alias{cdfDuplicates}
 \alias{grenanderPass}
 \alias{seSlopeWeight}
+\alias{setState}
+\alias{checkState}
 
 \title{
   Internal functions of the 'les' package.
@@ -39,12 +41,14 @@ qrSlope(x, y, w)
 cdfCorrect(x, y, q0)
 cdfDuplicates(pvalSort, weightSort)
 grenanderPass(x, y, un)
-seSlopeWeight(fit, n=length(fit$weights)) 
+seSlopeWeight(fit, n=length(fit$weights))
+setState(state, flag)
+checkState(state, flag, text=as.character(flag))
 }
 
 \details{
   Internal functions of the 'les' package.
-  These are not to be called by the user.
+  These should not be called by the user.
 }
 
 \author{
@@ -59,11 +63,12 @@ seSlopeWeight(fit, n=length(fit$weights))
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }

@@ -2,11 +2,12 @@
 ## estimate
 ##################################################
 setMethod("estimate", "Les",
-          function(object, win, weighting=triangWeight, grenander=FALSE, 
+          function(object, win, weighting=triangWeight, grenander=TRUE, 
                    se=FALSE, minProbes=3, method="la", nCores=NULL,
-                   verbose=FALSE, ...)  {
+                   verbose=FALSE, ...)  {   
 
   ## check input
+  les:::checkState(object@state, "Les", "'Les'")
   if(missing(win))
     stop("'win' must be specified.")
   if(win < 1)
@@ -44,11 +45,19 @@ setMethod("estimate", "Les",
       object@lambda0[indChr] <- cs[4, ]
   }
 
+  object@ci <- data.frame()
+  object@theta <- numeric()
+  object@regions <- data.frame()
+  object@nBoot <- integer()
+  object@conf <- numeric()
+  object@subset <- integer()  
+
   object@win <- win
   object@weighting <- weighting
   object@grenander <- grenander
   object@minProbes <- minProbes
   object@method <- method
+  object@state <- les:::setState(object@state, "estimate")
 
   return(object)
 }
@@ -62,6 +71,7 @@ setMethod("ci", "Les",
           function(object, subset, nBoot=100, conf=0.95,
                    nCores=NULL, ...)  {
 
+  les:::checkState(object@state, "estimate")
   if(missing(subset))
     subset <- rep(TRUE, length(object@pos))
   if(!is.logical(subset) & is.vector(subset))
@@ -90,6 +100,7 @@ setMethod("ci", "Les",
   object@subset <- log2ind(subset)
   object@nBoot <- nBoot
   object@conf <- conf
+  object@state <- les:::setState(object@state, "ci")
   
   return(object)
 }
@@ -103,6 +114,7 @@ setMethod("regions", "Les",
           function(object, limit=NULL, minLength=2,
                    maxGap=Inf, verbose=FALSE, ...)  {
 
+  les:::checkState(object@state, "estimate")
   if(is.null(limit))  {
     if(length(object@theta) == 0)
       stop("'limit' must be specified.")
@@ -155,6 +167,7 @@ setMethod("regions", "Les",
   object@limit <- limit
   object@minLength <- as.integer(minLength)
   object@maxGap <- maxGap
+  object@state <- les:::setState(object@state, "regions")
   
   return(object)
 }
@@ -166,7 +179,8 @@ setMethod("regions", "Les",
 ##################################################
 setMethod("threshold", "Les",
           function(object, grenander=FALSE, verbose=FALSE, ...)  {
-  
+
+  les:::checkState(object@state, "Les")
   pval <- object@pval
   nProbes <- length(pval)
   erg <- les:::gsri(pval, grenander, se=FALSE)
@@ -182,6 +196,7 @@ setMethod("threshold", "Les",
   
   object@nSigProbes <- nSigLower
   object@theta <- cutoff
+  object@state <- les:::setState(object@state, "threshold")
   
   return(object)
 }
@@ -200,6 +215,7 @@ setMethod("plot", "Les",
                    rug=FALSE, rugSide=1, limit=TRUE,
                    main=NULL, ...)  {
 
+  les:::checkState(x@state, "estimate")         
   if(missing(chr))  {
     if(x@nChr == 1)  {
       chr <- levels(x@chr)
@@ -318,10 +334,15 @@ setMethod("show", "Les",
   if(length(object@ci) != 0)
     cat(sprintf("* %g %s %d %s\n", object@conf, "confidence intervals computed for",
                 length(object@subset), "probes"))
-  if(length(object@nSigProbes) != 0)
-    cat(sprintf("* %d %s %g\n", ceiling(object@nSigProbes),
-                "regulated probes estimated for lambda >=",
-                object@theta))
+  if(length(object@nSigProbes) != 0)  {
+    if(!is.na(object@theta) && length(object@lambda) != 0)
+      cat(sprintf("* %d %s %g\n", ceiling(object@nSigProbes),
+                  "regulated probes estimated for lambda >=",
+                  object@theta))
+    else
+      cat(sprintf("* %d %s\n", ceiling(object@nSigProbes),
+                  "regulated probes estimated"))
+  }
   if(length(object@regions) != 0)
     cat(sprintf("* %d %s\n", nrow(object@regions), "regions detected"))
 }
@@ -351,6 +372,7 @@ setMethod("export", "Les",
                    description="Lambda", strand=".", group="les",
                    precision=4, ...)  {
 
+  les:::checkState(object@state, "estimate")
   choice <- pmatch(format, c("gff", "bed", "wig"))          
   if(is.na(choice))
     stop("'format' must be 'gff', 'bed' or 'wig'")
@@ -443,6 +465,7 @@ setMethod("chi2", "Les",
                    nCores=NULL, verbose=FALSE, ...)  {
 
   ## check input arguments
+  les:::checkState(object@state, "Les")
   if(missing(regions))  {
     if(length(object@regions) != 0)  {
       if(missing(offset))
@@ -485,7 +508,7 @@ setMethod("chi2", "Les",
   oldOpt <- getOption("weighting")
   options(weighting=object@weighting)
 
-  ## create data object
+  ## construct data object
   if(missing(method))
     method <- object@method
 
@@ -499,6 +522,7 @@ setMethod("chi2", "Les",
 
   object@winSize <- winSize
   object@chi2 <- chi2
+  object@state <- les:::setState(object@state, "chi2")
 
   return(object)
 }

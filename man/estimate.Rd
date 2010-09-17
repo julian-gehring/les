@@ -14,18 +14,18 @@
 }
 
 \usage{
-estimate(object, win, weighting = triangWeight, grenander = FALSE,
+estimate(object, win, weighting = triangWeight, grenander = TRUE,
 se = FALSE, minProbes = 3, method = "la", nCores = NULL, verbose =
 FALSE, ...)
 
 \S4method{estimate}{Les}(object, win, weighting = triangWeight,
-grenander = FALSE, se = FALSE, minProbes = 3, method = "la", nCores =
+grenander = TRUE, se = FALSE, minProbes = 3, method = "la", nCores =
 NULL, verbose = FALSE, ...)
 }
 
 \arguments{
   \item{object}{Object of class 'Les' containing experimental data, as
-    returned by 'create'.}
+    returned by 'Les'.}
   \item{win}{Integer specifying window size for the weighting
     function. This value is directly passed to the function specified
     by 'weighting'. For details see the description for the used window
@@ -36,7 +36,7 @@ NULL, verbose = FALSE, ...)
     functions and how to specify own functions please see the 'Details'
     section.}
   \item{grenander}{Logical specifying if the Grenander correction for
-    the cumulative density should be used (default: FALSE). For details
+    the cumulative density should be used (default: TRUE). For details
     see the 'Details' section.}
   \item{se}{Logical indicating whether the standard error (SE) from the
     final linear model should be computed and stored (default: FALSE). The
@@ -73,7 +73,7 @@ NULL, verbose = FALSE, ...)
 \details{
   This function estimates \eqn{\Lambda_i}{Lambda(i)} for all probes
   \eqn{i}{i}. This is normally the first step in the analysis after
-  storing the experimental data with 'create'.
+  storing the experimental data with 'Les'.
 
   The 'win' argument influences the amount of neighboring probes taken
   into account by the weighting function. The value is passed to the
@@ -98,11 +98,14 @@ NULL, verbose = FALSE, ...)
 
   The 'multicore' package can be used to spread the computation over several
   cores in a simple way. This can be useful on multi-core machines for
-  large datasets and intensive CI computations. The 'multicore' package
-  is not available on all platforms. To use multicore processing
-  'library(multicore)' has to be called beforehand and a number of cores
-  to use has to be specified in 'nCores'. For details see the
-  documentation of the 'multicore' package.
+  large datasets. The 'multicore' package is not available on all
+  platforms. To use multicore processing 'library(multicore)' has to be
+  called beforehand and a number of cores to use has to be specified in
+  'nCores'. For details see the documentation of the 'multicore package.
+
+  Please note that calling 'estimate' with an object returned by the
+  methods 'ci' and 'regions' will overwrite data slots from these two
+  methods. This ensures that no inconsistent data is stored.
 }
       
 \value{
@@ -124,26 +127,25 @@ NULL, verbose = FALSE, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
   \code{\link[les]{weighting}}
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, 25)
+x <- Les(pos, pval, chr)
+x <- estimate(x, 50)
 
 x
 plot(x, chr=1)
-}
 }
 
 \keyword{htest}
