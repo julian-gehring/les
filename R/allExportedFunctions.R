@@ -14,9 +14,8 @@ Les <- function(pos, pval, chr)  {
     stop("'pos' must not contain NAs.")
   if(any(pos %% 1 != 0))
     stop("'pos' must be a vector of integers.")
-  #if(!is.numeric(pval) || min(pval, na.rm=TRUE) < 0 || max(pval, na.rm=TRUE) > 1)
-  #  stop("'pval' must contain numerics in the range [0,1].")
-  ## bring back later !!!!
+  if(!is.numeric(pval) || min(pval, na.rm=TRUE) < 0 || max(pval, na.rm=TRUE) > 1)
+    stop("'pval' must be in the range [0,1].")
 
   ## throw out NAs in pval
   indValid <- !is.na(pval)
@@ -35,7 +34,6 @@ Les <- function(pos, pval, chr)  {
   
   return(object)
 }
-## ok ##
 
 
 ##################################################
@@ -47,7 +45,6 @@ triangWeight <- function(distance, win)  {
     
   return(weight)
 }
-## ok ##
 
 
 ##################################################
@@ -59,7 +56,6 @@ gaussWeight <- function(distance, win)  {
 
   return(weight)
 }
-## ok ##
 
 
 ##################################################
@@ -72,7 +68,6 @@ rectangWeight <- function(distance, win)  {
 
   return(weight)
 }
-## ok ##
 
 
 ##################################################

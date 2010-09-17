@@ -188,7 +188,6 @@ setMethod("threshold", "Les",
   nSigLower <- floor(nSigProbes)
   names(nSigLower) <- NULL
   cutoff <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
-  ## +1: access right probe due to floor !
   
   if(verbose == TRUE)
     print(sprintf("%g %s%g", nSigLower,
