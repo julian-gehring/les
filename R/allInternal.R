@@ -44,7 +44,7 @@ calcSingle <- function(ind0, pos, pval, win,
   else  {
     ## if not enough probes
     if(nBoot == FALSE)
-      res <- c(NA, NA, nValidProbes)
+      res <- c(NA, NA, nValidProbes, NA)
     else
       res <- c(NA, NA)
   }
@@ -66,14 +66,18 @@ fitGsri <- function(pval, index=NULL, cweight,
   else  {
     cdf <- les:::wcdf2(pval[index], cweight[index], FALSE)
   }
-  res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
-
   if(grenander == TRUE)  {
-    cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res[1])
+    res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, FALSE, custom, noBoot)
+    res0 <- res[1]
+    cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res0)
     cdf$cdf <- les:::grenanderPass(cdf$pval, cdf$cdf, cdf$unique)
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
+    if(noBoot == TRUE)
+      res[4] <- res0
   }
-  
+  else  {
+    res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
+  }
   return(res)
 }
 
@@ -84,10 +88,12 @@ fitGsri <- function(pval, index=NULL, cweight,
 cdfCorrect <- function(x, y, q0)  {
 
   z <- y
-  indLower <- y < q0*x
-  indUpper <- y > 1 - q0*(1 - x)
-  z[indLower] <- q0*x[indLower]
-  z[indUpper] <- 1 - q0*(1 - x[indUpper])
+  zLower <- q0*x
+  zUpper <- 1 - q0*(1 - x)
+  indLower <- y < zLower
+  indUpper <- y > zUpper
+  z[indLower] <- zLower[indLower]
+  z[indUpper] <- zUpper[indUpper]
 
   return(z)
 }
@@ -127,16 +133,20 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
 
   ## return values
   if(noBoot == TRUE)  {
-    if(se == TRUE && length(unique(x)) > 1)
-      ses <- les:::seFast(x, y, q)
-    else
+    if(se == TRUE && length(unique(x)) > 1)  {
+      xi <- x[ind]
+      dim(xi) <- c(length(ind), 1)
+      fit <- stats::lm.wfit(xi, y[ind], cweight[ind])
+      ses <- les:::seSlopeWeight(fit, length(ind))
+    }
+    else  {
       ses <- NA
-    res <- c(1 - min(q, 1), ses, nValidProbes)
+    }
+    res <- c(1 - min(q, 1), ses, nValidProbes, NA)
   }
   else  {
     res <- 1 - min(q, 1, na.rm=TRUE)
   }
-  
   return(res)
 }
 
@@ -221,9 +231,9 @@ seFast <- function(x, y, b)  {
 ##################################################
 mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
 
-  mcLoaded <- any(.packages() %in% "multicore") &&
+  mcLoaded <- "multicore" %in% .packages() &&
   any("mclapply" %in% objects("package:multicore"))
-  
+
   if(mcLoaded == TRUE && !is.null(mc.cores))  {
     res <- multicore::mclapply(X, FUN, ..., mc.cores=mc.cores)
     res <- sapply(res, c)
@@ -269,6 +279,18 @@ ind2log <- function(ind, n)  {
 }
 
 
+reg2log <- function(reg, pos, chr)  {
+
+  if(length(reg$chr) == 0)
+    indChr <- !logical(length(pos))
+  else
+    indChr <- chr %in% reg$chr
+  ind <- indChr & pos >= reg$start & pos <= reg$end
+
+  return(ind)
+}
+
+
 ##################################################
 ## slopeWeight
 ##################################################
@@ -285,9 +307,86 @@ qrSlope <- function(x, y, w)  {
 }
 
 
+seSlopeWeight <- function(fit, n=length(fit$weights))  {
+  R <- fit$qr$qr[1]^-2  ## = chol2inv(fit$qr$qr[1])
+  rss <- sum(fit$weights*fit$residuals^2)
+  resvar <- rss/(n - 1)
+  se <- sqrt(R*resvar)
+  return(se)
+}
+
+
 diagSquare <- function(w, n)  {
   y <- rep(0, n*n)
   y[1+0:(n-1)*(n+1)] <- w
   dim(y) <- c(n, n)
   return(y)
+}
+
+
+scaleNorm <- function(x)  {
+
+  x <- x - min(x, na.rm=TRUE)
+  m <- max(x, na.rm=TRUE)
+  if(m != 0)
+    x <- x/m
+  return(x)
+}
+
+
+xvalWeight <- function(distance, win)  {
+
+  weighting <- getOption("weighting")
+  weight <- weighting(distance, win)
+  weight[distance == 0] <- 0
+  
+  return(weight)
+}
+
+
+optimalSingleRegion <- function(i, reg, object, winSize, fdr, method, scaling, nCores, verbose, ...)  {
+  
+  nWin <- length(winSize)
+  chi2 <- vector("numeric", nWin)
+  ind <- les:::reg2log(reg[i, ], object@pos, object@chr)
+  resc <- les::Les(object@pos[ind], object@pval[ind])
+
+  if(verbose == TRUE)
+    print(sprintf("%s %d/%d", "Region", i, nrow(reg)))
+  if(sum(ind) == 0)
+    warning(sprintf("%s %d", "No probes in region", i))
+  
+  for(w in 1:nWin)  {
+    lesi <- les::estimate(resc, winSize[w], weighting=les:::xvalWeight,
+                          grenander=object@grenander, se=FALSE,
+                          minProbes=object@minProbes, method=method,
+                          nCores=nCores, verbose=FALSE)@lambda
+    
+    ## take only non-NAs into account
+    indValid <- !is.na(lesi) & !is.na(fdr[ind])
+    
+    chi2[w] <- sum((scaling(lesi[indValid]) -
+                    scaling(1 - fdr[ind][indValid]))^2)/sum(indValid)
+  }
+  
+  return(chi2)
+}
+
+
+setState <- function(state, flag)  {
+
+  if(!(flag %in% state))
+    state <- c(state, flag)
+
+  return(state)
+}
+
+
+checkState <- function(state, flag, text=as.character(flag))  {
+
+  status <- flag %in% state
+  if(all(!status))
+    stop(sprintf("'%s' %s", text, "must be called first."))
+
+  return(status)
 }

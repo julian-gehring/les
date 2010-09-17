@@ -7,25 +7,23 @@
 \title{estimate}
 
 \description{
-  The 'estimate' method estimates the fraction of probes with
-  significant effect in the local surrounding \eqn{\Lambda}{Lambda} with
-  a given weighting window. This is used to identify Loci of Enhanced
-  Significance.
+  The 'estimate' method computes the fraction \eqn{\Lambda}{Lambda} of
+  probes with significant effect in the local surrounding of the genome.
 }
 
 \usage{
-estimate(object, win, weighting = triangWeight, grenander = FALSE,
+estimate(object, win, weighting = triangWeight, grenander = TRUE,
 se = FALSE, minProbes = 3, method = "la", nCores = NULL, verbose =
 FALSE, ...)
 
 \S4method{estimate}{Les}(object, win, weighting = triangWeight,
-grenander = FALSE, se = FALSE, minProbes = 3, method = "la", nCores =
+grenander = TRUE, se = FALSE, minProbes = 3, method = "la", nCores =
 NULL, verbose = FALSE, ...)
 }
 
 \arguments{
   \item{object}{Object of class 'Les' containing experimental data, as
-    returned by 'create'.}
+    returned by 'Les'.}
   \item{win}{Integer specifying window size for the weighting
     function. This value is directly passed to the function specified
     by 'weighting'. For details see the description for the used window
@@ -36,7 +34,7 @@ NULL, verbose = FALSE, ...)
     functions and how to specify own functions please see the 'Details'
     section.}
   \item{grenander}{Logical specifying if the Grenander correction for
-    the cumulative density should be used (default: FALSE). For details
+    the cumulative density should be used (default: TRUE). For details
     see the 'Details' section.}
   \item{se}{Logical indicating whether the standard error (SE) from the
     final linear model should be computed and stored (default: FALSE). The
@@ -73,9 +71,9 @@ NULL, verbose = FALSE, ...)
 \details{
   This function estimates \eqn{\Lambda_i}{Lambda(i)} for all probes
   \eqn{i}{i}. This is normally the first step in the analysis after
-  storing the experimental data with 'create'.
+  storing the experimental data with 'Les'.
 
-  The 'win' argument influences the amount of neighboring probes taken
+  The 'win' argument influences the number of neighboring probes taken
   into account by the weighting function. The value is passed to the
   function specified in 'weighting'. Larger values result in a smoother
   features. Details on a reasonable choice for this value can be found
@@ -83,26 +81,29 @@ NULL, verbose = FALSE, ...)
 
   With the 'weighting' argument the applied weighting function can be
   specified from a predefined set or a custom function can be used. In
-  the 'les' package the three functions 'triangWeight', 'rectangWeight'
-  and 'gaussWeight' are already supplied offering a triangular,
-  rectangular or gaussian weighting function respectively. The
-  'triangWeight' is in general a good choice. For details on the
-  functions itself and how to use custom ones please see the
-  documentation of the single functions or the vignette of this package.
+  the 'les' package the four functions 'triangWeight', 'rectangWeight',
+  'epWeight' and 'gaussWeight' are already supplied and offer a triangular,
+  rectangular, Epanechnikov and Gaussian weighting function
+  respectively. For details on the functions itself and how to use
+  custom ones please see the documentation of the single functions or
+  the vignette of this package. 
 
   The Grenander correction for the cumulative density includes the
   general knowledge about the concave shape of the cumulative
-  density. This generally reduces the variance of the estimates, but
-  introduces a bias. Please note that using this feature may
+  density. This reduces the variance of the estimates and leads to a
+  conservative estimation. Please note that using this feature may
   significantly increase computation time.
 
   The 'multicore' package can be used to spread the computation over several
   cores in a simple way. This can be useful on multi-core machines for
-  large datasets and intensive CI computations. The 'multicore' package
-  is not available on all platforms. To use multicore processing
-  'library(multicore)' has to be called beforehand and a number of cores
-  to use has to be specified in 'nCores'. For details see the
-  documentation of the 'multicore' package.
+  large datasets. The 'multicore' package is not available on all
+  platforms. To use multicore processing 'library(multicore)' has to be
+  called beforehand and a number of cores to use has to be specified in
+  'nCores'. For details see the documentation of the 'multicore package.
+
+  Please note that calling 'estimate' with an object returned by the
+  methods 'ci' and 'regions' will overwrite data stored by these two
+  methods. This ensures that no inconsistent data is stored.
 }
       
 \value{
@@ -124,26 +125,25 @@ NULL, verbose = FALSE, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
   \code{\link[les]{weighting}}
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, 25)
+x <- Les(pos, pval, chr)
+x <- estimate(x, 50)
 
 x
 plot(x, chr=1)
-}
 }
 
 \keyword{htest}

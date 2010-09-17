@@ -6,9 +6,7 @@
 \alias{gaussWeight}
 \alias{epWeight}
 
-\title{
-  Weighting functions
-}
+\title{Weighting functions}
 
 \description{
   Set of functions to compute spatial weights between probes.
@@ -64,23 +62,36 @@ epWeight(distance, win)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }
 
 \examples{
-\dontrun{
-weight <- triangWeight(distance, win)
-weight <- rectangWeight(distance, win)
-weight <- gaussWeight(distance, win)
-weight <- epWeight(distance, win)
+distance <- seq(-50, 50)
+win <- 50
 
-res <- estimate(res, win=20, weighting=rectangWeight)
+weight <- triangWeight(distance, win)
+plot(distance, weight, type="l", main="triangWeight")
+
+weight <- rectangWeight(distance, win)
+plot(distance, weight, type="l", main="rectangWeight")
+
+weight <- gaussWeight(distance, win)
+plot(distance, weight, type="l", main="gaussWeight")
+
+weight <- epWeight(distance, win)
+plot(distance, weight, type="l", main="epWeight")
+
+## simple example for a custom weighting function
+ownWeighting <- function(distance, win)  {
+    weight <- as.integer(abs(distance) < win)
+    return(weight)
 }
 }
 

@@ -23,8 +23,8 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
 
 \arguments{
   \item{object}{Object of class 'Les' as returned by 'estimate' or
-    'create'.}
-  \item{grenander}{Logical indicating whether the Grenander correction
+    'Les'.}
+  \item{grenander}{Logical indicating whether the Grenander estimator
     for the cumulative density should be used (default: FALSE). For
     details see below and at the 'GSRI' package.}
   \item{verbose}{Logical indicating whether a summary of the estimated
@@ -46,12 +46,12 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
   chosen such that \eqn{\mid\Lambda_i\geq\Theta\mid=R}{|Lambda >= Theta|
     = R}.
 
-  The Grenander correction for the cumulative density introduces a bias
-  but decreases the variability of the estimate. This may be reasonable
-  in some cases.
+  The Grenander estimator for the cumulative density results in a
+  conservative estimate for the number of significant probes with
+  decreased variance.
 
   A reasonable subsequent step is to call 'regions' to find distinct
-  regions Loci of Enhanced Significance (LES).
+  Loci of Enhanced Significance.
 }
 
 \value{
@@ -66,6 +66,14 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
   Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
 }
 
+\references{
+  Kilian Bartholome, Clemens Kreutz, and Jens Timmer:
+  Estimation of gene induction enables a relevance-based ranking of gene sets,
+  Journal of Computational Biology: A Journal of Computational Molecular Cell 
+  Biology 16, no. 7 (July 2009): 959-967.
+  \url{http://www.liebertonline.com/doi/abs/10.1089/cmb.2008.0226}
+}
+
 \seealso{
   Package:
   \code{\link[les]{les-package}}
@@ -74,7 +82,7 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
@@ -84,13 +92,11 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, win=50)
+x <- Les(pos, pval, chr)
+x <- estimate(x, 50)
 x <- threshold(x, verbose=TRUE)
-}
 }
 
 \keyword{htest}

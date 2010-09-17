@@ -8,7 +8,9 @@
 \title{plot method for class Les}
 
 \description{
-  The 'plot' method plots \eqn{\Lambda}{Lambda} along the chromosome.
+  The 'plot' method plots the estimates of the 'les' package along the
+  genome. This includeds \eqn{\Lambda}{Lambda} with confidence
+  intervals and estimated regions.
 }
 
 \usage{
@@ -23,32 +25,32 @@ limit=TRUE, main=NULL, ...)
 
 \arguments{
   \item{x}{Object of class 'Les', as returned by 'estimate', 'threshold' or 'ci'.}
-  \item{y}{Annotation object}
+  \item{y}{Annotation object, currently not used.}
   \item{chr}{Character or numeric specifying which chromosome to
-    plot. Must have a match in 'chr' passed to 'create'. A value is
+    plot. Must have a match in 'chr' passed to 'Les'. A value is
     required if the probes are located on more than one chromosome.}
   \item{region}{Logical indicating whether the estimated regions should
     be included in the plot. The 'regions' method must have been called
     beforehand.}
-  \item{xlim}{Vector with two elements specifying the range on the
+  \item{xlim}{Numeric vector with two elements specifying the range on the
     x-axis.}
-  \item{ylim}{Vector with two elements specifying the range on the
+  \item{ylim}{Numeric vector with two elements specifying the range on the
     y-axis.}
   \item{error}{Character string specifying if error estimates for
     \eqn{\Lambda}{Lambda} should be plotted (default: "none"). Valid
     values are "none" for no error estimates and "ci" for confidence
     intervals computed by the 'ci' method.}
   \item{probePch}{Symbol probes should be plotted with (default:
-    20). For details see 'par'.}
+    20). For details see 'pch' in 'par'.}
   \item{probeCol}{Color probes should be plotted with (default:
-    "black"). For details see 'par'.}
+    "black"). For details see 'col' in 'par'.}
   \item{lty}{Line type for lines connecting the
     \eqn{\Lambda_i}{Lambda_i} of probes (default: 1). For details see
-    'par'.}
+    'lty' in 'par'.}
   \item{sigPch}{Symbol probes above the threshold should be plotted
-    with (default: 20). For details see 'par'.}
+    with (default: 20). For details see 'pch' in 'par'.}
   \item{sigCol}{Color probes above the threshold should be plotted
-    with (default: "red3"). For details see 'par'.}
+    with (default: "red3"). For details see 'col' in 'par'.}
   \item{errorCol}{Color error estimates should be plotted with (default:
     "azure4").}
   \item{regionCol}{Function or vector of color used plotting of regions
@@ -65,8 +67,8 @@ limit=TRUE, main=NULL, ...)
   \item{rugSide}{Integer specifying the side at which probe positions
     should be plotted (default: 1). For details see 'rug'.}
   \item{limit}{Logical specifying whether the estimated threshold
-    \eqn{\Theta}{Theta} should be indicated on the y-axis (default:
-    TRUE) if estimated.}
+    \eqn{\Theta}{Theta} should be indicated on the y-axis if estimated
+    (default: TRUE).}
   \item{main}{Title of the plot (default: no title). For details see 'main'.}
   \item{...}{Further arguments not used so far.}
 }
@@ -88,26 +90,25 @@ limit=TRUE, main=NULL, ...)
   \code{\linkS4class{Les}}
   
   Methods and functions:
-  \code{\link[les]{create}}
+  \code{\link[les]{Les}}
   \code{\link[les]{estimate}}
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}
 }
 
 \examples{
-\dontrun{
 data(statTile)
 
-x <- create(pos, pval, chr)
-x <- estimate(x, win=25)
+x <- Les(pos, pval, chr)
+x <- estimate(x, 50)
 x <- threshold(x)
 x <- regions(x)
 
 plot(x, chr=1, region=TRUE)
-}
 }
 
 \keyword{utilities}

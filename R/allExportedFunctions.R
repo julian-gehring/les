@@ -1,7 +1,7 @@
 ##################################################
-## create
+## Les constructor
 ##################################################
-create <- function(pos, pval, chr)  {
+Les <- function(pos, pval, chr)  {
 
   ## default values
   if(missing(chr))
@@ -29,7 +29,8 @@ create <- function(pos, pval, chr)  {
   chr <- chr[ord]
 
   object <- new(Class="Les",
-                pos=pos, pval=pval, chr=chr, nChr=nlevels(chr))
+                pos=pos, pval=pval, chr=chr, nChr=nlevels(chr),
+                state="Les")
   
   return(object)
 }

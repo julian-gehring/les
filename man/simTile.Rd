@@ -4,9 +4,7 @@
 
 \alias{simTile}
 
-\title{Simulated tiling array data set containing Loci of Enhanced
-  Significance
-}
+\title{Simulated tiling array data set containing Loci of Enhanced Significance}
 
 \description{
   This data set consists of simulated tiling array data between 2
@@ -19,7 +17,7 @@
 
 \usage{data(simTile)}
 
-\format{An expression set ('eset')}
+\format{An expression set ('eset') 'simTile'}
 
 \source{Julian Gehring}
 

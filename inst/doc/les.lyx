@@ -515,7 +515,7 @@ status open
 
 
 \backslash
-Rfunction{create}
+Rfunction{Les}
 \end_layout
 
 \end_inset
@@ -534,11 +534,11 @@ Rfunction{create}
 \end_layout
 
 \begin_layout Scrap
-<<createLes>>=
+<<constructLes>>=
 \begin_inset Newline newline
 \end_inset
 
-res <- create(pos, pval)
+res <- Les(pos, pval)
 \begin_inset Newline newline
 \end_inset
 
@@ -1143,8 +1143,8 @@ begin{center}
 \end_inset
 
 plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated
- data", probePch="*", probeCol="lightblue", errorCol="lightgray", regionCol="lig
-htgreen", xlim=c(580, 670) , ylim=c(0, 0.8), limit=FALSE, lty=0)
+ data", probePch="*", probeCol="blue", errorCol="lightgray", regionCol="lightgre
+en", xlim=c(580, 670) , ylim=c(0, 0.8), limit=FALSE, lty=0)
 \begin_inset Newline newline
 \end_inset
 
