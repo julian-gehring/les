@@ -28,13 +28,12 @@ verbose = FALSE, ...)
     \eqn{\Theta}{Theta} will be derived from the estimated number of
     regulated probes as computed by 'threshold'.}
   \item{minLength}{Integer specifying the minimum number of probes in a
-    region (default: 2). If not specified regions can have arbitrary
-    small size.}
+    region (default: 2).}
   \item{maxGap}{Integer specifying maximum gap in base pairs between two
-    neighboring probes in a region (defualt: Inf). If this value is
-    exceeded the region will be split into smaller ones such that maxGap
-    is not exceedby any pair of neighboring probes. If not specified
-    arbitrary large gap sizes are allowed.}
+    neighboring probes in a region (default: Inf). If this value is
+    exceeded the region will be split into smaller ones such that one
+    region does not have neighboring probes with larger distance than
+    'maxGap'. If not specified arbitrary large gap sizes are allowed.}
   \item{verbose}{Logical indicating whether a summary of the estimated
     regions should be printed on screen (default: FALSE).}
   \item{...}{Further arguments passed to subsequent functions.}
@@ -42,7 +41,7 @@ verbose = FALSE, ...)
 
 \details{
   This method finds distinct regions in \eqn{\Lambda}{Lambda} by
-  thresholding with \eqn{\Theta}{Theta}. The regions have to fulfill the
+  thresholding with \eqn{\Theta}{Theta}. The regions have to meet the
   following criteria:
 
   (1) For all probes in the region

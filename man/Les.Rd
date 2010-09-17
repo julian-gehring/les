@@ -16,17 +16,17 @@ Les(pos, pval, chr)
 }
 
 \arguments{
-  \item{pos}{Integer vector containing the probe positions of one strand.}
+  \item{pos}{Integer vector containing the probe positions.}
   \item{pval}{Numeric vector containing the p-values corresponding to
     'pos'. It must be of the same length as 'pos'.}
   \item{chr}{Vector specifying the chromosome each probe in located
     on. If missing all probes are located on one chromosome (default: 'chr0'). If
     specified it must be of the same length as 'pos'. Internally it will
-    be converted to and stored as a factor.}
+    be stored as a factor.}
 }
 
 \details{
-  This function gathers all data necessary for subsequent computation,
+  This function gathers all data necessary for subsequent analysis,
   checks for valid inputs and stores it in an object of class 'Les'.
 
   The data is checked for the following criteria:
@@ -37,8 +37,7 @@ Les(pos, pval, chr)
   in the resulting object then were passed to 'Les'. In case of
   duplicate probe positions on one chromosome a warning is printed. This
   normally indicates that probes from both strands are present in the
-  data. For this analysis it is recommended to analyze only data from
-  one strand at a time.
+  data.
   
   After storing the experimental data with 'Les' in an object the
   variables containing the original data can be deleted from the

@@ -29,13 +29,14 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
   \item{format}{Character string with the export format (default:
     'bed'). Possible values are 'bed' and 'gff' for export of the
     estimated regions and 'wig' for export of \eqn{\Lambda}{Lambda} for
-    the probes. If 'bed' or 'gff' the method 'regions' has to be run
-    beforehand. Partial matches are also possible.}  
+    the probes. If set to 'bed' or 'gff' the method 'regions' has to be run
+    beforehand. Partial matches are also possible. For details on the
+    formats please see the 'Details' section.}
   \item{chr}{Character string specifying the chromosome from which
     results should be exported. This value must be set if exporting to
     'wig' format, for other formats is optional. 'chr' must have exactly
     one match in the 'chr' argument specified in 'Les'.}
-  \item{range}{Numeric vector specifying the probe range in position
+  \item{range}{Numeric vector specifying the range of probe positions
     which should be exported. If missing all probes of the chromosome
     will be exported. This value has only an effect if 'format' is set
     to 'wig'.}
@@ -57,7 +58,7 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
   programs and genome browsers.
 
   The 'bed', 'gff' and 'wig' format provide widely used standard formats
-  and are compatible with most genome browsers and similar software. For
+  and are compatible with most genome browsers and related software. For
   details about the file formats see
   \url{http://genome.ucsc.edu/FAQ/FAQformat.html}.
   
@@ -82,6 +83,7 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
   \code{\link[les]{threshold}}
   \code{\link[les]{regions}}
   \code{\link[les]{ci}}
+  \code{\link[les]{chi2}}
   \code{\link[les]{export}}
   \code{\link[les]{plot}}  
 }

@@ -87,6 +87,12 @@ plot(distance, weight, type="l", main="gaussWeight")
 
 weight <- epWeight(distance, win)
 plot(distance, weight, type="l", main="epWeight")
+
+## simple example for a custom weighting function
+ownWeighting <- function(distance, win)  {
+    weight <- as.integer(abs(distance) < win)
+    return(weight)
+}
 }
 
 \keyword{htest}

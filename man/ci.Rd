@@ -8,7 +8,7 @@
 \title{ci}
 
 \description{
-  Computes confidence intervals (CIs) for \eqn{\Lambda}{Lambda} using
+  Computes confidence intervals (CI) for \eqn{\Lambda}{Lambda} using
   bootstrapping.
 }
 
@@ -40,8 +40,9 @@ NULL, ...)
 }
 
 \details{
-  Computes confidence intervals (CI) by bootstrapping probes in each
-  window. Since based on percentiles the resulting CIs are asymmetrical.
+  The 'ci' method computes confidence intervals (CI) by bootstrapping
+  probes in each window. Since based on percentiles the resulting CIs
+  are asymmetrical.
 
   All arguments for computation are taken from 'object' and thereby kept
   the same as for the results from 'estimation'.
@@ -73,6 +74,7 @@ NULL, ...)
 \seealso{
   Package:
   \code{\link[les]{les-package}}
+  \code{\link[boot]{boot}}
 
   Class:
   \code{\linkS4class{Les}}

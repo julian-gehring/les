@@ -25,9 +25,10 @@
       the user through the 'Les' function.}
     \item{\code{chr}:}{Factor with chromosomes for each probe. Provided
       by the user through the 'Les' function.}
-    \item{\code{lambda}:}{Numeric vector with Lambda for each probe.}
-    \item{\code{lambda0}:}{Numeric vector with Lambda0 for each probe if
-      'grenander' is TRUE.}
+    \item{\code{lambda}:}{Numeric vector with estimates Lambda for each probe.}
+    \item{\code{lambda0}:}{Numeric vector with estimates Lambda0 without
+      the Grenander estimator for each probe. This is used if
+      'grenander' is set to TRUE.}
     \item{\code{se}:}{Numeric vector with standard error from linear
       fitting for each probe.}
     \item{\code{nProbes}:}{Integer with number of probes used in fit for
@@ -40,7 +41,7 @@
       for probe weighting according to position. Set by the user in the
       'estimate' function.}
     \item{\code{grenander}:}{Logical indicating usage of the Grenander
-      correction. Set by the user in the 'estimate' function.}
+      estimator. Set by the user in the 'estimate' function.}
     \item{\code{ci}:}{Data frame with the confidence intervals for each
       probe specified in 'subset'.}
     \item{\code{nBoot}:}{Integer with the number of bootstraps to be

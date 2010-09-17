@@ -7,10 +7,8 @@
 \title{estimate}
 
 \description{
-  The 'estimate' method estimates the fraction of probes with
-  significant effect in the local surrounding \eqn{\Lambda}{Lambda} with
-  a given weighting window. This is used to identify Loci of Enhanced
-  Significance.
+  The 'estimate' method computes the fraction \eqn{\Lambda}{Lambda} of
+  probes with significant effect in the local surrounding of the genome.
 }
 
 \usage{
@@ -75,7 +73,7 @@ NULL, verbose = FALSE, ...)
   \eqn{i}{i}. This is normally the first step in the analysis after
   storing the experimental data with 'Les'.
 
-  The 'win' argument influences the amount of neighboring probes taken
+  The 'win' argument influences the number of neighboring probes taken
   into account by the weighting function. The value is passed to the
   function specified in 'weighting'. Larger values result in a smoother
   features. Details on a reasonable choice for this value can be found
@@ -83,17 +81,17 @@ NULL, verbose = FALSE, ...)
 
   With the 'weighting' argument the applied weighting function can be
   specified from a predefined set or a custom function can be used. In
-  the 'les' package the three functions 'triangWeight', 'rectangWeight'
-  and 'gaussWeight' are already supplied offering a triangular,
-  rectangular or gaussian weighting function respectively. The
-  'triangWeight' is in general a good choice. For details on the
-  functions itself and how to use custom ones please see the
-  documentation of the single functions or the vignette of this package.
+  the 'les' package the four functions 'triangWeight', 'rectangWeight',
+  'epWeight' and 'gaussWeight' are already supplied and offer a triangular,
+  rectangular, Epanechnikov and Gaussian weighting function
+  respectively. For details on the functions itself and how to use
+  custom ones please see the documentation of the single functions or
+  the vignette of this package. 
 
   The Grenander correction for the cumulative density includes the
   general knowledge about the concave shape of the cumulative
-  density. This generally reduces the variance of the estimates, but
-  introduces a bias. Please note that using this feature may
+  density. This reduces the variance of the estimates and leads to a
+  conservative estimation. Please note that using this feature may
   significantly increase computation time.
 
   The 'multicore' package can be used to spread the computation over several
@@ -104,7 +102,7 @@ NULL, verbose = FALSE, ...)
   'nCores'. For details see the documentation of the 'multicore package.
 
   Please note that calling 'estimate' with an object returned by the
-  methods 'ci' and 'regions' will overwrite data slots from these two
+  methods 'ci' and 'regions' will overwrite data stored by these two
   methods. This ensures that no inconsistent data is stored.
 }
       
