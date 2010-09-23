@@ -1,0 +1,16 @@
+Package: les
+Type: Package
+Title: Identifying Loci of Enhanced Significance in Tiling Microarray Data
+Version: 0.99.0
+Date: 2010-09-17
+Author: Julian Gehring, Clemens Kreutz
+Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
+Imports: boot, gplots, GSRI, RColorBrewer
+Depends: R (>= 2.11.0), methods, graphics, fdrtool
+Suggests: Biobase, limma
+Enhances: multicore
+Description: The 'les' package estimates Loci of Enhanced Significance (LES) in tiling microarray data. These are regions of regulation such as found in differential transcription, CHiP-chip or methylation experiments. The package provides a universal framework suitable for identifying regulatory effects in tiling microarray data sets and is independent of the underlying statistics at the level of single probes.
+License: GPL-3
+LazyLoad: yes
+Encoding: UTF-8
+biocViews: Microarray, Bioinformatics, DifferentialExpression, CHiPchip, DNAMethylation, Transcription
