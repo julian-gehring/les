@@ -187,14 +187,18 @@ setMethod("threshold", "Les",
   nSigProbes <- erg[1]*nProbes
   nSigLower <- floor(nSigProbes)
   names(nSigLower) <- NULL
-  cutoff <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
+  theta <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
   
-  if(verbose == TRUE)
-    print(sprintf("%g %s%g", nSigLower,
-                  "significant probes estimated with limit Lambda>=", cutoff))
+  if(verbose == TRUE)  {
+    if(length(object@lambda) != 0)
+      print(sprintf("%g %s%g", nSigLower,
+                     "significant probes estimated with limit Lambda>=", theta))
+    else
+      print(sprintf("%g %s", nSigLower, "significant probes estimated"))
+  }
   
   object@nSigProbes <- nSigLower
-  object@theta <- cutoff
+  object@theta <- theta
   object@state <- les:::setState(object@state, "threshold")
   
   return(object)
