@@ -14,5 +14,5 @@ License: GPL-3
 LazyLoad: yes
 Encoding: UTF-8
 URL: http://www.fdmold.uni-freiburg.de/~jgehring/
-biocViews: Microarray, Bioinformatics, DifferentialExpression, CHiPchip, DNAMethylation, Transcription
+biocViews: Microarray, Bioinformatics, DifferentialExpression, ChIPchip, DNAMethylation, Transcription
 
