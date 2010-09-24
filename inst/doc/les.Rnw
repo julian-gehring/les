@@ -37,8 +37,8 @@ Identifying Loci of Enhanced Significance in Tiling Array Data}
 \author{Julian Gehring}
 \maketitle
 \begin{abstract}
-In this vignette we describe using the \Rpackage{les} package for
-finding Loci of Enhanced Significance (LES) in tiling microarray data.
+In this vignette we describe how to find Loci of Enhanced Significance
+(LES) in tiling microarray data using the \Rpackage{les} package.
 With an example of a general framework we illustrate how to apply
 the package for exploring data to identify regions of differential
 regulation.

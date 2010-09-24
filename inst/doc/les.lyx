@@ -78,7 +78,8 @@ Julian Gehring
 \end_layout
 
 \begin_layout Abstract
-In this vignette we describe using the 
+In this vignette we describe how to find Loci of Enhanced Significance (LES)
+ in tiling microarray data using the 
 \begin_inset ERT
 status open
 
@@ -91,8 +92,7 @@ Rpackage{les}
 
 \end_inset
 
- package for finding Loci of Enhanced Significance (LES) in tiling microarray
- data.
+ package.
  With an example of a general framework we illustrate how to apply the package
  for exploring data to identify regions of differential regulation.
 \end_layout
