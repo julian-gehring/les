@@ -521,6 +521,7 @@ setMethod("chi2", "Les",
 
   chi2 <- les:::mcsapply(1:nReg, optimalSingleRegion, regions, object, winSize, fdr, method, scaling, nCores, verbose=verbose)
 
+  dim(chi2) <- c(nWin, nReg)
   rownames(chi2) <- winSize
   colnames(chi2) <- rownames(regions)
 
