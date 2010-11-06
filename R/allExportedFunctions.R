@@ -44,9 +44,9 @@ Les <- function(pos, pval, chr)  {
 ## triangWeight
 ######################################################################
 triangWeight <- function(distance, win)  {
-  
-  weight <- 1 - abs(distance)/win
-    
+
+  weight <- (1 - abs(distance)/win)/win
+
   return(weight)
 }
 
@@ -66,8 +66,7 @@ gaussWeight <- function(distance, win)  {
 ######################################################################
 rectangWeight <- function(distance, win)  {
 
-  n <- length(distance)
-  weight <- rep(1/n, n)
+  weight <- rep(1/(2*win), length(distance))
 
   return(weight)
 }
@@ -78,8 +77,8 @@ rectangWeight <- function(distance, win)  {
 ######################################################################
 epWeight <- function(distance, win)  {
   
-  weight <- 0.75*(1 - (distance/win)^2)
-    
+  weight <- 0.75/win*(1 - (distance/win)^2)
+
   return(weight)
 }
 
@@ -90,8 +89,8 @@ epWeight <- function(distance, win)  {
 ######################################################################
 quartWeight <- function(distance, win)  {
   
-  weight <- 15/16*(1 - (distance/win)^2)^2
-    
+  weight <- 15/16/win*(1 - (distance/win)^2)^2
+
   return(weight)
 }
 
@@ -101,7 +100,7 @@ quartWeight <- function(distance, win)  {
 ######################################################################
 tricubeWeight <- function(distance, win)  {
   
-  weight <- 35/32*(1 - (distance/win)^2)^3
-    
+  weight <- 35/32/win*(1 - (distance/win)^2)^3
+
   return(weight)
 }
