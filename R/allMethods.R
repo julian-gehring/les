@@ -342,7 +342,7 @@ setMethod("show", "Les",
     cat(sprintf("* %g %s %d %s\n", object@conf, "confidence intervals computed for",
                 length(object@subset), "probes"))
   if(length(object@nSigProbes) != 0)  {
-    if(!is.na(object@theta) && length(object@lambda) != 0)
+    if(length(object@theta) != 0 && !is.na(object@theta) && length(object@lambda) != 0)
       cat(sprintf("* %d %s %g\n", ceiling(object@nSigProbes),
                   "regulated probes estimated for lambda >=",
                   object@theta))
