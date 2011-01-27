@@ -73,8 +73,8 @@ fitGsri <- function(pval, index=NULL, cweight,
   if(grenander == TRUE)  {
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, FALSE, custom, noBoot)
     res0 <- res[1]
-    cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res0)
-    cdf$cdf <- les:::grenanderPass(cdf$pval, cdf$cdf, cdf$unique)
+    #cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res0)
+    cdf$cdf <- les:::modGrenander(cdf$pval, cdf$cdf, 1-res0, cdf$unique, FALSE)
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
     if(noBoot == TRUE)
       res[4] <- res0
@@ -83,23 +83,6 @@ fitGsri <- function(pval, index=NULL, cweight,
     res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
   }
   return(res)
-}
-
-
-######################################################################
-## cdfCorrect
-######################################################################
-cdfCorrect <- function(x, y, q0)  {
-
-  z <- y
-  zLower <- q0*x
-  zUpper <- 1 - q0*(1 - x)
-  indLower <- y < zLower
-  indUpper <- y > zUpper
-  z[indLower] <- zLower[indLower]
-  z[indUpper] <- zUpper[indUpper]
-
-  return(z)
 }
 
 
@@ -201,20 +184,48 @@ cdfDuplicates <- function(pvalSort, weightSort)  {
 
 
 ######################################################################
-## grenanderPass
+## modGrenander
 ######################################################################
-grenanderPass <- function(x, y, un)  {
-
-  if(un == TRUE)  {
-    z <- GSRI:::grenanderInterp(x, y)
-  }
-  else  {
+modGrenander <- function(x, y, eta0, unique=TRUE, check=TRUE) {
+  
+  ## for type="lcm" only, modification of "gcmlcm" (fdrtool)
+  if(unique == FALSE) {
     ind <- !duplicated(x)
-    z <- GSRI:::grenanderInterp(x[ind], y[ind])
-    z <- rep.int(y[ind], rle(x)$lengths)
+    x0 <- x
+    x <- x[ind]
+    y <- y[ind]
+  }
+  if(check == TRUE) {
+    if(is.unsorted(x))
+      stop("The x values must be arranged in sorted order.")
+    if(any(duplicated(x)))
+      stop("No duplicated x values allowed.")
+  }
+  yLower <- eta0*x
+  yUpper <- 1 - eta0*(1 - x) ## == (1-eta0) + p*eta0
+  indLower <- y < yLower
+  indUpper <- y > yUpper
+  y[indLower] <- yLower[indLower]
+  y[indUpper] <- yUpper[indUpper]
+  dx <- diff(x)
+  dy <- diff(y)
+  rawslope <- -dy/dx
+  n <- length(rawslope)
+  if(n == 1) {
+    slope <- rawslope
+  }
+  else {
+    slope <- .C("C_isomean", as.double(rawslope), as.double(dx),
+                as.integer(n), ghat=double(n), PACKAGE="fdrtool", DUP=FALSE)$ghat
+  }
+  slope <- -slope
+  yi <- y[1] + c(0, cumsum(dx*slope))
+
+  if(unique == FALSE) {
+    yi <- rep.int(yi, rle(x0)$lengths)
   }
 
-  return(z)
+  return(yi)
 }
 
 

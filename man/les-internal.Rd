@@ -11,12 +11,11 @@
 \alias{slopeWeight}
 \alias{qrSlope}
 \alias{itLinReg}
-\alias{cdfCorrect}
 \alias{cdfDuplicates}
-\alias{grenanderPass}
 \alias{seSlopeWeight}
 \alias{setState}
 \alias{checkState}
+\alias{modGrenander}
 
 \title{
   Internal functions of the 'les' package.
@@ -38,12 +37,11 @@ ind2log(ind, n)
 slopeWeight(x, y, c)
 diagSquare(w, n)
 qrSlope(x, y, w)
-cdfCorrect(x, y, q0)
 cdfDuplicates(pvalSort, weightSort)
-grenanderPass(x, y, un)
 seSlopeWeight(fit, n=length(fit$weights))
 setState(state, flag)
 checkState(state, flag, text=as.character(flag))
+modGrenander(x, y, eta0, unique, check)
 }
 
 \details{
