@@ -269,7 +269,7 @@ gsri <- function(pval, grenander=FALSE, se=TRUE, custom=FALSE)  {
   cweight <- rep(1, length(pval))
   res <- les:::fitGsri(pval, NULL, cweight, length(pval),
                        grenander=grenander, se=se, custom=custom)
-  res <- c(res, res[1]*res[3])
+  res[4] <- res[1]*res[3]
   names(res) <- c("GSRI", "se", "n", "nReg")
 
   return(res)

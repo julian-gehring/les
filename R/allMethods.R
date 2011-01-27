@@ -187,9 +187,8 @@ setMethod("threshold", "Les",
   les:::checkState(object@state, "Les")
   pval <- object@pval
   nProbes <- length(pval)
-  erg <- les:::gsri(pval, grenander, se=FALSE)
-  nSigProbes <- erg[1]*nProbes
-  nSigLower <- floor(nSigProbes)
+  res <- les:::gsri(pval, grenander, se=FALSE)
+  nSigLower <- floor(res["nReg"])
   names(nSigLower) <- NULL
   theta <- c(NA, sort(object@lambda, decreasing=TRUE))[nSigLower+1]
   
