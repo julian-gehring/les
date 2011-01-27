@@ -244,17 +244,17 @@ seFast <- function(x, y, b)  {
 ######################################################################
 ## mcapply
 ######################################################################
-mcsapply <- function(X, FUN, ..., mc.cores=NULL)  {
+mcsapply <- function(X, FUN, ..., mc.cores=NULL, simplify=TRUE)  {
 
   mcLoaded <- "multicore" %in% .packages() &&
   any("mclapply" %in% objects("package:multicore"))
 
   if(mcLoaded == TRUE && !is.null(mc.cores))  {
-    res <- multicore::mclapply(X, FUN, ..., mc.cores=mc.cores)
-    res <- sapply(res, c)
+    res <- multicore::mclapply(X, FUN, ...,  mc.cores=mc.cores)
+    res <- sapply(res, c, simplify=simplify)
   }
   else  {
-    res <- sapply(X, FUN, ...)
+    res <- sapply(X, FUN, ..., simplify=simplify)
   }
 
   return(res)
