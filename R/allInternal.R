@@ -61,27 +61,18 @@ calcSingle <- function(ind0, pos, pval, win,
 ## fitGsri
 ######################################################################
 fitGsri <- function(pval, index=NULL, cweight,
-                    nValidProbes, grenander, se, custom)  {
+                    nValidProbes, grenander, se, custom)  { ## boot flag?
 
   noBoot <- is.null(index)
-  if(noBoot == TRUE)  {
-    cdf <- les:::wcdf2(pval, cweight, FALSE)
+  if(noBoot == FALSE) {
+    pval <- pval[index]
+    cweight <- cweight[index]
   }
-  else  {
-    cdf <- les:::wcdf2(pval[index], cweight[index], FALSE)
-  }
-  if(grenander == TRUE)  {
-    res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, FALSE, custom, noBoot)
-    res0 <- res[1]
-    #cdf$cdf <- les:::cdfCorrect(cdf$pval, cdf$cdf, 1-res0)
-    cdf$cdf <- les:::modGrenander(cdf$pval, cdf$cdf, 1-res0, cdf$unique, FALSE)
-    res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
-    if(noBoot == TRUE)
-      res[4] <- res0
-  }
-  else  {
-    res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
-  }
+  cdf <- les:::wcdfGrenander(pval, cweight, nValidProbes, grenander, custom)
+  res <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, se, custom, noBoot)
+  if(noBoot == TRUE)
+    res[4] <- cdf$l0
+
   return(res)
 }
 
@@ -160,6 +151,24 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
   res <- list(pval=pvalSort, cdf=cdf, unique=un)
 
   return(res)
+}
+
+
+######################################################################
+## wcdfGrenander
+######################################################################
+wcdfGrenander <- function(pval, cweight, nValidProbes, grenander, custom) {
+
+  cdf <- les:::wcdf2(pval, cweight, FALSE)
+  cdf$l0 <- NA
+  cdf$grenander <- grenander
+  if(grenander == TRUE) {
+    l0 <- les:::itLinReg(cdf$pval, cdf$cdf, cweight, nValidProbes, FALSE, custom, FALSE) ## noBoot=FALSE!
+    cdf$cdf <- les:::modGrenander(cdf$pval, cdf$cdf, 1-l0, cdf$unique, FALSE)
+    cdf$l0 <- l0
+  }
+
+  return(cdf)
 }
 
 
