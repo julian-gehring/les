@@ -132,7 +132,7 @@ itLinReg <- function(x, y, cweight, nValidProbes, se, custom, noBoot)  {
 ######################################################################
 ## wcdf2
 ######################################################################
-wcdf2 <- function(pval, weight, grenander=FALSE)  {
+wcdf2 <- function(pval, weight)  {
   
   ord <- sort.list(pval, method="quick", na.last=NA)
   pvalSort <- pval[ord]
@@ -159,7 +159,7 @@ wcdf2 <- function(pval, weight, grenander=FALSE)  {
 ######################################################################
 wcdfGrenander <- function(pval, cweight, nValidProbes, grenander, custom) {
 
-  cdf <- les:::wcdf2(pval, cweight, FALSE)
+  cdf <- les:::wcdf2(pval, cweight)
   cdf$l0 <- NA
   cdf$grenander <- grenander
   if(grenander == TRUE) {
