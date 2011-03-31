@@ -5,28 +5,29 @@
 
 \docType{package}
 
-\title{Loci of Enhanced Significance for Tiling Microarray Data}
+\title{Identifying Differential Effects in Tiling Microarray Data}
 
 \description{
   The 'les' package estimates Loci of Enhanced Significance (LES) in
   tiling microarray data. These are regions of regulation such as found
-  in differential transcription, CHiP-chip or methylation
-  experiments. The package provides a universal framework for
-  identifying regulatory effects in various data sets and is independent
-  of the underlying statistics at the level of single probes.
+  in differential transcription, CHiP-chip, or DNA modification
+  analysis. The package provides a universal framework suitable for
+  identifying differential effects in tiling microarray data sets, and
+  is independent of the underlying statistics at the level of single
+  probes.
 }
 
 \details{
-  The 'les' package provides a universal framework for detecting regions
-  of regulation in tiling microarray experiments.
+  The 'les' package provides a universal framework for detecting
+  differential effects in tiling microarray experiments.
 
-  It is universal in the sense that the user is free to choose any
-  statistical test to estimate the effect of differential regulation for
+  It is universal in the sense that one is free to choose any
+  statistical test to estimate the effect of differential effect for
   each probe on the tiling microarray. Provided with the p-values for each probe
-  and the corresponding positions of the probes 'les' uses a sliding
+  and the corresponding positions of the probes, 'les' uses a sliding
   window approach to estimate the fraction of regulated probes in the
   local surrounding of each probe. The approach is related to computing
-  a spatially resolved weighted false discovery rate and yields a
+  a spatially resolved and weighted false discovery rate, and yields a
   interpretable statistical feature \eqn{\Lambda}{Lambda}.
 
   Resulting regions can be scored according to their overall
@@ -37,7 +38,7 @@
 }
 
 \author{
-  Julian Gehring, Clemens Kreutz
+  Julian Gehring, Clemens Kreutz, Jens Timmer
 
   Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
 }

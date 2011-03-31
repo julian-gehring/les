@@ -112,7 +112,7 @@ NULL, verbose = FALSE, ...)
 }
 
 \author{
-  Julian Gehring, Clemens Kreutz
+  Julian Gehring
 
   Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
 }

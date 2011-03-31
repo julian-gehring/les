@@ -65,7 +65,7 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
 }
 
 \author{
-  Julian Gehring, Clemens Kreutz
+  Julian Gehring
 
   Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
 }

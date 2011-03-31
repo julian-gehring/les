@@ -85,7 +85,7 @@ rug=FALSE, xlim, ylim=c(0, 1),  ...)
 }
       
 \author{
-  Julian Gehring, Clemens Kreutz
+  Julian Gehring
 
   Maintainer: Julian Gehring <julian.gehring@fdm.uni-freiburg.de>
 }
