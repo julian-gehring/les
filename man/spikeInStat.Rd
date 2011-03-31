@@ -10,13 +10,13 @@
 \description{
   This data set is part of a quality control study for tiling
   microarrays (Johnson et al., 2008), in which spike-ins were used to
-  assess microarray platforms, preparation procedures, and analysis
-  algorithms on the accuracy and reproducibility of ChIP-chip
-  experiments. Here, the expression intensities of one region from the
-  'undiluted' data set investigated with Affymetrix arrays is selected,
-  consisting of 452 probes and two conditions with three replicates
-  each. The data has been normalized using quantile normalization and
-  probe positions remapped to a common reference.
+  assess the influence of microarray platforms, preparation procedures,
+  and analysis algorithms on the accuracy and reproducibility of
+  ChIP-chip experiments. Here, the expression intensities of one region
+  from the 'undiluted' data set investigated with Affymetrix arrays is
+  selected, consisting of 452 probes and two conditions with three
+  replicates each. The data has been normalized using quantile
+  normalization and probe positions remapped to a common reference.
 }
 
 \usage{data(spikeInStat)}
