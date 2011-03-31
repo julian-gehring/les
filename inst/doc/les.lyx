@@ -1,4 +1,4 @@
-#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
 \lyxformat 345
 \begin_document
 \begin_header
@@ -66,20 +66,7 @@
 \begin_body
 
 \begin_layout Title
-Introduction to the les package:
-\begin_inset Newline newline
-\end_inset
-
-Identifying Loci of Enhanced Significance in Tiling Array Data
-\end_layout
-
-\begin_layout Author
-Julian Gehring
-\end_layout
-
-\begin_layout Abstract
-In this vignette we describe how to find Loci of Enhanced Significance (LES)
- in tiling microarray data using the 
+Introduction to the 
 \begin_inset ERT
 status open
 
@@ -92,9 +79,15 @@ Rpackage{les}
 
 \end_inset
 
- package.
- With an example of a general framework we illustrate how to apply the package
- for exploring data to identify regions of differential regulation.
+ package:
+\begin_inset Newline newline
+\end_inset
+
+Identifying Loci of Enhanced Significance in Tiling Microarray Data
+\end_layout
+
+\begin_layout Author
+Julian Gehring, Clemens Kreutz
 \end_layout
 
 \begin_layout Section
@@ -167,6 +160,22 @@ LES
  can be identified with a general framework in tiling microarray data sets.
 \end_layout
 
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+SweaveOpts{width=7,height=5}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Scrap
 <<echo=false>>=
 \begin_inset Newline newline
@@ -176,7 +185,8 @@ set.seed(1)
 \begin_inset Newline newline
 \end_inset
 
-options(width=65)
+options(width=65, SweaveHooks=list(fig=function() par(mar=c(5.1, 5.1, 2.1,
+ 1.1))))
 \begin_inset Newline newline
 \end_inset
 
@@ -220,87 +230,39 @@ library(les)
 \begin_inset Newline newline
 \end_inset
 
-library(Biobase)
+data(spikeInData)
 \begin_inset Newline newline
 \end_inset
 
-data(simTile)
+head(exprs)
 \begin_inset Newline newline
 \end_inset
 
-treatment <- as.factor(phenoData(simTile)$condition == "treatment")
+dim(exprs)
 \begin_inset Newline newline
 \end_inset
 
-pos <- featureData(simTile)$position
+pos <- as.integer(rownames(exprs))
 \begin_inset Newline newline
 \end_inset
 
-exprs <- exprs(simTile)
+condition <- as.integer(colnames(exprs))
 \begin_inset Newline newline
 \end_inset
 
-regions <- c(100, 150, 600, 650)
+
 \begin_inset Newline newline
 \end_inset
 
-cols <- rep(c("lightblue3", "lightgreen"), each=2)
+reference
 \begin_inset Newline newline
 \end_inset
 
-@
-\end_layout
-
-\begin_layout Standard
-Next we have a look at the expression values.
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{center}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Scrap
-<<plotExpressionValues, fig=TRUE, echo=TRUE>>=
-\begin_inset Newline newline
-\end_inset
-
-matplot(exprs, pch=".", xlab="Probe position", ylab="Expression")
-\begin_inset Newline newline
-\end_inset
-
-abline(v=regions, col=cols)
+region <- as.vector(reference[ ,c("start", "end")])
 \begin_inset Newline newline
 \end_inset
 
 @
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-end{center}
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -321,9 +283,15 @@ Rpackage{limma}
 \end_inset
 
  package 
-\begin_inset CommandInset citation
-LatexCommand cite
-key "smyth_limma:_2005"
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+cite{smyth_limma_2005}
+\end_layout
 
 \end_inset
 
@@ -351,7 +319,7 @@ library(limma)
 \begin_inset Newline newline
 \end_inset
 
-design <- cbind(mean=1, diff=treatment)
+design <- cbind(offset=1, diff=condition)
 \begin_inset Newline newline
 \end_inset
 
@@ -363,39 +331,23 @@ fit <- eBayes(fit)
 \begin_inset Newline newline
 \end_inset
 
-pval <- as.numeric(fit$p.value[, "diff"])
+pval <- fit$p.value[, "diff"]
 \begin_inset Newline newline
 \end_inset
 
 @
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{center}
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Scrap
-<<plotProbeLevelStatistics, fig=TRUE, echo=TRUE>>=
+<<plotProbeLevelStatistics, fig=TRUE, include=FALSE, echo=TRUE>>=
 \begin_inset Newline newline
 \end_inset
 
-plot(pos, pval, pch=".", xlab="Probe position", ylab="P-value")
+plot(pos, pval, pch=20, xlab="Probe position", ylab=expression(p))
 \begin_inset Newline newline
 \end_inset
 
-abline(v=regions, col=cols)
+abline(v=region)
 \begin_inset Newline newline
 \end_inset
 
@@ -410,7 +362,37 @@ status open
 
 
 \backslash
-end{center}
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-plotProbeLevelStatistics}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:plotProbeLevelStatistics}Probe-level p-values}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
 \end_layout
 
 \end_inset
@@ -490,7 +472,18 @@ key "bartholom_estimation_2009"
 \begin_inset Formula $\Lambda_{i}$
 \end_inset
 
- can be interpreted in a similar way.
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+can be interpreted in a similar way.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -591,11 +584,7 @@ reference "sec:Specification-of-own"
 \begin_inset Newline newline
 \end_inset
 
-win <- 30
-\begin_inset Newline newline
-\end_inset
-
-res <- estimate(res, win)
+res <- estimate(res, win=200)
 \begin_inset Newline newline
 \end_inset
 
@@ -646,24 +635,8 @@ Rmethod{summary}
  or by plotting it.
 \end_layout
 
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{center}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Scrap
-<<showPlotLes, fig=TRUE, echo=TRUE>>=
+<<showPlotLes, fig=TRUE, include=FALSE, echo=TRUE>>=
 \begin_inset Newline newline
 \end_inset
 
@@ -675,7 +648,7 @@ plot(res)
 \begin_inset Newline newline
 \end_inset
 
-abline(v=regions, col=cols)
+abline(v=region)
 \begin_inset Newline newline
 \end_inset
 
@@ -690,7 +663,37 @@ status open
 
 
 \backslash
-end{center}
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-showPlotLes}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:showPlotLes}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
 \end_layout
 
 \end_inset
@@ -709,35 +712,15 @@ For comparison we will analyze and plot the same data with a different window
 \begin_inset Newline newline
 \end_inset
 
-win2 <- 50
-\begin_inset Newline newline
-\end_inset
-
-res <- estimate(res, win2)
+res <- estimate(res, win=200, weighting=rectangWeight)
 \begin_inset Newline newline
 \end_inset
 
 @
 \end_layout
 
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{center}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Scrap
-<<showPlotLes2, fig=TRUE, echo=TRUE>>=
+<<showPlotLes2, fig=TRUE, include=FALSE, echo=TRUE>>=
 \begin_inset Newline newline
 \end_inset
 
@@ -749,7 +732,7 @@ plot(res)
 \begin_inset Newline newline
 \end_inset
 
-abline(v=regions, col=cols)
+abline(v=region)
 \begin_inset Newline newline
 \end_inset
 
@@ -764,7 +747,37 @@ status open
 
 
 \backslash
-end{center}
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-showPlotLes2}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:showPlotLes2}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
 \end_layout
 
 \end_inset
@@ -937,11 +950,7 @@ Robject{LES}
 \begin_inset Newline newline
 \end_inset
 
-theta <- 0.3
-\begin_inset Newline newline
-\end_inset
-
-res <- regions(res, limit=theta, verbose=TRUE)
+res <- regions(res)
 \begin_inset Newline newline
 \end_inset
 
@@ -956,44 +965,16 @@ res["regions"]
 @
 \end_layout
 
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{center}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Scrap
-<<plotRegions, fig=TRUE, echo=TRUE>>=
+<<plotRegions, fig=TRUE, include=FALSE, echo=TRUE>>=
 \begin_inset Newline newline
 \end_inset
 
-region <- res["regions"]
+plot(res, region=TRUE)
 \begin_inset Newline newline
 \end_inset
 
-borders <- c(region$start, region$end)
-\begin_inset Newline newline
-\end_inset
-
-plot(res)
-\begin_inset Newline newline
-\end_inset
-
-abline(v=regions, col=cols)
-\begin_inset Newline newline
-\end_inset
-
-abline(v=borders, col="darkgray", lty=2)
+abline(v=region)
 \begin_inset Newline newline
 \end_inset
 
@@ -1008,7 +989,37 @@ status open
 
 
 \backslash
-end{center}
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-plotRegions}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:plotRegions}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
 \end_layout
 
 \end_inset
@@ -1038,7 +1049,7 @@ In some cases it is also useful to provide confidence intervals (CI) for
 \begin_inset Newline newline
 \end_inset
 
-subset <- pos >= 580 & pos <= 670
+subset <- pos >= 5232300 & pos <= 5233200
 \begin_inset Newline newline
 \end_inset
 
@@ -1049,28 +1060,12 @@ res <- ci(res, subset, nBoot=50)
 @
 \end_layout
 
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{center}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Scrap
-<<plotCi, fig=TRUE, echo=TRUE>>=
+<<plotCi, fig=TRUE, include=FALSE, echo=TRUE>>=
 \begin_inset Newline newline
 \end_inset
 
-plot(res, error="ci", limit=theta, xlim=c(580, 670))
+plot(res, error="ci")
 \begin_inset Newline newline
 \end_inset
 
@@ -1085,7 +1080,37 @@ status open
 
 
 \backslash
-end{center}
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-plotCi}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:plotCi}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
 \end_layout
 
 \end_inset
@@ -1121,30 +1146,18 @@ The following command plots a smaller region of the chromosome with confidence
  of the probes are changed.
 \end_layout
 
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-begin{center}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Scrap
-<<plotOptions, fig=TRUE, echo=TRUE>>=
+<<plotOptions, fig=TRUE, include=FALSE, echo=TRUE>>=
 \begin_inset Newline newline
 \end_inset
 
-plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated
- data", probePch="*", probeCol="blue", errorCol="lightgray", regionCol="lightgre
-en", xlim=c(580, 670) , ylim=c(0, 0.8), limit=FALSE, lty=0)
+plot(res, error="ci", region=TRUE, rug=TRUE,
+\begin_inset Newline newline
+\end_inset
+
+xlim=c(5232000, 5233000), plot=list(main="LES for simulated data"), sigArgs=list
+(pch="*"), limitArgs=list(lty=2, lwd=3), regionArgs=list(col="black", density=20
+))
 \begin_inset Newline newline
 \end_inset
 
@@ -1159,7 +1172,37 @@ status open
 
 
 \backslash
-end{center}
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-plotOptions}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:plotOptions}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
 \end_layout
 
 \end_inset
@@ -1342,7 +1385,7 @@ return(weight)
 \begin_inset Newline newline
 \end_inset
 
-res2 <- estimate(res, 20, weighting=weightFoo)
+resFoo <- estimate(res, 200, weighting=weightFoo)
 \begin_inset Newline newline
 \end_inset
 

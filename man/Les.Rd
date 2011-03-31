@@ -76,8 +76,9 @@ Les(pos, pval, chr)
 }
 
 \examples{
-data(statTile)
-x <- Les(pos, pval, chr)
+data(spikeInStat)
+
+x <- Les(pos, pval)
 x
 }
 

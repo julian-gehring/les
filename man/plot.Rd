@@ -109,14 +109,14 @@ rug=FALSE, xlim, ylim=c(0, 1),  ...)
 }
 
 \examples{
-data(statTile)
+data(spikeInStat)
 
-x <- Les(pos, pval, chr)
-x <- estimate(x, 50)
+x <- Les(pos, pval)
+x <- estimate(x, 200)
 x <- threshold(x)
 x <- regions(x)
 
-plot(x, chr=1, region=TRUE)
+plot(x, region=TRUE)
 }
 
 \keyword{utilities}

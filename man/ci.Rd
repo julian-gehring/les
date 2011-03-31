@@ -91,14 +91,15 @@ NULL, ...)
 }
 
 \examples{
-data(statTile)
+data(spikeInStat)
 
-x <- Les(pos, pval, chr)
-x <- estimate(x, win=50, grenander=FALSE)
+x <- Les(pos, pval)
+x <- estimate(x, win=200, grenander=FALSE)
 
-x <- ci(x, subset=150:200, conf=0.90, nBoot=50)
+subset <- pos >= 5232300 & pos <= 5233200
+x <- ci(x, subset, conf=0.90, nBoot=50)
 
-plot(x, chr=1, error="ci")
+plot(x, error="ci")
 
 \dontrun{
 ## multicore computation

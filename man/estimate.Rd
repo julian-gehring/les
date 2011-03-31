@@ -137,13 +137,11 @@ NULL, verbose = FALSE, ...)
 }
 
 \examples{
-data(statTile)
+data(spikeInStat)
 
-x <- Les(pos, pval, chr)
-x <- estimate(x, 50)
-
+x <- Les(pos, pval)
+x <- estimate(x, win=200)
 x
-plot(x, chr=1)
 }
 
 \keyword{htest}

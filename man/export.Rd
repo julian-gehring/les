@@ -90,16 +90,16 @@ description = "Lambda", strand=".", group="les", precision=4, ...)
 
 \examples{
 \dontrun{
-data(statTile)
+data(spikeInStat)
 
-x <- Les(pos, pval, chr)
-x <- estimate(x, 50)
+x <- Les(pos, pval)
+x <- estimate(x, 200)
 x <- threshold(x)
 x <- regions(x)
 
 export(x, file="test.bed")
 export(x, file="test.gff", format="gff")
-export(x, file="test.wig", format="wig", chr=1)
+export(x, file="test.wig", format="wig", chr=0)
 }
 }
 

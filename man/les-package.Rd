@@ -71,17 +71,19 @@
 }
 
 \examples{
-data(statTile)
+data(spikeInStat)
 
-x <- Les(pos, pval, chr)
-x <- estimate(x, 50)
+x <- Les(pos, pval)
+x <- estimate(x, 200)
 x <- threshold(x)
 x <- regions(x)
-x <- ci(x, subset=150:200, conf=0.90, nBoot=50)
 
-## plot data of chromosome 1
-plot(x, chr=1, region=TRUE)
-plot(x, chr=1, region=TRUE, error="ci")
+subset <- pos >= 5232300 & pos <= 5233200
+x <- ci(x, subset, conf=0.90, nBoot=50)
+
+## plot data
+plot(x, region=TRUE)
+plot(x, region=TRUE, error="ci")
 
 \dontrun{
 ## export data of chromosome 1

@@ -104,18 +104,18 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
 }
 
 \examples{
-\dontrun{
-data(statTile)
+data(spikeInStat)
 
-x <- Les(pos, pval, chr)
-x <- estimate(x, 50)
-x <- regions(x, limit=0.5)
+x <- Les(pos, pval)
+x <- estimate(x, 200, weighting=rectangWeight)
+x <- threshold(x)
+x <- regions(x)
 
 regions <- x["regions"]
-winsize <- seq(10, 100, by=10)
-x <- chi2(x, winsize, regions, offset=250, verbose=TRUE)
-chi2 <- x["chi2"]
-}
+winsize <- seq(100, 300, by=20)
+x <- chi2(x, winsize, regions, offset=2500)
+
+plot(winsize, x["chi2"], type="b")
 }
 
 \keyword{htest}

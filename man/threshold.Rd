@@ -92,10 +92,10 @@ threshold(object, grenander = FALSE, verbose = FALSE, ...)
 }
 
 \examples{
-data(statTile)
+data(spikeInStat)
 
-x <- Les(pos, pval, chr)
-x <- estimate(x, 50)
+x <- Les(pos, pval)
+x <- estimate(x, 200)
 x <- threshold(x, verbose=TRUE)
 }
 

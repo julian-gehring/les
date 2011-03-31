@@ -100,10 +100,10 @@ verbose = FALSE, ...)
 }
 
 \examples{
-data(statTile)
+data(spikeInStat)
 
-x <- Les(pos, pval, chr)
-x <- estimate(x, win=50)
+x <- Les(pos, pval)
+x <- estimate(x, win=200)
 x <- threshold(x, grenander=TRUE, verbose=TRUE)
 x <- regions(x, verbose=TRUE)
 

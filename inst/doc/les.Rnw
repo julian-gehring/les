@@ -1,4 +1,4 @@
-%% LyX 1.6.5 created this file.  For more info, see http://www.lyx.org/.
+%% LyX 1.6.9 created this file.  For more info, see http://www.lyx.org/.
 %% Do not edit unless you really know what you are doing.
 \documentclass[english]{article}
 \usepackage[T1]{fontenc}
@@ -6,10 +6,11 @@
 \usepackage{babel}
 
 \usepackage{varioref}
-\usepackage[unicode=true, pdfusetitle,
+\usepackage[unicode=true,pdfusetitle,
  bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
  breaklinks=true,pdfborder={0 0 0},backref=false,colorlinks=false]
  {hyperref}
+\usepackage{breakurl}
 
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
@@ -30,19 +31,14 @@
 
 \begin{document}
 
-\title{Introduction to the les package:\\
-Identifying Loci of Enhanced Significance in Tiling Array Data}
+\title{Introduction to the \Rpackage{les} package:\\
+Identifying Loci of Enhanced Significance in Tiling Microarray
+Data}
 
 
-\author{Julian Gehring}
+\author{Julian Gehring, Clemens Kreutz}
+
 \maketitle
-\begin{abstract}
-In this vignette we describe how to find Loci of Enhanced Significance
-(LES) in tiling microarray data using the \Rpackage{les} package.
-With an example of a general framework we illustrate how to apply
-the package for exploring data to identify regions of differential
-regulation.
-\end{abstract}
 
 \section{Introduction}
 
@@ -73,9 +69,11 @@ used for a wide range of applications. This vignette illustrates how
 \emph{LES} can be identified with a general framework in tiling microarray
 data sets.
 
+\SweaveOpts{width=7,height=5}
+
 <<echo=false>>=
 set.seed(1)
-options(width=65)
+options(width=65, SweaveHooks=list(fig=function() par(mar=c(5.1, 5.1, 2.1, 1.1))))
 @
 
 
@@ -99,51 +97,43 @@ probes with 1 bp resolution in this illustration.
 
 <<loadData>>=
 library(les)
-library(Biobase)
-data(simTile)
-treatment <- as.factor(phenoData(simTile)$condition == "treatment")
-pos <- featureData(simTile)$position
-exprs <- exprs(simTile)
-regions <- c(100, 150, 600, 650)
-cols <- rep(c("lightblue3", "lightgreen"), each=2)
+data(spikeInData)
+head(exprs)
+dim(exprs)
+pos <- as.integer(rownames(exprs))
+condition <- as.integer(colnames(exprs))
+
+reference
+region <- as.vector(reference[ ,c("start", "end")])
 @
-
-Next we have a look at the expression values.
-
-\begin{center}
-
-<<plotExpressionValues, fig=TRUE, echo=TRUE>>=
-matplot(exprs, pch=".", xlab="Probe position", ylab="Expression")
-abline(v=regions, col=cols)
-@
-
-\end{center}
 
 In the next step we will compute compute a test statistics assessing
 regulatory changes between the two conditions for each probe. Since
 the sample size as for most tiling microarray experiments is small
 we will use a modified t-test provided by the \Rpackage{limma} package
-\cite{smyth_limma:_2005}.
+\cite{smyth_limma_2005}.
 
 We will also plot the p-values $p_{i}$ against the probe positions
 $i$.
 
 <<estimateProbeLevelStatistics>>=
 library(limma)
-design <- cbind(mean=1, diff=treatment)
+design <- cbind(offset=1, diff=condition)
 fit <- lmFit(exprs, design)
 fit <- eBayes(fit)
-pval <- as.numeric(fit$p.value[, "diff"])
+pval <- fit$p.value[, "diff"]
 @
 
-\begin{center}
-
-<<plotProbeLevelStatistics, fig=TRUE, echo=TRUE>>=
-plot(pos, pval, pch=".", xlab="Probe position", ylab="P-value")
-abline(v=regions, col=cols)
+<<plotProbeLevelStatistics, fig=TRUE, include=FALSE, echo=TRUE>>=
+plot(pos, pval, pch=20, xlab="Probe position", ylab=expression(p))
+abline(v=region)
 @
 
-\end{center}
+\begin{figure}
+\centering
+\includegraphics{les-plotProbeLevelStatistics}
+\caption{\label{fig:plotProbeLevelStatistics}Probe-level p-values}
+\end{figure}
 
 
 \section{Incorporation information of neighboring probes}
@@ -192,41 +182,43 @@ Further we can specify whether we want to include the Grenander correction
 for the cumulative density or use multicore processing.
 
 <<estimateLes>>=
-win <- 30
-res <- estimate(res, win)
+res <- estimate(res, win=200)
 @
 
 All data, results and parameters are now stored in the object named
 \Robject{res}. We can get a short summary on the results by calling
 \Rmethod{print}, \Rmethod{summary} or by plotting it.
 
-\begin{center}
-
-<<showPlotLes, fig=TRUE, echo=TRUE>>=
+<<showPlotLes, fig=TRUE, include=FALSE, echo=TRUE>>=
 res
 plot(res)
-abline(v=regions, col=cols)
+abline(v=region)
 @
 
-\end{center}
+\begin{figure}
+\centering
+\includegraphics{les-showPlotLes}
+\caption{\label{fig:showPlotLes}}
+\end{figure}
 
 For comparison we will analyze and plot the same data with a different
 window size. This allows us to explore our data set.
 
 <<estimateLes2>>=
-win2 <- 50
-res <- estimate(res, win2)
+res <- estimate(res, win=200, weighting=rectangWeight)
 @
 
-\begin{center}
-
-<<showPlotLes2, fig=TRUE, echo=TRUE>>=
+<<showPlotLes2, fig=TRUE, include=FALSE, echo=TRUE>>=
 res
 plot(res)
-abline(v=regions, col=cols)
+abline(v=region)
 @
 
-\end{center}
+\begin{figure}
+\centering
+\includegraphics{les-showPlotLes2}
+\caption{\label{fig:showPlotLes2}}
+\end{figure}
 
 We can already see two distinct peaks that correspond well to the
 simulated regions of regulation.
@@ -259,23 +251,21 @@ This can also be used to access any other data slot of a \Robject{LES}
 object.
 
 <<regions>>=
-theta <- 0.3
-res <- regions(res, limit=theta, verbose=TRUE)
+res <- regions(res)
 res
 res["regions"]
 @
 
-\begin{center}
-
-<<plotRegions, fig=TRUE, echo=TRUE>>=
-region <- res["regions"]
-borders <- c(region$start, region$end)
-plot(res)
-abline(v=regions, col=cols)
-abline(v=borders, col="darkgray", lty=2)
+<<plotRegions, fig=TRUE, include=FALSE, echo=TRUE>>=
+plot(res, region=TRUE)
+abline(v=region)
 @
 
-\end{center}
+\begin{figure}
+\centering
+\includegraphics{les-plotRegions}
+\caption{\label{fig:plotRegions}}
+\end{figure}
 
 
 \section{Calculation of confidence intervals}
@@ -288,17 +278,19 @@ it it possible to compute CI for a subset of probes and to specify
 the number of bootstraps.
 
 <<ci>>=
-subset <- pos >= 580 & pos <= 670
+subset <- pos >= 5232300 & pos <= 5233200
 res <- ci(res, subset, nBoot=50)
 @
 
-\begin{center}
-
-<<plotCi, fig=TRUE, echo=TRUE>>=
-plot(res, error="ci", limit=theta, xlim=c(580, 670))
+<<plotCi, fig=TRUE, include=FALSE, echo=TRUE>>=
+plot(res, error="ci")
 @
 
-\end{center}
+\begin{figure}
+\centering
+\includegraphics{les-plotCi}
+\caption{\label{fig:plotCi}}
+\end{figure}
 
 
 \section{Plotting capabilities}
@@ -311,13 +303,16 @@ confidence intervals and the estimated region. Further the positions
 of the probes are shown at the top and the representation of the probes
 are changed.
 
-\begin{center}
-
-<<plotOptions, fig=TRUE, echo=TRUE>>=
-plot(res, error="ci", region=TRUE, rug=TRUE, rugSide=3, main="LES for simulated data", probePch="*", probeCol="blue", errorCol="lightgray", regionCol="lightgreen", xlim=c(580, 670) , ylim=c(0, 0.8), limit=FALSE, lty=0)
+<<plotOptions, fig=TRUE, include=FALSE, echo=TRUE>>=
+plot(res, error="ci", region=TRUE, rug=TRUE,
+xlim=c(5232000, 5233000), plot=list(main="LES for simulated data"), sigArgs=list(pch="*"), limitArgs=list(lty=2, lwd=3), regionArgs=list(col="black", density=20))
 @
 
-\end{center}
+\begin{figure}
+\centering
+\includegraphics{les-plotOptions}
+\caption{\label{fig:plotOptions}}
+\end{figure}
 
 
 \section{Exporting result to external software}
@@ -344,7 +339,7 @@ weightFoo <- function(distance, win) {
 weight <- 1 - distance/win
 return(weight)
 }
-res2 <- estimate(res, 20, weighting=weightFoo)
+resFoo <- estimate(res, 200, weighting=weightFoo)
 @
 
 \newpage{}
