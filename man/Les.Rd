@@ -1,7 +1,8 @@
-\name{Les}
+\name{Les,ANY,numeric-method}
 
 \alias{Les}
-\alias{Les,Les}
+\alias{Les-methods}
+\alias{Les,ANY,numeric-method}
 
 \title{Les}
 
@@ -26,7 +27,7 @@ Les(pos, pval, chr)
 }
 
 \details{
-  This function gathers all data necessary for subsequent analysis,
+  This method gathers all data necessary for subsequent analysis,
   checks for valid inputs and stores it in an object of class 'Les'.
 
   The data is checked for the following criteria:
@@ -83,5 +84,5 @@ x
 }
 
 \keyword{utilities}
-\keyword{IO}
+\keyword{methods}
 

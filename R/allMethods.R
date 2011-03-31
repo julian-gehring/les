@@ -3,6 +3,46 @@
 ######################################################################
 
 ######################################################################
+## Les
+######################################################################
+setMethod("Les",
+          signature("ANY", "numeric"),
+          function(pos, pval, chr) {
+            
+  ## default values
+  if(missing(chr))
+    chr <- rep(0, length(pos))
+            
+  ## check inputs
+  if(length(pos) != length(pval)  || length(pos) != length(chr))
+    stop("'pos', 'pval' and 'chr' must have the same length.")
+  if(any(is.na(pos)))
+    stop("'pos' must not contain NAs.")
+  if(any(pos %% 1 != 0))
+    stop("'pos' must be a vector of integers.")
+  if(min(pval, na.rm=TRUE) < 0 || max(pval, na.rm=TRUE) > 1)
+    stop("'pval' must be in the range [0,1].")
+  
+  ## throw out NAs in pval
+  indValid <- !is.na(pval)
+  pos <- as.integer(pos[indValid])
+  chr <- factor(chr[indValid])
+  
+  ## sort
+  ord <- order(chr, pos)
+  pos <- pos[ord]
+  pval <- pval[ord]
+  chr <- chr[ord]
+  
+  object <- new(Class="Les",
+                pos=pos, pval=pval, chr=chr, nChr=nlevels(chr),
+                state="Les")
+  
+  return(object)
+})
+
+
+######################################################################
 ## estimate
 ######################################################################
 setMethod("estimate", "Les",
@@ -195,7 +235,7 @@ setMethod("threshold", "Les",
   if(verbose == TRUE)  {
     if(length(object@lambda) != 0)
       print(sprintf("%g %s%g", nSigLower,
-                     "significant probes estimated with limit Lambda>=", theta))
+                     "significant probes estimated for Lambda >= ", theta))
     else
       print(sprintf("%g %s", nSigLower, "significant probes estimated"))
   }
