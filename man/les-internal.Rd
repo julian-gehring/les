@@ -42,6 +42,7 @@ seSlopeWeight(fit, n=length(fit$weights))
 setState(state, flag)
 checkState(state, flag, text=as.character(flag))
 modGrenander(x, y, eta0, unique, check)
+getArgs(name, first=NULL, last=NULL, ...)
 }
 
 \details{
