@@ -213,15 +213,13 @@ setMethod("threshold", "Les",
 ## plot
 ######################################################################
 setMethod("plot", "Les",
-          function(x, y, chr, region=FALSE,
-                   xlim, ylim=c(0, 1), error="none",
-                   probePch=20, probeCol="black", lty=1, 
-                   sigPch=20, sigCol="red3", errorCol="azure4",
-                   regionCol=gray, 
-                   rug=FALSE, rugSide=1, limit=TRUE,
-                   main=NULL, ...)  {
+          function(x, y, chr, error="none", region=FALSE, limit=TRUE,
+                   rug=FALSE, xlim, ylim=c(0, 1),  ...)  {
 
-  les:::checkState(x@state, "estimate")         
+  les:::checkState(x@state, "estimate")
+
+  args <- list(...)
+  
   if(missing(chr))  {
     if(x@nChr == 1)  {
       chr <- levels(x@chr)
@@ -235,7 +233,7 @@ setMethod("plot", "Les",
     if(length(chr) == 1 && any(x@chr %in% chr))
       indChr <- x@chr %in% chr
     else
-      stop("'chr' must have one match")
+      stop("'chr' must have one match.")
   }
   pos <- x@pos[indChr]
   lambda <- x@lambda[indChr]
@@ -253,10 +251,20 @@ setMethod("plot", "Les",
     xlim <- range(pos)
   ind <- pos >= xlim[1] & pos <= xlim[2]
 
-  graphics::plot(pos[ind], lambda[ind], type="n",
-                 xlim=xlim, ylim=ylim,
-                 xlab="Probe position", ylab=expression(Lambda), main=main)
-  graphics::abline(h=c(0,1), col="lightgray")
+  ## what about this?
+  sig1 <- list(x=pos[ind], y=lambda[ind])
+  sig3 <- list(type="o", pch=20, col="black", lty=1)
+  sigArgs <- getArgs("sigArgs", sig1, sig3, args)
+
+  plot1 <- list(x=pos[ind], y=lambda[ind])
+  plot3 <- list(type="n", xlim=xlim, ylim=ylim, xlab="Probe position", ylab=expression(Lambda))
+  plotArgs <- getArgs("plotArgs", plot1, plot3, args)
+  do.call("plot", plotArgs)
+
+  border1 <- list(h=c(0,1))
+  border3 <- list(col="lightgray")
+  borderArgs <- getArgs("borderArgs", border1, border3, args)
+  do.call("abline", borderArgs)
 
   val <- pmatch(error, c("se", "ci"), NA)
   if(!is.na(val) && length(x@ci) != 0)  {
@@ -264,22 +272,37 @@ setMethod("plot", "Les",
     suppressWarnings({
       ss <- ind2log(x@subset, length(x@pos))
       ci <- x@ci[indChr, ]
-      gplots::plotCI(pos[ss[indChr]], lambda[ss[indChr]],
-                     ui=ci$upper, li=ci$lower, gap=0,
-                     pch=NA, barcol=errorCol, col=probeCol,
-                     add=TRUE, sfrac=sfrac)
+      error1 <- list(x=pos[ss[indChr]], y=lambda[ss[indChr]], ui=ci$upper, li=ci$lower, add=TRUE)
+      error3 <- list(gap=0, pch=NA, barcol="azure4", col="black", sfrac=sfrac)
+      errorArgs <- getArgs("errorArgs", error1, error3, args)
+      do.call("plotCI", errorArgs)
     })
   }
-  
-  graphics::points(pos[ind], lambda[ind], type="o", pch=probePch,
-                   col=probeCol, lty=lty)
+
+  probe1 <- list(x=pos[ind], y=lambda[ind])
+  probe3 <- list(type="o", pch=20, col="black", lty=1)
+  probeArgs <- getArgs("probeArgs", probe1, probe3, args)
+  do.call("points", probeArgs)
+
   if(limit == TRUE)  {
     sig <- lambda[ind] >= theta
-    graphics::abline(h=theta, col="gray")
-    graphics::points(pos[ind][sig], lambda[ind][sig], pch=sigPch, col=sigCol)
+    
+    limit1 <- list(h=theta)
+    limit3 <- list(col="gray", lty=2)
+    limitArgs <- getArgs("limitArgs", limit1, limit3, args)
+    do.call("abline", limitArgs)
+
+    sig1 <- list(x=pos[ind][sig], y=lambda[ind][sig])
+    sig3 <- list(pch=20, col="red")
+    sigArgs <- getArgs("sigArgs", sig1, sig3, args)
+    do.call("points", sigArgs)
   }
-  if(rug == TRUE)
-    graphics::rug(pos[ind], side=rugSide)
+  if(rug == TRUE) {
+    rug1 <- list(x=pos[ind])
+    rug3 <- list(side=3)
+    rugArgs <- getArgs("rugArgs", rug1, rug3, args)
+    do.call("rug", rugArgs)
+  }
 
   if(region == TRUE && length(x@regions) != 0 && nrow(x@regions) != 0)  {
     regions <- x@regions
@@ -287,12 +310,15 @@ setMethod("plot", "Les",
     indRegion <- (regions$start >= xlim[1] & regions$start <= xlim[2]) | (regions$end >= xlim[1] & regions$end <= xlim[2])
     regions <- regions[indRegion, ]
     yr <- c(par()$usr[3], min(ylim)-par()$usr[3])
-    if(is.vector(regionCol))
-    graphics::rect(regions$start, yr[1]+0.2*yr[2], regions$end, yr[1]+0.8*yr[2],
-                   col=rep(regionCol, length.out=nrow(regions)))    
+    region1 <- list(xleft=regions$start, ybottom=yr[1]+0.2*yr[2], xright=regions$end, ytop=yr[1]+0.8*yr[2])
+    region3 <- list(col=gray)
+    regionArgs <- getArgs("regionArgs", region1, region3, args)
+    
+    if(is.function(regionArgs$col))
+      regionArgs$col <- regionArgs$col(1-regions$ri)
     else
-    graphics::rect(regions$start, yr[1]+0.2*yr[2], regions$end, yr[1]+0.8*yr[2],
-         col=regionCol(1-regions$ri))
+      regionArgs$col <- rep(regionArgs$col, length.out=nrow(regions))
+    do.call("rect", regionArgs)
   }
 }
 )

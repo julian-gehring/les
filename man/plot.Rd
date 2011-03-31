@@ -14,13 +14,10 @@
 }
 
 \usage{
-
 plot(x, y, ...)
 
-\S4method{plot}{Les}(x, y, chr, region=FALSE, xlim, ylim=c(0, 1),
-error="none", probePch=20, probeCol="black", lty=1, sigPch=20,
-sigCol="red3", errorCol="azure4", regionCol=gray, rug=FALSE, rugSide=1,
-limit=TRUE, main=NULL, ...)
+\S4method{plot}{Les}(x, y, chr, error="none", region=FALSE, limit=TRUE,
+rug=FALSE, xlim, ylim=c(0, 1),  ...)
 }
 
 \arguments{
@@ -29,52 +26,63 @@ limit=TRUE, main=NULL, ...)
   \item{chr}{Character or numeric specifying which chromosome to
     plot. Must have a match in 'chr' passed to 'Les'. A value is
     required if the probes are located on more than one chromosome.}
-  \item{region}{Logical indicating whether the estimated regions should
-    be included in the plot. The 'regions' method must have been called
-    beforehand.}
-  \item{xlim}{Numeric vector with two elements specifying the range on the
-    x-axis.}
-  \item{ylim}{Numeric vector with two elements specifying the range on the
-    y-axis.}
   \item{error}{Character string specifying if error estimates for
     \eqn{\Lambda}{Lambda} should be plotted (default: "none"). Valid
     values are "none" for no error estimates and "ci" for confidence
     intervals computed by the 'ci' method.}
-  \item{probePch}{Symbol probes should be plotted with (default:
-    20). For details see 'pch' in 'par'.}
-  \item{probeCol}{Color probes should be plotted with (default:
-    "black"). For details see 'col' in 'par'.}
-  \item{lty}{Line type for lines connecting the
-    \eqn{\Lambda_i}{Lambda_i} of probes (default: 1). For details see
-    'lty' in 'par'.}
-  \item{sigPch}{Symbol probes above the threshold should be plotted
-    with (default: 20). For details see 'pch' in 'par'.}
-  \item{sigCol}{Color probes above the threshold should be plotted
-    with (default: "red3"). For details see 'col' in 'par'.}
-  \item{errorCol}{Color error estimates should be plotted with (default:
-    "azure4").}
-  \item{regionCol}{Function or vector of color used plotting of regions
-    (default: gray). By default regions will be colored in grayscale
-    with darker colors corresponding to more significant regions. If a
-    function it has to return the color given 1-ri (see the 'regions'
-    method for details) of each region as an input argument. If a vector
-    of colors regions will be filled according to these colors. The vector
-    will be recycled if needed. Note that the ordering if by default
-    according to 'ri' from the 'regions' slot in the object, not the
-    location of the region.}
-  \item{rug}{Logical whether the positions of the probes should be
-    indicated along the x-axis (default: FALSE). For details see 'rug'.}
-  \item{rugSide}{Integer specifying the side at which probe positions
-    should be plotted (default: 1). For details see 'rug'.}
+  \item{region}{Logical indicating whether the estimated regions should
+    be included in the plot. The 'regions' method must have been called
+    beforehand.}
   \item{limit}{Logical specifying whether the estimated threshold
     \eqn{\Theta}{Theta} should be indicated on the y-axis if estimated
     (default: TRUE).}
-  \item{main}{Title of the plot (default: no title). For details see 'main'.}
-  \item{...}{Further arguments not used so far.}
+  \item{rug}{Logical whether the positions of the probes should be
+    indicated along the x-axis (default: FALSE). For details see 'rug'.}
+  \item{xlim}{Numeric vector with two elements specifying the range on the
+    x-axis.}
+  \item{ylim}{Numeric vector with two elements specifying the range on the
+    y-axis.}
+  \item{...}{Optional arguments used in order to customize the plot. See
+    the \sQuote{details} section.}
 }
 
 \details{
-  This method provides high-level plotting for the 'Les' class.}
+  This method provides high-level plotting for the 'Les' class.
+
+  The \code{plot} method uses a special system in order to customize the
+  graphical elements of the figure. It allows to refer to the different
+  components with the name of the additional input argument; its value
+  is a list containing named graphical parameters for the underlying
+  plot function. The following list describes the possible names and
+  their contribution.
+
+  \describe{
+    \item{\code{plotArgs}}{Arguments for the axis and the labeling, passed to the
+      \code{plot} function.}
+    \item{\code{borderArgs}}{Arguments for the border lines at
+      \eqn{\Lambda}{Lambda} equal to 0 and 1, passed to the
+      \code{abline} function.}
+    \item{\code{errorArgs}}{Arguments for the confidence interval of
+      \eqn{\Lambda}{Lambda}, passed to the \code{plotCI} function of the
+      \pkg{gplots} package.}
+    \item{\code{probeArgs}}{Arguments for the representation of probes,
+      passed to the \code{points} function.}
+    \item{\code{limitArgs}}{Arguments for the horizontal line
+      representing the threshold \eqn{\Theta}{Theta}, passed to
+      the \code{abline} function.}
+    \item{\code{sigArgs}}{Arguments for the representation of
+      significant probes with \eqn{\Lambda >= \Theta}{Lambda equal or
+	greater Theta}, passed to the \code{points} function.}
+    \item{\code{rugArgs}}{Arguments for the representation of the probe
+      coverage along the genome, passed to the \code{rug} function.}
+    \item{\code{regionArgs}}{Arguments  for the representation of
+      estimated LES, passed to the \code{rect} function. If 'col' is
+      specified as a function it determines the color of each region
+      depending on its input \eqn{\Lambda}{Lambda} (default: gray()).
+      If 'col' is a vector its elements are used to color the regions
+      with recycling.}
+  }
+}
       
 \author{
   Julian Gehring, Clemens Kreutz
