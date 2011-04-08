@@ -13,7 +13,7 @@
 
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
-%\VignetteIndexEntry{Identifying Differential Effects in Tiling Microarray Data with the Loci of Enhanced Significance Framework}
+%\VignetteIndexEntry{Introduction to the les package: Identifying Differential Effects in Tiling Microarray Data with the Loci of Enhanced Significance Framework}
 %\VignettePackage{les}
 
 %\usepackage{fancyvrb}
@@ -31,8 +31,8 @@
 \begin{document}
 
 \title{Introduction to the \Rpackage{les} package:\\
-Identifying Differential Effects in Tiling Microarray Data with
-the\emph{}\\
+Identifying Differential Effects in\\
+Tiling Microarray Data with the\emph{}\\
 \emph{Loci of Enhanced Significance} Framework}
 
 
