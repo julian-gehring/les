@@ -1,0 +1,792 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+<title>Identifying Differential Effects in Tiling Microarray Data with the les package</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2011-07-20 09:20:44 CEST"/>
+<meta name="author" content="Julian Gehring"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+  .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+  .center {margin-left:auto; margin-right:auto; text-align:center;}
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top;  }
+  th.right  { text-align:center;  }
+  th.left   { text-align:center;   }
+  th.center { text-align:center; }
+  td.right  { text-align:right;  }
+  td.left   { text-align:left;   }
+  td.center { text-align:center; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="http://julian-gehring.github.com/worg.css" />
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/javascript" src="http://orgmode.org/mathjax/MathJax.js">
+<!--/*--><![CDATA[/*><!--*/
+    MathJax.Hub.Config({
+        // Only one of the two following lines, depending on user settings
+        // First allows browser-native MathML display, second forces HTML/CSS
+        //  config: ["MMLorHTML.js"], jax: ["input/TeX"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+        extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js",
+                     "TeX/noUndefined.js"],
+        tex2jax: {
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"], ["\\begin{displaymath}","\\end{displaymath}"] ],
+            skipTags: ["script","noscript","style","textarea","pre","code"],
+            ignoreClass: "tex2jax_ignore",
+            processEscapes: false,
+            processEnvironments: true,
+            preview: "TeX"
+        },
+        showProcessingMessages: true,
+        displayAlign: "center",
+        displayIndent: "2em",
+
+        "HTML-CSS": {
+             scale: 100,
+             availableFonts: ["STIX","TeX"],
+             preferredFont: "TeX",
+             webFont: "TeX",
+             imageFont: "TeX",
+             showMathMenu: true,
+        },
+        MMLorHTML: {
+             prefer: {
+                 MSIE:    "MML",
+                 Firefox: "MML",
+                 Opera:   "HTML",
+                 other:   "HTML"
+             }
+        }
+    });
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<div id="org-div-home-and-up" style="text-align:right;font-size:70%;white-space:nowrap;">
+ <a accesskey="h" href="../index.html"> UP </a>
+ |
+ <a accesskey="H" href="../index.html"> HOME </a>
+</div>
+
+<h1 class="title">Identifying Differential Effects in Tiling Microarray Data with the les package</h1>
+
+
+
+
+
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">Introduction </a></li>
+<li><a href="#sec-2">Data set and statistic testing on probe level </a></li>
+<li><a href="#sec-3">Incorporation of neighboring probes </a></li>
+<li><a href="#sec-4">Parameter estimation </a></li>
+<li><a href="#sec-5">Calculation of confidence intervals </a></li>
+<li><a href="#sec-6">Visualization </a></li>
+<li><a href="#sec-7">Exporting results to external software </a></li>
+<li><a href="#sec-8">Specification of custom weighting windows </a></li>
+<li><a href="#sec-9">Session information </a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1">Introduction </h2>
+<div class="outline-text-2" id="text-1">
+
+
+<p>
+  Tiling microarrays have become an important platform for the investigation
+  of regulation in expression, DNA modification, and DNA-protein interaction.
+  Since unbiased in relation to annotation they provide an powerful
+  tool for biological research. Beside the analysis of single conditions,
+  the investigation of regulation between multiple experimental conditions
+  is an important part of current research. A common approach consists
+  in assessing the differential effect on the level of individual probes
+  and thereby computing p-values \(p_{i}\) for each probe \(i\) with a
+  suitable statistical test, for example an F-test, independently. Since
+  the targets exhibiting differential effects cover multiple probes,
+  a reasonable next step involves combining information from neighboring
+  probes. While several approaches for this purpose exist, most of them
+  lack a statistical interpretation of the results or are specific for
+  certain platforms and statistical tests.
+</p>
+<p>
+  The approach used here utilizes the fact that p-values in regions
+  without an differential effect are uniformly distributed. In the case
+  that regulation is present the distribution of \(p_{i}\) is shifted
+  towards zero; such regions are therefore referred to as <i>Loci   of Enhanced Significance (LES)</i>. By assessing the uniform component
+  of the p-value distribution within a sliding window, the local degree
+  of significant probes along the genome is estimated. The <i>les</i>
+  package implements the method for detecting <i>LES</i> in tiling microarray
+  data sets, independent of the underlying statistical test and hence
+  is suitable for a wide range of applications.
+</p>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2">Data set and statistic testing on probe level </h2>
+<div class="outline-text-2" id="text-2">
+
+
+<p>
+  The data set used in this vignette is part of a quality control study
+  for tiling microarrays<sup><a class="footref" name="fnr.1" href="#fn.1">1</a></sup>, in which spike-ins
+  were used to assess the influence of microarray platforms, preparation
+  procedures, and analysis algorithms on the accuracy and reproducibility
+  of ChIP-chip experiments. Here, the expression intensities of one
+  region from the <i>undiluted</i> data set investigated with Affymetrix
+  tiling microarrays is selected, consisting of 452 probes and two conditions
+  with three replicates each. The data has been normalized using quantile
+  normalization and probe positions remapped to a common reference.
+</p>
+<p>
+  Normalized expression intensities are stored in the matrix <i>exprs</i>,
+  with rows representing probes and columns arrays. The corresponding
+  names contain the position of the probes and the condition of the
+  samples, respectively. The properties of the spike-in DNA, yielding
+  a region with differential effect, are described in the <i>reference</i>
+  data frame.
+</p>
+
+
+
+<pre class="src src-R">  <span style="color: #008b8b;">library</span>(les)  
+
+</pre>
+
+
+
+
+
+<pre class="src src-R">  data(spikeInData)
+  head(exprs)
+
+</pre>
+
+
+
+
+<pre class="example">
+               1        1        1        2        2        2
+5230083 6.671288 6.826426 6.762979 6.779357 6.868966 6.782944
+5230089 5.548030 5.478211 5.817685 5.679769 5.347560 6.009189
+5230096 5.746862 5.487193 5.931810 5.639733 5.951060 5.570534
+5230103 5.254493 5.070491 5.134345 5.821151 5.588138 5.152873
+5230110 5.627828 5.656203 5.848418 5.425308 5.372586 5.249253
+5230117 5.510349 5.912182 4.699285 5.112509 5.470490 5.181388
+</pre>
+
+
+
+
+
+<pre class="src src-R">  dim(exprs)
+
+</pre>
+
+
+
+
+<pre class="example">
+[1] 452   6
+</pre>
+
+
+
+
+
+<pre class="src src-R">  pos <span style="color: #008b8b;">&lt;-</span> as.integer(rownames(exprs))
+  condition <span style="color: #008b8b;">&lt;-</span> as.integer(colnames(exprs))
+  reference
+
+</pre>
+
+
+
+
+<pre class="example">
+     chr   start     end length fold nProbes
+26 chr11 5232536 5233080    545    2      74
+</pre>
+
+
+
+
+
+<pre class="src src-R">  region <span style="color: #008b8b;">&lt;-</span> as.vector(reference[ ,c(<span style="color: #8b2252;">"start"</span>, <span style="color: #8b2252;">"end"</span>)])  
+
+</pre>
+
+
+
+
+
+<p>
+  In order to assess the differential effect between the two conditions
+  on the level of individual probes, we use a modified t-test provided
+  by the <i>limma</i> package<sup><a class="footref" name="fnr.2" href="#fn.2">2</a></sup>. This offers
+  an increased statistical power compared to a classical Student's t-test
+  for small sample sizes, as present in most tiling microarray experiments.
+</p>
+
+
+
+<pre class="src src-R">  <span style="color: #008b8b;">library</span>(limma)
+
+</pre>
+
+
+
+
+
+<pre class="src src-R">  design <span style="color: #008b8b;">&lt;-</span> cbind(offset=1, diff=condition)
+  fit <span style="color: #008b8b;">&lt;-</span> lmFit(exprs, design)
+  fit <span style="color: #008b8b;">&lt;-</span> eBayes(fit)
+  pval <span style="color: #008b8b;">&lt;-</span> fit$p.value[, <span style="color: #8b2252;">"diff"</span>]  
+
+</pre>
+
+
+
+
+
+
+<pre class="src src-R">  plot(pos, pval, pch=20, xlab=<span style="color: #8b2252;">"Probe position"</span>, ylab=expression(p))
+  abline(v=region)  
+
+</pre>
+
+
+
+
+<p>
+  <img src="fig1.png"  alt="fig1.png" />
+</p>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3">Incorporation of neighboring probes </h2>
+<div class="outline-text-2" id="text-3">
+
+
+<p>
+  The accumulation of small p-values indicates a <i>LES</i> at the location
+  of the spike-in, whereas the response of individual probes may be
+  not reliable. Therefore,
+  an incorporation of neighboring probes should be beneficial and yield
+  improved results in the detection of the differential effect. For
+  each probe \(i\) the surrounding p-values \(p_{j}\) get weights assigned,
+  corresponding to the distance of probe \(i\) and \(j\). Being free in
+  the definition of the weighting function, the spatial relationship
+  of probes in observing the same effect can be accounted for. A weighted
+  cumulative density is computed and the fraction of significant \(p\)
+  is estimated by an iterative regression. The method is based on the
+  fact that p-values are uniformly distributed under the null hypothesis
+  \(H_{0}\) whereas p-values violating \(H_{0}\) are shifted towards smaller
+  values<sup><a class="footref" name="fnr.3" href="#fn.3">3</a></sup>, which is closely related
+  to the estimation of a false discovery rate. This results in \(\Lambda_{i}\),
+  constituting an estimate of the fraction of p-values violating \(H_{0}\)
+  and therefore the degree of significance in the local surrounding
+  of the evaluated position.
+</p>
+<p>
+  For the analysis, we first store all relevant data in an object of
+  class <i>Les</i> by calling the <i>Les</i> method. The only
+  data required are the positions of the probes \(i\), the corresponding
+  p-values \(p_{i}\) from the statistical test, and optionally their
+  chromosomal location.
+</p>
+
+
+
+<pre class="src src-R">  res <span style="color: #008b8b;">&lt;-</span> Les(pos, pval)
+
+</pre>
+
+
+
+
+
+<p>
+  Then we can compute our estimate \(\Lambda_{i}\) for which we have
+  to specify a weighting window. Here, we use a triangular window taken
+  as default with a size of 200bp. The power of detecting a region will
+  be high if the window matches approximately the properties of the
+  regulated region. In many experiments a rough prior knowledge is available
+  which can be sufficient for choosing a suitable window. Further, optimal
+  weighting windows can be estimated from the data directly.
+</p>
+
+
+
+<pre class="src src-R">  res <span style="color: #008b8b;">&lt;-</span> estimate(res, win=200)
+
+</pre>
+
+
+
+
+
+<p>
+  All data, results and parameters are stored in the <i>res</i>
+  object of class <i>Les</i>. We can get an overview of the results
+  with the <i>print</i>, <i>summary</i>, or <i>plot</i>
+  method.
+</p>
+
+
+
+<pre class="src src-R">  res
+  summary(res)
+
+</pre>
+
+
+
+
+
+<pre class="example">  ** Object of class 'Les' **
+  * 452 probes on 1 chromosomes
+  * Lambda in range [0, 0.531522] with window size 200
+  ** Object of class 'Les' **
+  * 452 probes on 1 chromosomes
+  * Lambda in range [0, 0.531522] with window size 200
+  * Available slots:
+   [1] "pos"       "pval"      "chr"       "win"       "weighting" "grenander"
+   [7] "minProbes" "method"    "lambda"    "lambda0"   "nProbes"   "nChr"     
+  [13] "state"
+</pre>
+
+
+
+
+<pre class="src src-R">  plot(res)
+  abline(v=region)  
+
+</pre>
+
+
+
+
+<p>
+  <img src="fig2.png"  alt="fig2.png" />
+</p>
+<p>
+  For comparison we analyze and plot the same data with a rectangular
+  weighting window. In this example
+  the rectangular window leads to better results. The <i>les</i>
+  package includes four predefined windows; custom functions can also
+  be used, as described in the section <a href="#sec-8">Specification of custom weighting windows</a>.
+</p>
+
+
+
+<pre class="src src-R">  res2 <span style="color: #008b8b;">&lt;-</span> estimate(res, win=200, weighting=rectangWeight)
+  res2
+
+</pre>
+
+
+
+
+<pre class="example">
+** Object of class 'Les' **
+* 452 probes on 1 chromosomes
+* Lambda in range [0, 0.540663] with window size 200
+</pre>
+
+
+
+
+
+<pre class="src src-R">  plot(res2)
+  abline(v=region)  
+
+</pre>
+
+
+
+
+<p>
+  <img src="fig3.png"  alt="fig3.png" />
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4">Parameter estimation </h2>
+<div class="outline-text-2" id="text-4">
+
+
+<p>
+  To turn the continuous \(\Lambda_{i}\) into distinct regions of interest
+  we define a threshold \(\Theta\). It can be derived from the data by
+  estimating the number of probes with a significant effect on the whole
+  array.
+</p>
+
+
+
+<pre class="src src-R">  res2 <span style="color: #008b8b;">&lt;-</span> threshold(res2, grenander=<span style="color: #228b22;">TRUE</span>, verbose=<span style="color: #228b22;">TRUE</span>)
+
+</pre>
+
+
+
+
+<pre class="example">
+[1] "53 significant probes estimated for Lambda &gt;= 0.327448"
+</pre>
+
+
+<p>
+  Given \(\Theta\) we can look for regions that have a continuous \(\Lambda_{i}\geq\Theta\).
+  The <i>regions</i> method takes by default the estimated \(\Theta\)
+  from the previous step. We can also pass our own estimate for \(\Theta\)
+  with the <i>limit</i> argument. Further restrictions can be imposed
+  on the regions such as the minimal length of a region and the maximum
+  gap allowed between probes in one region. The <i>[</i> method
+  allows to access any data slot of an object of class <i>Les</i>.
+  Here, we use it to extract the data frame with the estimated regions.
+</p>
+
+
+
+<pre class="src src-R">  res2 <span style="color: #008b8b;">&lt;-</span> regions(res2, verbose=<span style="color: #228b22;">TRUE</span>)
+  res2
+  res2[<span style="color: #8b2252;">"regions"</span>]
+
+</pre>
+
+
+
+
+<pre class="example">
+[1] "1 regions found for lambda&gt;=0.327448"
+** Object of class 'Les' **
+* 452 probes on 1 chromosomes
+* Lambda in range [0, 0.540663] with window size 200
+* 53 regulated probes estimated for lambda &gt;= 0.327448
+* 1 regions detected
+  chr   start     end size nProbes     ri     se      rs
+1   0 5232548 5232926  379      53 0.5185 0.0087 59.4146
+</pre>
+
+
+
+
+
+<pre class="src src-R">  plot(res2, region=<span style="color: #228b22;">TRUE</span>)
+  abline(v=region)  
+
+</pre>
+
+
+
+
+<p>
+  <img src="fig4.png"  alt="fig4.png" />
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5">Calculation of confidence intervals </h2>
+<div class="outline-text-2" id="text-5">
+
+
+<p>
+  By bootstrapping probes in each window, confidence intervals for the
+  statistic \(\Lambda_{i}\) can be computed. Since confidence intervals
+  are primarily interesting in regions of interest and bootstrapping
+  is by its nature computationally demanding, we can restrict the calculation
+  to a subset of probes. 
+</p>
+
+
+
+<pre class="src src-R">  subset <span style="color: #008b8b;">&lt;-</span> pos &gt;= 5232400 &amp; pos &lt;= 5233100
+  res2 <span style="color: #008b8b;">&lt;-</span> ci(res2, subset, nBoot=50, alpha=0.1)
+
+</pre>
+
+
+
+
+
+
+<pre class="src src-R">  plot(res2, error=<span style="color: #8b2252;">"ci"</span>, region=<span style="color: #228b22;">TRUE</span>)  
+
+</pre>
+
+
+
+
+<p>
+  <img src="fig5.png"  alt="fig5.png" />
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6">Visualization </h2>
+<div class="outline-text-2" id="text-6">
+
+
+<p>
+  The <i>plot</i> method uses a special system in order to customize
+  the graphical elements of the figure. It allows to refer to all its
+  components with the name of the additional input argument; its value
+  is a list containing named graphical parameters for the underlying
+  plot function. As an example, we plot smaller region of the chromosome
+  with confidence intervals, estimated region, and the probe density.
+  Further, we adapt several parameters changing the graphical representation.
+  For details, please refer to the help of the <i>les</i> package.
+</p>
+
+
+
+<pre class="src src-R">  plot(res2, error=<span style="color: #8b2252;">"ci"</span>, region=<span style="color: #228b22;">TRUE</span>, rug=<span style="color: #228b22;">TRUE</span>, xlim=c(5232000, 5233000),
+       sigArgs=list(col=<span style="color: #8b2252;">"firebrick4"</span>),
+       plotArgs=list(main=<span style="color: #8b2252;">"LES results"</span>, yaxp=c(0, 1, 2)),
+       limitArgs=list(lty=2, lwd=3),
+       regionArgs=list(col=<span style="color: #8b2252;">"black"</span>, density=20),
+       probeArgs=list(col=<span style="color: #8b2252;">"dodgerblue4"</span>, type=<span style="color: #8b2252;">"p"</span>))  
+
+</pre>
+
+
+
+
+<p>
+  <img src="fig6.png"  alt="fig6.png" />
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-7" class="outline-2">
+<h2 id="sec-7">Exporting results to external software </h2>
+<div class="outline-text-2" id="text-7">
+
+
+<p>
+  With the <i>export</i> method the estimated regions as well as
+  \(\Lambda_{i}\) can be saved to standard files formats, in order to
+  facilitate the export of the results to other software and genome
+  browsers. The region estimates can be exported to the <i>bed</i> and
+  <i>gff</i> formats, the test statistic \(\Lambda_{i}\) to the <i>wig</i>
+  format.
+</p>
+
+
+
+<pre class="src src-R">  bedFile <span style="color: #008b8b;">&lt;-</span> paste(tempfile(), <span style="color: #8b2252;">"bed"</span>, sep=<span style="color: #8b2252;">"."</span>)
+  gffFile <span style="color: #008b8b;">&lt;-</span> paste(tempfile(), <span style="color: #8b2252;">"gff"</span>, sep=<span style="color: #8b2252;">"."</span>)
+  wigFile <span style="color: #008b8b;">&lt;-</span> paste(tempfile(), <span style="color: #8b2252;">"wig"</span>, sep=<span style="color: #8b2252;">"."</span>)
+  export(res2, bedFile)
+  export(res2, gffFile, format=<span style="color: #8b2252;">"gff"</span>)
+  export(res2, wigFile, format=<span style="color: #8b2252;">"wig"</span>)  
+
+</pre>
+
+
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8" class="outline-2">
+<h2 id="sec-8">Specification of custom weighting windows </h2>
+<div class="outline-text-2" id="text-8">
+
+
+<p>
+  With the <i>triangWeight</i>, <i>rectangWeight</i>, <i>epWeight</i>,
+  and <i>gaussWeight</i> functions, four weighting windows are
+  included in the <i>les</i> package, providing a triangular, rectangular,
+  Epanechnikov, and Gaussian window, respectively. We can also specify
+  custom window functions and pass it as <i>weighting</i> argument
+  in the <i>estimate</i> method. They have to be specified as a
+  function depending on the distance of the probes (<i>distance</i>)
+  and the window size (<i>win</i>), as illustrated here with a triangular
+  weighting.
+</p>
+
+
+
+<pre class="src src-R">  <span style="color: #0000ff;">weightFoo</span> <span style="color: #008b8b;">&lt;-</span> <span style="color: #a020f0;">function</span>(distance, win) {
+    weight <span style="color: #008b8b;">&lt;-</span> 1 - distance/win
+    <span style="color: #a020f0;">return</span>(weight)
+  }
+
+</pre>
+
+
+
+
+
+
+<pre class="src src-R">  resFoo <span style="color: #008b8b;">&lt;-</span> estimate(res, 200, weighting=weightFoo)
+
+</pre>
+
+
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-9" class="outline-2">
+<h2 id="sec-9">Session information </h2>
+<div class="outline-text-2" id="text-9">
+
+
+
+
+
+<pre class="src src-R">  sessionInfo()
+
+</pre>
+
+
+
+
+
+<pre class="example">  R version 2.13.1 (2011-07-08)
+  Platform: x86_64-pc-linux-gnu (64-bit)
+
+  locale:
+   [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+   [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+   [5] LC_MONETARY=C              LC_MESSAGES=en_US.UTF-8   
+   [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+   [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+  [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+  attached base packages:
+  [1] stats     graphics  grDevices utils     datasets  methods   base     
+
+  other attached packages:
+  [1] limma_3.9.11  les_1.3.0     fdrtool_1.2.7
+
+  loaded via a namespace (and not attached):
+  [1] boot_1.3-2         gdata_2.8.2        gplots_2.8.0       gtools_2.6.2      
+  [5] RColorBrewer_1.0-5 tools_2.13.1
+</pre>
+
+
+
+
+
+
+
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+<p class="footnote"><sup><a class="footnum" name="fn.1" href="#fnr.1">1</a></sup> Johnson et al., 2008: <a href="http://www.ncbi.nlm.nih.gov/pubmed/18258921">Systematic evaluation of variability in ChIP-chip experiments using predefined DNA targets</a>
+</p>
+
+<p class="footnote"><sup><a class="footnum" name="fn.2" href="#fnr.2">2</a></sup> Smyth, 2005: Limma: linear models for microarray data
+</p>
+
+<p class="footnote"><sup><a class="footnum" name="fn.3" href="#fnr.3">3</a></sup> Bartholomé et al., 2009: <a href="http://www.liebertonline.com/doi/abs/10.1089/cmb.2008.0226">Estimation of Gene Induction Enables a Relevance-Based Ranking of Gene Sets</a>
+</p>
+</div>
+</div>
+
+</div>
+</div>
+<div id="postamble">
+<p class="date">Date: 2011-07-20 09:20:44 CEST</p>
+<p class="author">Author: Julian Gehring</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+</div>
+</div>
+</body>
+</html>

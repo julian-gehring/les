@@ -1,0 +1,322 @@
+Identifying Differential Effects in Tiling Microarray Data with the les package
+
+#+AUTHOR: Julian Gehring
+
+#+LINK_UP: ../index.html
+
+#+BABEL: :exports both :tangle yes :results output scalar replace :session :width 600 :height 600
+
+#+OPTIONS: creator:nil num:nil timestamp:t email:nil author:t html-postamble:nil
+#+STYLE: <link rel="stylesheet" type="text/css" href="http://julian-gehring.github.com/worg.css" />
+
+#+MACRO: Robject /$1/
+#+MACRO: Rfunction /$1/
+#+MACRO: Rpackage /$1/
+#+MACRO: Rclass /$1/
+#+MACRO: Rmethod /$1/
+#+MACRO: Rfunarg /$1/
+#+MACRO: Rvar /$1/
+
+
+* Introduction
+
+  Tiling microarrays have become an important platform for the investigation
+  of regulation in expression, DNA modification, and DNA-protein interaction.
+  Since unbiased in relation to annotation they provide an powerful
+  tool for biological research. Beside the analysis of single conditions,
+  the investigation of regulation between multiple experimental conditions
+  is an important part of current research. A common approach consists
+  in assessing the differential effect on the level of individual probes
+  and thereby computing p-values $p_{i}$ for each probe $i$ with a
+  suitable statistical test, for example an F-test, independently. Since
+  the targets exhibiting differential effects cover multiple probes,
+  a reasonable next step involves combining information from neighboring
+  probes. While several approaches for this purpose exist, most of them
+  lack a statistical interpretation of the results or are specific for
+  certain platforms and statistical tests.
+
+  The approach used here utilizes the fact that p-values in regions
+  without an differential effect are uniformly distributed. In the case
+  that regulation is present the distribution of $p_{i}$ is shifted
+  towards zero; such regions are therefore referred to as /Loci
+  of Enhanced Significance (LES)/. By assessing the uniform component
+  of the p-value distribution within a sliding window, the local degree
+  of significant probes along the genome is estimated. The {{{Rpackage(les)}}}
+  package implements the method for detecting /LES/ in tiling microarray
+  data sets, independent of the underlying statistical test and hence
+  is suitable for a wide range of applications.
+
+  #+begin_src R :exports none
+  set.seed(1)
+  #+end_src
+
+
+* Data set and statistic testing on probe level
+
+  The data set used in this vignette is part of a quality control study
+  for tiling microarrays[fn:1], in which spike-ins
+  were used to assess the influence of microarray platforms, preparation
+  procedures, and analysis algorithms on the accuracy and reproducibility
+  of ChIP-chip experiments. Here, the expression intensities of one
+  region from the /undiluted/ data set investigated with Affymetrix
+  tiling microarrays is selected, consisting of 452 probes and two conditions
+  with three replicates each. The data has been normalized using quantile
+  normalization and probe positions remapped to a common reference.
+
+  Normalized expression intensities are stored in the matrix {{{Robject(exprs)}}},
+  with rows representing probes and columns arrays. The corresponding
+  names contain the position of the probes and the condition of the
+  samples, respectively. The properties of the spike-in DNA, yielding
+  a region with differential effect, are described in the {{{Robject(reference)}}}
+  data frame.
+
+  #+begin_src R :results output silent
+  library(les)  
+  #+end_src
+
+  #+begin_src R
+  data(spikeInData)
+  head(exprs)
+  #+end_src
+
+  #+begin_src R
+  dim(exprs)
+  #+end_src
+
+  #+begin_src R
+  pos <- as.integer(rownames(exprs))
+  condition <- as.integer(colnames(exprs))
+  reference
+  #+end_src
+
+  #+begin_src R
+  region <- as.vector(reference[ ,c("start", "end")])  
+  #+end_src
+
+  In order to assess the differential effect between the two conditions
+  on the level of individual probes, we use a modified t-test provided
+  by the {{{Rpackage(limma)}}} package[fn:2]. This offers
+  an increased statistical power compared to a classical Student's t-test
+  for small sample sizes, as present in most tiling microarray experiments.
+
+  #+begin_src R :results output silent
+  library(limma)
+  #+end_src
+
+  #+begin_src R
+  design <- cbind(offset=1, diff=condition)
+  fit <- lmFit(exprs, design)
+  fit <- eBayes(fit)
+  pval <- fit$p.value[, "diff"]  
+  #+end_src
+
+  #+begin_src R :results output graphics :file fig1.png
+  plot(pos, pval, pch=20, xlab="Probe position", ylab=expression(p))
+  abline(v=region)  
+  #+end_src
+
+
+
+* Incorporation of neighboring probes
+
+  The accumulation of small p-values indicates a /LES/ at the location
+  of the spike-in, whereas the response of individual probes may be
+  not reliable. Therefore,
+  an incorporation of neighboring probes should be beneficial and yield
+  improved results in the detection of the differential effect. For
+  each probe $i$ the surrounding p-values $p_{j}$ get weights assigned,
+  corresponding to the distance of probe $i$ and $j$. Being free in
+  the definition of the weighting function, the spatial relationship
+  of probes in observing the same effect can be accounted for. A weighted
+  cumulative density is computed and the fraction of significant $p$
+  is estimated by an iterative regression. The method is based on the
+  fact that p-values are uniformly distributed under the null hypothesis
+  $H_{0}$ whereas p-values violating $H_{0}$ are shifted towards smaller
+  values[fn:3], which is closely related
+  to the estimation of a false discovery rate. This results in $\Lambda_{i}$,
+  constituting an estimate of the fraction of p-values violating $H_{0}$
+  and therefore the degree of significance in the local surrounding
+  of the evaluated position.
+
+  For the analysis, we first store all relevant data in an object of
+  class {{{Rclass(Les)}}} by calling the {{{Rmethod(Les)}}} method. The only
+  data required are the positions of the probes $i$, the corresponding
+  p-values $p_{i}$ from the statistical test, and optionally their
+  chromosomal location.
+
+  #+begin_src R
+  res <- Les(pos, pval)
+  #+end_src
+
+  Then we can compute our estimate $\Lambda_{i}$ for which we have
+  to specify a weighting window. Here, we use a triangular window taken
+  as default with a size of 200bp. The power of detecting a region will
+  be high if the window matches approximately the properties of the
+  regulated region. In many experiments a rough prior knowledge is available
+  which can be sufficient for choosing a suitable window. Further, optimal
+  weighting windows can be estimated from the data directly.
+
+  #+begin_src R
+  res <- estimate(res, win=200)
+  #+end_src
+
+  All data, results and parameters are stored in the {{{Robject(res)}}}
+  object of class {{{Rclass(Les)}}}. We can get an overview of the results
+  with the {{{Rmethod(print)}}}, {{{Rmethod(summary)}}}, or {{{Rmethod(plot)}}}
+  method.
+
+  #+begin_src R
+  res
+  summary(res)
+  #+end_src
+
+  #+begin_src R :results graphics :file fig2.png
+  plot(res)
+  abline(v=region)  
+  #+end_src
+
+  For comparison we analyze and plot the same data with a rectangular
+  weighting window. In this example
+  the rectangular window leads to better results. The {{{Rpackage(les)}}}
+  package includes four predefined windows; custom functions can also
+  be used, as described in the section [[Specification of custom weighting windows]].
+
+  #+begin_src R
+  res2 <- estimate(res, win=200, weighting=rectangWeight)
+  res2
+  #+end_src
+
+  #+begin_src R :results graphics :file fig3.png
+  plot(res2)
+  abline(v=region)  
+  #+end_src
+
+
+* Parameter estimation
+
+  To turn the continuous $\Lambda_{i}$ into distinct regions of interest
+  we define a threshold $\Theta$. It can be derived from the data by
+  estimating the number of probes with a significant effect on the whole
+  array.
+
+  #+begin_src R
+  res2 <- threshold(res2, grenander=TRUE, verbose=TRUE)
+  #+end_src
+
+  Given $\Theta$ we can look for regions that have a continuous $\Lambda_{i}\geq\Theta$.
+  The {{{Rmethod(regions)}}} method takes by default the estimated $\Theta$
+  from the previous step. We can also pass our own estimate for $\Theta$
+  with the {{{Rfunarg(limit)}}} argument. Further restrictions can be imposed
+  on the regions such as the minimal length of a region and the maximum
+  gap allowed between probes in one region. The {{{Rmethod([)}}} method
+  allows to access any data slot of an object of class {{{Rclass(Les)}}}.
+  Here, we use it to extract the data frame with the estimated regions.
+
+  #+begin_src R
+  res2 <- regions(res2, verbose=TRUE)
+  res2
+  res2["regions"]
+  #+end_src
+
+  #+begin_src R :results graphics :file fig4.png
+  plot(res2, region=TRUE)
+  abline(v=region)  
+  #+end_src
+
+
+* Calculation of confidence intervals
+
+  By bootstrapping probes in each window, confidence intervals for the
+  statistic $\Lambda_{i}$ can be computed. Since confidence intervals
+  are primarily interesting in regions of interest and bootstrapping
+  is by its nature computationally demanding, we can restrict the calculation
+  to a subset of probes. 
+
+  #+begin_src R
+  subset <- pos >= 5232400 & pos <= 5233100
+  res2 <- ci(res2, subset, nBoot=50, alpha=0.1)
+  #+end_src
+
+  #+begin_src R :results graphics :file fig5.png
+  plot(res2, error="ci", region=TRUE)  
+  #+end_src
+
+
+* Visualization
+
+  The {{{Rmethod(plot)}}} method uses a special system in order to customize
+  the graphical elements of the figure. It allows to refer to all its
+  components with the name of the additional input argument; its value
+  is a list containing named graphical parameters for the underlying
+  plot function. As an example, we plot smaller region of the chromosome
+  with confidence intervals, estimated region, and the probe density.
+  Further, we adapt several parameters changing the graphical representation.
+  For details, please refer to the help of the {{{Rpackage(les)}}} package.
+
+  #+begin_src R :results graphics :file fig6.png
+  plot(res2, error="ci", region=TRUE, rug=TRUE, xlim=c(5232000, 5233000),
+       sigArgs=list(col="firebrick4"),
+       plotArgs=list(main="LES results", yaxp=c(0, 1, 2)),
+       limitArgs=list(lty=2, lwd=3),
+       regionArgs=list(col="black", density=20),
+       probeArgs=list(col="dodgerblue4", type="p"))  
+  #+end_src
+
+
+* Exporting results to external software
+
+  With the {{{Rmethod(export)}}} method the estimated regions as well as
+  $\Lambda_{i}$ can be saved to standard files formats, in order to
+  facilitate the export of the results to other software and genome
+  browsers. The region estimates can be exported to the /bed/ and
+  /gff/ formats, the test statistic $\Lambda_{i}$ to the /wig/
+  format.
+
+  #+begin_src R
+  bedFile <- paste(tempfile(), "bed", sep=".")
+  gffFile <- paste(tempfile(), "gff", sep=".")
+  wigFile <- paste(tempfile(), "wig", sep=".")
+  export(res2, bedFile)
+  export(res2, gffFile, format="gff")
+  export(res2, wigFile, format="wig")  
+  #+end_src
+
+  
+* Specification of custom weighting windows
+
+  With the {{{Rfunction(triangWeight)}}}, {{{Rfunction(rectangWeight)}}}, {{{Rfunction(epWeight)}}},
+  and {{{Rfunction(gaussWeight)}}} functions, four weighting windows are
+  included in the {{{Rpackage(les)}}} package, providing a triangular, rectangular,
+  Epanechnikov, and Gaussian window, respectively. We can also specify
+  custom window functions and pass it as {{{Rfunarg(weighting)}}} argument
+  in the {{{Rmethod(estimate)}}} method. They have to be specified as a
+  function depending on the distance of the probes ({{{Rfunarg(distance)}}})
+  and the window size ({{{Rfunarg(win)}}}), as illustrated here with a triangular
+  weighting.
+
+  #+begin_src R
+  weightFoo <- function(distance, win) {
+    weight <- 1 - distance/win
+    return(weight)
+  }
+  #+end_src
+
+  #+begin_src R
+  resFoo <- estimate(res, 200, weighting=weightFoo)
+  #+end_src
+
+
+* Session information
+
+  #+begin_src R
+  sessionInfo()
+  #+end_src
+
+
+* Footnotes
+
+[fn:1] Johnson et al., 2008: [[http://www.ncbi.nlm.nih.gov/pubmed/18258921][Systematic evaluation of variability in ChIP-chip experiments using predefined DNA targets]]
+
+[fn:2] Smyth, 2005: Limma: linear models for microarray data
+
+[fn:3] Bartholomé et al., 2009: [[http://www.liebertonline.com/doi/abs/10.1089/cmb.2008.0226][Estimation of Gene Induction Enables a Relevance-Based Ranking of Gene Sets]]
