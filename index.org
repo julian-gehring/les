@@ -1,0 +1,69 @@
+les package: Identifying Differential Effects in Tiling Microarray Data
+
+#+AUTHOR: Julian Gehring
+#+DESCRIPTION: les page
+
+#+LINK_UP: index.html
+#+LINK_HOME: http://julian-gehring.github.com/
+
+#+OPTIONS: creator:nil num:nil timestamp:t email:nil author:t html-postamble:nil
+#+STYLE: <link rel="stylesheet" type="text/css" href="http://julian-gehring.github.com/worg.css" />
+
+
+* Summary
+
+  The /les/ package estimates Loci of Enhanced Significance (/LES/) in tiling microarray data. These are regions of regulation such as found in differential transcription, CHiP-chip, or DNA modification analysis. The package provides a universal framework suitable for identifying differential effects in tiling microarray data sets, and is independent of the underlying statistics at the level of single probes. 
+
+  Authors: Julian Gehring, Clemens Kreutz, Jens Timmer\\
+  Maintainer: Julian Gehring <julian.gehring (at) fdm.uni-freiburg.de>
+
+
+* Availability, source code, and licensing
+
+  The /les/ package is written for [[http://www.r-project.org/][R]] and part of the [[http://bioconductor.org][bioconductor]] project since the 2.7 release in October 2010. This provides the latest [[http://www.bioconductor.org/help/bioc-views/release/bioc/html/les.html][stable release version]] and the current [[http://www.bioconductor.org/help/bioc-views/devel/bioc/html/les.html][developer version]], including builts for major platforms supported by R.
+
+  The complete source code of the package is publically accessible at [[https://github.com/julian-gehring/les][github]] and licenced under the [[http://www.gnu.org/licenses/gpl-3.0.html][General Public License version 3 (GPL-3)]]. You are free to use the software for any purposes and you are also welcome to contribute to it in any way.
+
+
+* Usage
+   
+** Installation
+
+   In order to install the latest stable version of the /les/ package from the bioconductor repository, simply run in your R session:
+   #+begin_src R
+   source("http://bioconductor.org/biocLite.R")
+   biocLite("les")
+   #+end_src
+   Alternatively, you can also obtain the built packages from bioconductor and install them manually:
+   #+begin_src R
+   install.packages("path/to/les_x.y.z")
+   #+end_src
+   Please note that the first method is generally the best choice.
+
+
+** Loading the package
+   
+   After the package has been installed, you can load it:
+   #+begin_src R
+   library(les)
+   #+end_src
+
+
+** Documentation
+
+   A comprehensive example session on how to analyze gene sets with the /les/ package can be found in the [[file:doc/les_vignette.org][vignette]] of the package. This can also be assessed as a pdf file from the [[http://www.bioconductor.org/packages/release/bioc/vignettes/les/inst/doc/les.pdf][bioconductor website]] or within R:
+   #+begin_src R
+   vignette("les")
+   #+end_src
+   Detailed descriptions of the objects, functions, and their parameters are provided in the [[http://www.bioconductor.org/packages/release/bioc/manuals/les/man/les.pdf][help pages]]. For details about individual parts, e.g. the /estimate/ method, you can read the help file within R:
+   #+begin_src R
+   ?estimate
+   #+end_src
+
+
+* Contact and contribution
+
+  If you have any questions, comments, or contributions:
+  - Contact the maintainer via e-mail.
+  - Report issues to the [[https://github.com/julian-gehring/les/issues][issue tracker]].
+  - Fork the [[https://github.com/julian-gehring/les][project repository]].
