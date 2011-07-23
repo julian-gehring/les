@@ -110,6 +110,8 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   pval <- fit$p.value[, "diff"]
   #+end_src
   
+  #+LABEL: fig1
+  #+CAPTION: Figure 1: Probe-level p-values
   #+begin_src R :results output graphics :file fig1.png
   plot(pos, pval, pch=20, xlab="Probe position", ylab=expression(p))
   abline(v=region)
@@ -120,7 +122,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 
   The accumulation of small p-values indicates a /LES/ at the location
   of the spike-in, whereas the response of individual probes may be
-  not reliable. Therefore,
+  not reliable ([[fig1][Figure 1]]). Therefore,
   an incorporation of neighboring probes should be beneficial and yield
   improved results in the detection of the differential effect. For
   each probe $i$ the surrounding p-values $p_{j}$ get weights assigned,
@@ -162,20 +164,22 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   All data, results and parameters are stored in the {{{Robject(res)}}}
   object of class {{{Rclass(Les)}}}. We can get an overview of the results
   with the {{{Rmethod(print)}}}, {{{Rmethod(summary)}}}, or {{{Rmethod(plot)}}}
-  method.
+  method ([[fig2][Figure2]]).
 
   #+begin_src R
   res
   summary(res)
   #+end_src
 
+  #+LABEL: fig2
+  #+CAPTION: Figure 2: Results with a triangular window
   #+begin_src R :results graphics :file fig2.png
   plot(res)
   abline(v=region)
   #+end_src
 
   For comparison we analyze and plot the same data with a rectangular
-  weighting window. In this example
+  weighting window ([[fig3][Figure 3]]). In this example
   the rectangular window leads to better results. The {{{Rpackage(les)}}}
   package includes four predefined windows; custom functions can also
   be used, as described in the section [[Specification of custom weighting windows]].
@@ -185,6 +189,8 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   res2
   #+end_src
 
+  #+LABEL: fig3
+  #+CAPTION: Figure 3: Results with a rectangular window
   #+begin_src R :results graphics :file fig3.png
   plot(res2)
   abline(v=region)
@@ -209,7 +215,8 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   on the regions such as the minimal length of a region and the maximum
   gap allowed between probes in one region. The {{{Rmethod([)}}} method
   allows to access any data slot of an object of class {{{Rclass(Les)}}}.
-  Here, we use it to extract the data frame with the estimated regions.
+  Here, we use it to extract the data frame with the estimated regions and visualize 
+  the results ([[fig4][Figure 4]]).
 
   #+begin_src R
   res2 <- regions(res2, verbose=TRUE)
@@ -217,6 +224,8 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   res2["regions"]
   #+end_src
 
+  #+LABEL: fig4
+  #+CAPTION: Figure 4: Results with estimates for regions
   #+begin_src R :results graphics :file fig4.png
   plot(res2, region=TRUE)
   abline(v=region)
@@ -226,16 +235,18 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 * Calculation of confidence intervals
 
   By bootstrapping probes in each window, confidence intervals for the
-  statistic $\Lambda_{i}$ can be computed. Since confidence intervals
+  statistic $\Lambda_{i}$ can be computed ([[fig5][Figure 5]]). Since confidence intervals
   are primarily interesting in regions of interest and bootstrapping
   is by its nature computationally demanding, we can restrict the calculation
-  to a subset of probes. 
+  to a subset of probes.
 
   #+begin_src R
   subset <- pos >= 5232400 & pos <= 5233100
   res2 <- ci(res2, subset, nBoot=50, alpha=0.1)
   #+end_src
 
+  #+LABEL: fig5
+  #+CAPTION: Figure 5: Results with confidence intervals and estimates for regions
   #+begin_src R :results graphics :file fig5.png
   plot(res2, error="ci", region=TRUE)
   #+end_src
@@ -247,11 +258,14 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   the graphical elements of the figure. It allows to refer to all its
   components with the name of the additional input argument; its value
   is a list containing named graphical parameters for the underlying
-  plot function. As an example, we plot a smaller region of the chromosome
-  with confidence intervals, estimated region, and the probe density.
+  plot function. As an example, we plot a smaller segment of the chromosome
+  with confidence intervals, estimated region, and indicators for the probe density
+  ([[fig6][Figure 6]]).
   Further, we adapt several parameters changing the graphical representation.
   For details, please refer to the help of the {{{Rpackage(les)}}} package.
 
+  #+LABEL: fig6
+  #+CAPTION: Figure 6: Results with customized graphical parameters
   #+begin_src R :results graphics :file fig6.png
   plot(res2, error="ci", region=TRUE, rug=TRUE, xlim=c(5232000, 5233000),
        sigArgs=list(col="firebrick4"),

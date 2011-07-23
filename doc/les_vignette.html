@@ -7,7 +7,7 @@ lang="en" xml:lang="en">
 <title>Identifying Differential Effects in Tiling Microarray Data with the les package</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2011-07-23 21:51:57 CEST"/>
+<meta name="generated" content="2011-07-23 21:56:49 CEST"/>
 <meta name="author" content="Julian Gehring"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -330,9 +330,12 @@ lang="en" xml:lang="en">
 
 
 
-<p>
-  <img src="fig1.png"  alt="fig1.png" />
-</p>
+
+<div id="fig1" class="figure">
+<p><img src="fig1.png"  alt="fig1.png" /></p>
+<p>Figure 1: Probe-level p-values</p>
+</div>
+
 
 </div>
 
@@ -346,7 +349,7 @@ lang="en" xml:lang="en">
 <p>
   The accumulation of small p-values indicates a <i>LES</i> at the location
   of the spike-in, whereas the response of individual probes may be
-  not reliable. Therefore,
+  not reliable (<a href="#fig1">Figure 1</a>). Therefore,
   an incorporation of neighboring probes should be beneficial and yield
   improved results in the detection of the differential effect. For
   each probe \(i\) the surrounding p-values \(p_{j}\) get weights assigned,
@@ -405,7 +408,7 @@ lang="en" xml:lang="en">
   All data, results and parameters are stored in the <i>res</i>
   object of class <i>Les</i>. We can get an overview of the results
   with the <i>print</i>, <i>summary</i>, or <i>plot</i>
-  method.
+  method (<a href="#fig2">Figure2</a>).
 </p>
 
 
@@ -442,12 +445,15 @@ lang="en" xml:lang="en">
 
 
 
-<p>
-  <img src="fig2.png"  alt="fig2.png" />
-</p>
+
+<div id="fig2" class="figure">
+<p><img src="fig2.png"  alt="fig2.png" /></p>
+<p>Figure 2: Results with a triangular window</p>
+</div>
+
 <p>
   For comparison we analyze and plot the same data with a rectangular
-  weighting window. In this example
+  weighting window (<a href="#fig3">Figure 3</a>). In this example
   the rectangular window leads to better results. The <i>les</i>
   package includes four predefined windows; custom functions can also
   be used, as described in the section <a href="#sec-8">Specification of custom weighting windows</a>.
@@ -481,9 +487,12 @@ lang="en" xml:lang="en">
 
 
 
-<p>
-  <img src="fig3.png"  alt="fig3.png" />
-</p>
+
+<div id="fig3" class="figure">
+<p><img src="fig3.png"  alt="fig3.png" /></p>
+<p>Figure 3: Results with a rectangular window</p>
+</div>
+
 
 </div>
 
@@ -523,7 +532,8 @@ lang="en" xml:lang="en">
   on the regions such as the minimal length of a region and the maximum
   gap allowed between probes in one region. The <i>[</i> method
   allows to access any data slot of an object of class <i>Les</i>.
-  Here, we use it to extract the data frame with the estimated regions.
+  Here, we use it to extract the data frame with the estimated regions and visualize 
+  the results (<a href="#fig4">Figure 4</a>).
 </p>
 
 
@@ -560,9 +570,12 @@ lang="en" xml:lang="en">
 
 
 
-<p>
-  <img src="fig4.png"  alt="fig4.png" />
-</p>
+
+<div id="fig4" class="figure">
+<p><img src="fig4.png"  alt="fig4.png" /></p>
+<p>Figure 4: Results with estimates for regions</p>
+</div>
+
 
 </div>
 
@@ -575,10 +588,10 @@ lang="en" xml:lang="en">
 
 <p>
   By bootstrapping probes in each window, confidence intervals for the
-  statistic \(\Lambda_{i}\) can be computed. Since confidence intervals
+  statistic \(\Lambda_{i}\) can be computed (<a href="#fig5">Figure 5</a>). Since confidence intervals
   are primarily interesting in regions of interest and bootstrapping
   is by its nature computationally demanding, we can restrict the calculation
-  to a subset of probes. 
+  to a subset of probes.
 </p>
 
 
@@ -600,9 +613,12 @@ lang="en" xml:lang="en">
 
 
 
-<p>
-  <img src="fig5.png"  alt="fig5.png" />
-</p>
+
+<div id="fig5" class="figure">
+<p><img src="fig5.png"  alt="fig5.png" /></p>
+<p>Figure 5: Results with confidence intervals and estimates for regions</p>
+</div>
+
 
 </div>
 
@@ -618,8 +634,9 @@ lang="en" xml:lang="en">
   the graphical elements of the figure. It allows to refer to all its
   components with the name of the additional input argument; its value
   is a list containing named graphical parameters for the underlying
-  plot function. As an example, we plot a smaller region of the chromosome
-  with confidence intervals, estimated region, and the probe density.
+  plot function. As an example, we plot a smaller segment of the chromosome
+  with confidence intervals, estimated region, and indicators for the probe density
+  (<a href="#fig6">Figure 6</a>).
   Further, we adapt several parameters changing the graphical representation.
   For details, please refer to the help of the <i>les</i> package.
 </p>
@@ -638,9 +655,12 @@ lang="en" xml:lang="en">
 
 
 
-<p>
-  <img src="fig6.png"  alt="fig6.png" />
-</p>
+
+<div id="fig6" class="figure">
+<p><img src="fig6.png"  alt="fig6.png" /></p>
+<p>Figure 6: Results with customized graphical parameters</p>
+</div>
+
 
 </div>
 
@@ -785,7 +805,7 @@ lang="en" xml:lang="en">
 </div>
 </div>
 <div id="postamble">
-<p class="date">Date: 2011-07-23 21:51:57 CEST</p>
+<p class="date">Date: 2011-07-23 21:56:49 CEST</p>
 <p class="author">Author: Julian Gehring</p>
 
 </div>
