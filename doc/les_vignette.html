@@ -7,7 +7,7 @@ lang="en" xml:lang="en">
 <title>Identifying Differential Effects in Tiling Microarray Data with the les package</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2011-07-20 09:20:44 CEST"/>
+<meta name="generated" content="2011-07-23 21:51:57 CEST"/>
 <meta name="author" content="Julian Gehring"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -218,7 +218,7 @@ lang="en" xml:lang="en">
 
 
 
-<pre class="src src-R">  <span style="color: #008b8b;">library</span>(les)  
+<pre class="src src-R">  <span style="color: #008b8b;">library</span>(les)
 
 </pre>
 
@@ -281,7 +281,7 @@ lang="en" xml:lang="en">
 
 
 
-<pre class="src src-R">  region <span style="color: #008b8b;">&lt;-</span> as.vector(reference[ ,c(<span style="color: #8b2252;">"start"</span>, <span style="color: #8b2252;">"end"</span>)])  
+<pre class="src src-R">  region <span style="color: #008b8b;">&lt;-</span> as.vector(reference[ ,c(<span style="color: #8b2252;">"start"</span>, <span style="color: #8b2252;">"end"</span>)])
 
 </pre>
 
@@ -310,7 +310,7 @@ lang="en" xml:lang="en">
 <pre class="src src-R">  design <span style="color: #008b8b;">&lt;-</span> cbind(offset=1, diff=condition)
   fit <span style="color: #008b8b;">&lt;-</span> lmFit(exprs, design)
   fit <span style="color: #008b8b;">&lt;-</span> eBayes(fit)
-  pval <span style="color: #008b8b;">&lt;-</span> fit$p.value[, <span style="color: #8b2252;">"diff"</span>]  
+  pval <span style="color: #008b8b;">&lt;-</span> fit$p.value[, <span style="color: #8b2252;">"diff"</span>]
 
 </pre>
 
@@ -319,8 +319,11 @@ lang="en" xml:lang="en">
 
 
 
+
+
+
 <pre class="src src-R">  plot(pos, pval, pch=20, xlab=<span style="color: #8b2252;">"Probe position"</span>, ylab=expression(p))
-  abline(v=region)  
+  abline(v=region)
 
 </pre>
 
@@ -330,7 +333,6 @@ lang="en" xml:lang="en">
 <p>
   <img src="fig1.png"  alt="fig1.png" />
 </p>
-
 
 </div>
 
@@ -433,7 +435,7 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  plot(res)
-  abline(v=region)  
+  abline(v=region)
 
 </pre>
 
@@ -472,7 +474,7 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  plot(res2)
-  abline(v=region)  
+  abline(v=region)
 
 </pre>
 
@@ -551,7 +553,7 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  plot(res2, region=<span style="color: #228b22;">TRUE</span>)
-  abline(v=region)  
+  abline(v=region)
 
 </pre>
 
@@ -591,7 +593,7 @@ lang="en" xml:lang="en">
 
 
 
-<pre class="src src-R">  plot(res2, error=<span style="color: #8b2252;">"ci"</span>, region=<span style="color: #228b22;">TRUE</span>)  
+<pre class="src src-R">  plot(res2, error=<span style="color: #8b2252;">"ci"</span>, region=<span style="color: #228b22;">TRUE</span>)
 
 </pre>
 
@@ -616,7 +618,7 @@ lang="en" xml:lang="en">
   the graphical elements of the figure. It allows to refer to all its
   components with the name of the additional input argument; its value
   is a list containing named graphical parameters for the underlying
-  plot function. As an example, we plot smaller region of the chromosome
+  plot function. As an example, we plot a smaller region of the chromosome
   with confidence intervals, estimated region, and the probe density.
   Further, we adapt several parameters changing the graphical representation.
   For details, please refer to the help of the <i>les</i> package.
@@ -629,7 +631,7 @@ lang="en" xml:lang="en">
        plotArgs=list(main=<span style="color: #8b2252;">"LES results"</span>, yaxp=c(0, 1, 2)),
        limitArgs=list(lty=2, lwd=3),
        regionArgs=list(col=<span style="color: #8b2252;">"black"</span>, density=20),
-       probeArgs=list(col=<span style="color: #8b2252;">"dodgerblue4"</span>, type=<span style="color: #8b2252;">"p"</span>))  
+       probeArgs=list(col=<span style="color: #8b2252;">"dodgerblue4"</span>, type=<span style="color: #8b2252;">"p"</span>))
 
 </pre>
 
@@ -665,7 +667,7 @@ lang="en" xml:lang="en">
   wigFile <span style="color: #008b8b;">&lt;-</span> paste(tempfile(), <span style="color: #8b2252;">"wig"</span>, sep=<span style="color: #8b2252;">"."</span>)
   export(res2, bedFile)
   export(res2, gffFile, format=<span style="color: #8b2252;">"gff"</span>)
-  export(res2, wigFile, format=<span style="color: #8b2252;">"wig"</span>)  
+  export(res2, wigFile, format=<span style="color: #8b2252;">"wig"</span>)
 
 </pre>
 
@@ -783,9 +785,9 @@ lang="en" xml:lang="en">
 </div>
 </div>
 <div id="postamble">
-<p class="date">Date: 2011-07-20 09:20:44 CEST</p>
+<p class="date">Date: 2011-07-23 21:51:57 CEST</p>
 <p class="author">Author: Julian Gehring</p>
-<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
 </div>
 </div>
 </body>

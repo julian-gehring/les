@@ -71,7 +71,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   data frame.
 
   #+begin_src R :results output silent
-  library(les)  
+  library(les)
   #+end_src
 
   #+begin_src R
@@ -90,7 +90,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   #+end_src
 
   #+begin_src R
-  region <- as.vector(reference[ ,c("start", "end")])  
+  region <- as.vector(reference[ ,c("start", "end")])
   #+end_src
 
   In order to assess the differential effect between the two conditions
@@ -107,14 +107,13 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   design <- cbind(offset=1, diff=condition)
   fit <- lmFit(exprs, design)
   fit <- eBayes(fit)
-  pval <- fit$p.value[, "diff"]  
+  pval <- fit$p.value[, "diff"]
   #+end_src
-
+  
   #+begin_src R :results output graphics :file fig1.png
   plot(pos, pval, pch=20, xlab="Probe position", ylab=expression(p))
-  abline(v=region)  
+  abline(v=region)
   #+end_src
-
 
 
 * Incorporation of neighboring probes
@@ -172,7 +171,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 
   #+begin_src R :results graphics :file fig2.png
   plot(res)
-  abline(v=region)  
+  abline(v=region)
   #+end_src
 
   For comparison we analyze and plot the same data with a rectangular
@@ -188,7 +187,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 
   #+begin_src R :results graphics :file fig3.png
   plot(res2)
-  abline(v=region)  
+  abline(v=region)
   #+end_src
 
 
@@ -220,7 +219,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 
   #+begin_src R :results graphics :file fig4.png
   plot(res2, region=TRUE)
-  abline(v=region)  
+  abline(v=region)
   #+end_src
 
 
@@ -238,7 +237,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   #+end_src
 
   #+begin_src R :results graphics :file fig5.png
-  plot(res2, error="ci", region=TRUE)  
+  plot(res2, error="ci", region=TRUE)
   #+end_src
 
 
@@ -248,7 +247,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   the graphical elements of the figure. It allows to refer to all its
   components with the name of the additional input argument; its value
   is a list containing named graphical parameters for the underlying
-  plot function. As an example, we plot smaller region of the chromosome
+  plot function. As an example, we plot a smaller region of the chromosome
   with confidence intervals, estimated region, and the probe density.
   Further, we adapt several parameters changing the graphical representation.
   For details, please refer to the help of the {{{Rpackage(les)}}} package.
@@ -259,7 +258,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
        plotArgs=list(main="LES results", yaxp=c(0, 1, 2)),
        limitArgs=list(lty=2, lwd=3),
        regionArgs=list(col="black", density=20),
-       probeArgs=list(col="dodgerblue4", type="p"))  
+       probeArgs=list(col="dodgerblue4", type="p"))
   #+end_src
 
 
@@ -278,7 +277,7 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   wigFile <- paste(tempfile(), "wig", sep=".")
   export(res2, bedFile)
   export(res2, gffFile, format="gff")
-  export(res2, wigFile, format="wig")  
+  export(res2, wigFile, format="wig")
   #+end_src
 
   
