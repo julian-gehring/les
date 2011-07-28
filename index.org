@@ -27,23 +27,29 @@ les package: Identifying Differential Effects in Tiling Microarray Data
 
 * Usage
    
+
 ** Installation
 
    In order to install the latest stable version of the /les/ package from the bioconductor repository, simply run in your R session:
+
    #+begin_src R
    source("http://bioconductor.org/biocLite.R")
    biocLite("les")
    #+end_src
+
    Alternatively, you can also obtain the built packages from bioconductor and install them manually:
+
    #+begin_src R
    install.packages("path/to/les_x.y.z")
    #+end_src
+
    Please note that the first method is generally the best choice.
 
 
 ** Loading the package
    
    After the package has been installed, you can load it:
+
    #+begin_src R
    library(les)
    #+end_src
@@ -52,10 +58,13 @@ les package: Identifying Differential Effects in Tiling Microarray Data
 ** Documentation
 
    A comprehensive example session on how to analyze gene sets with the /les/ package can be found in the [[file:doc/les_vignette.org][vignette]] of the package. This can also be assessed as a pdf file from the [[http://www.bioconductor.org/packages/release/bioc/vignettes/les/inst/doc/les.pdf][bioconductor website]] or within R:
+
    #+begin_src R
    vignette("les")
    #+end_src
+
    Detailed descriptions of the objects, functions, and their parameters are provided in the [[http://www.bioconductor.org/packages/release/bioc/manuals/les/man/les.pdf][help pages]]. For details about individual parts, e.g. the /estimate/ method, you can read the help file within R:
+
    #+begin_src R
    ?estimate
    #+end_src
