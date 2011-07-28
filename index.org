@@ -8,6 +8,7 @@ les package: Identifying Differential Effects in Tiling Microarray Data
 
 #+OPTIONS: creator:nil num:nil timestamp:t email:nil author:t html-postamble:nil
 #+STYLE: <link rel="stylesheet" type="text/css" href="http://julian-gehring.github.com/worg.css" />
+#+STYLE: <link title="les package - Feed" href="https://github.com/julian-gehring/les/commits/gh-pages.atom" type="application/atom+xml" rel="alternate" />
 
 
 * Summary
