@@ -76,6 +76,9 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 
   #+begin_src R
   data(spikeInData)
+  #+end_src
+
+  #+begin_src R
   head(exprs)
   #+end_src
 
@@ -168,6 +171,9 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 
   #+begin_src R
   res
+  #+end_src
+
+  #+begin_src R
   summary(res)
   #+end_src
 
@@ -186,6 +192,9 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 
   #+begin_src R
   res2 <- estimate(res, win=200, weighting=rectangWeight)
+  #+end_src
+
+  #+begin_src R
   res2
   #+end_src
 
@@ -220,7 +229,13 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
 
   #+begin_src R
   res2 <- regions(res2, verbose=TRUE)
+  #+end_src
+
+  #+begin_src R
   res2
+  #+end_src
+
+  #+begin_src R
   res2["regions"]
   #+end_src
 
@@ -268,8 +283,8 @@ Identifying Differential Effects in Tiling Microarray Data with the les package
   #+CAPTION: Figure 6: Results with customized graphical parameters
   #+begin_src R :results graphics :file fig6.png
   plot(res2, error="ci", region=TRUE, rug=TRUE, xlim=c(5232000, 5233000),
-       sigArgs=list(col="firebrick4"),
        plotArgs=list(main="LES results", yaxp=c(0, 1, 2)),
+       sigArgs=list(col="firebrick4"),
        limitArgs=list(lty=2, lwd=3),
        regionArgs=list(col="black", density=20),
        probeArgs=list(col="dodgerblue4", type="p"))

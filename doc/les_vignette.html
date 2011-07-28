@@ -7,7 +7,7 @@ lang="en" xml:lang="en">
 <title>Identifying Differential Effects in Tiling Microarray Data with the les package</title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2011-07-23 21:56:49 CEST"/>
+<meta name="generated" content="2011-07-28 23:10:21 CEST"/>
 <meta name="author" content="Julian Gehring"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -120,14 +120,19 @@ lang="en" xml:lang="en">
 </script>
 </head>
 <body>
-<div id="content">
 <div id="org-div-home-and-up" style="text-align:right;font-size:70%;white-space:nowrap;">
  <a accesskey="h" href="../index.html"> UP </a>
  |
  <a accesskey="H" href="../index.html"> HOME </a>
 </div>
 
+<div id="preamble">
+
+</div>
+
+<div id="content">
 <h1 class="title">Identifying Differential Effects in Tiling Microarray Data with the les package</h1>
+
 
 
 
@@ -219,7 +224,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  <span style="color: #008b8b;">library</span>(les)
-
 </pre>
 
 
@@ -227,8 +231,14 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  data(spikeInData)
-  head(exprs)
+</pre>
 
+
+
+
+
+
+<pre class="src src-R">  head(exprs)
 </pre>
 
 
@@ -249,7 +259,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  dim(exprs)
-
 </pre>
 
 
@@ -266,7 +275,6 @@ lang="en" xml:lang="en">
 <pre class="src src-R">  pos <span style="color: #008b8b;">&lt;-</span> as.integer(rownames(exprs))
   condition <span style="color: #008b8b;">&lt;-</span> as.integer(colnames(exprs))
   reference
-
 </pre>
 
 
@@ -282,7 +290,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  region <span style="color: #008b8b;">&lt;-</span> as.vector(reference[ ,c(<span style="color: #8b2252;">"start"</span>, <span style="color: #8b2252;">"end"</span>)])
-
 </pre>
 
 
@@ -300,7 +307,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  <span style="color: #008b8b;">library</span>(limma)
-
 </pre>
 
 
@@ -311,7 +317,6 @@ lang="en" xml:lang="en">
   fit <span style="color: #008b8b;">&lt;-</span> lmFit(exprs, design)
   fit <span style="color: #008b8b;">&lt;-</span> eBayes(fit)
   pval <span style="color: #008b8b;">&lt;-</span> fit$p.value[, <span style="color: #8b2252;">"diff"</span>]
-
 </pre>
 
 
@@ -324,7 +329,6 @@ lang="en" xml:lang="en">
 
 <pre class="src src-R">  plot(pos, pval, pch=20, xlab=<span style="color: #8b2252;">"Probe position"</span>, ylab=expression(p))
   abline(v=region)
-
 </pre>
 
 
@@ -377,7 +381,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  res <span style="color: #008b8b;">&lt;-</span> Les(pos, pval)
-
 </pre>
 
 
@@ -397,7 +400,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  res <span style="color: #008b8b;">&lt;-</span> estimate(res, win=200)
-
 </pre>
 
 
@@ -414,32 +416,43 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  res
-  summary(res)
+</pre>
 
+
+
+
+<pre class="example">
+** Object of class 'Les' **
+* 452 probes on 1 chromosomes
+* Lambda in range [0, 0.531522] with window size 200
 </pre>
 
 
 
 
 
-<pre class="example">  ** Object of class 'Les' **
-  * 452 probes on 1 chromosomes
-  * Lambda in range [0, 0.531522] with window size 200
-  ** Object of class 'Les' **
-  * 452 probes on 1 chromosomes
-  * Lambda in range [0, 0.531522] with window size 200
-  * Available slots:
-   [1] "pos"       "pval"      "chr"       "win"       "weighting" "grenander"
-   [7] "minProbes" "method"    "lambda"    "lambda0"   "nProbes"   "nChr"     
-  [13] "state"
+<pre class="src src-R">  summary(res)
 </pre>
+
+
+
+
+<pre class="example">
+** Object of class 'Les' **
+* 452 probes on 1 chromosomes
+* Lambda in range [0, 0.531522] with window size 200
+* Available slots:
+ [1] "pos"       "pval"      "chr"       "win"       "weighting" "grenander"
+ [7] "minProbes" "method"    "lambda"    "lambda0"   "nProbes"   "nChr"     
+[13] "state"
+</pre>
+
 
 
 
 
 <pre class="src src-R">  plot(res)
   abline(v=region)
-
 </pre>
 
 
@@ -462,8 +475,14 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  res2 <span style="color: #008b8b;">&lt;-</span> estimate(res, win=200, weighting=rectangWeight)
-  res2
+</pre>
 
+
+
+
+
+
+<pre class="src src-R">  res2
 </pre>
 
 
@@ -481,7 +500,6 @@ lang="en" xml:lang="en">
 
 <pre class="src src-R">  plot(res2)
   abline(v=region)
-
 </pre>
 
 
@@ -513,7 +531,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  res2 <span style="color: #008b8b;">&lt;-</span> threshold(res2, grenander=<span style="color: #228b22;">TRUE</span>, verbose=<span style="color: #228b22;">TRUE</span>)
-
 </pre>
 
 
@@ -539,9 +556,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  res2 <span style="color: #008b8b;">&lt;-</span> regions(res2, verbose=<span style="color: #228b22;">TRUE</span>)
-  res2
-  res2[<span style="color: #8b2252;">"regions"</span>]
-
 </pre>
 
 
@@ -549,11 +563,37 @@ lang="en" xml:lang="en">
 
 <pre class="example">
 [1] "1 regions found for lambda&gt;=0.327448"
+</pre>
+
+
+
+
+
+<pre class="src src-R">  res2
+</pre>
+
+
+
+
+<pre class="example">
 ** Object of class 'Les' **
 * 452 probes on 1 chromosomes
 * Lambda in range [0, 0.540663] with window size 200
 * 53 regulated probes estimated for lambda &gt;= 0.327448
 * 1 regions detected
+</pre>
+
+
+
+
+
+<pre class="src src-R">  res2[<span style="color: #8b2252;">"regions"</span>]
+</pre>
+
+
+
+
+<pre class="example">
   chr   start     end size nProbes     ri     se      rs
 1   0 5232548 5232926  379      53 0.5185 0.0087 59.4146
 </pre>
@@ -564,7 +604,6 @@ lang="en" xml:lang="en">
 
 <pre class="src src-R">  plot(res2, region=<span style="color: #228b22;">TRUE</span>)
   abline(v=region)
-
 </pre>
 
 
@@ -598,7 +637,6 @@ lang="en" xml:lang="en">
 
 <pre class="src src-R">  subset <span style="color: #008b8b;">&lt;-</span> pos &gt;= 5232400 &amp; pos &lt;= 5233100
   res2 <span style="color: #008b8b;">&lt;-</span> ci(res2, subset, nBoot=50, alpha=0.1)
-
 </pre>
 
 
@@ -607,7 +645,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  plot(res2, error=<span style="color: #8b2252;">"ci"</span>, region=<span style="color: #228b22;">TRUE</span>)
-
 </pre>
 
 
@@ -644,12 +681,11 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  plot(res2, error=<span style="color: #8b2252;">"ci"</span>, region=<span style="color: #228b22;">TRUE</span>, rug=<span style="color: #228b22;">TRUE</span>, xlim=c(5232000, 5233000),
-       sigArgs=list(col=<span style="color: #8b2252;">"firebrick4"</span>),
        plotArgs=list(main=<span style="color: #8b2252;">"LES results"</span>, yaxp=c(0, 1, 2)),
+       sigArgs=list(col=<span style="color: #8b2252;">"firebrick4"</span>),
        limitArgs=list(lty=2, lwd=3),
        regionArgs=list(col=<span style="color: #8b2252;">"black"</span>, density=20),
        probeArgs=list(col=<span style="color: #8b2252;">"dodgerblue4"</span>, type=<span style="color: #8b2252;">"p"</span>))
-
 </pre>
 
 
@@ -688,7 +724,6 @@ lang="en" xml:lang="en">
   export(res2, bedFile)
   export(res2, gffFile, format=<span style="color: #8b2252;">"gff"</span>)
   export(res2, wigFile, format=<span style="color: #8b2252;">"wig"</span>)
-
 </pre>
 
 
@@ -723,7 +758,6 @@ lang="en" xml:lang="en">
     weight <span style="color: #008b8b;">&lt;-</span> 1 - distance/win
     <span style="color: #a020f0;">return</span>(weight)
   }
-
 </pre>
 
 
@@ -732,7 +766,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  resFoo <span style="color: #008b8b;">&lt;-</span> estimate(res, 200, weighting=weightFoo)
-
 </pre>
 
 
@@ -753,7 +786,6 @@ lang="en" xml:lang="en">
 
 
 <pre class="src src-R">  sessionInfo()
-
 </pre>
 
 
@@ -786,8 +818,6 @@ lang="en" xml:lang="en">
 
 
 
-
-
 <div id="footnotes">
 <h2 class="footnotes">Footnotes: </h2>
 <div id="text-footnotes">
@@ -799,16 +829,20 @@ lang="en" xml:lang="en">
 
 <p class="footnote"><sup><a class="footnum" name="fn.3" href="#fnr.3">3</a></sup> Bartholomé et al., 2009: <a href="http://www.liebertonline.com/doi/abs/10.1089/cmb.2008.0226">Estimation of Gene Induction Enables a Relevance-Based Ranking of Gene Sets</a>
 </p>
+
+
 </div>
 </div>
 
 </div>
 </div>
+</div>
+
 <div id="postamble">
-<p class="date">Date: 2011-07-23 21:56:49 CEST</p>
+<p class="date">Date: 2011-07-28 23:10:21 CEST</p>
 <p class="author">Author: Julian Gehring</p>
 
-</div>
+
 </div>
 </body>
 </html>
