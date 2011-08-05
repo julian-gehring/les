@@ -1,7 +1,8 @@
 les package: Identifying Differential Effects in Tiling Microarray Data
 
 #+AUTHOR: Julian Gehring
-#+DESCRIPTION: les page
+#+KEYWORDS: les, Loci of Enhanced Significance, R bioconductor package, tiling microarrays, differential design
+#+LANGUAGE: en
 
 #+LINK_UP: index.html
 #+LINK_HOME: http://julian-gehring.github.com/

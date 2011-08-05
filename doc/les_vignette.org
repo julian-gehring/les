@@ -1,6 +1,8 @@
 Identifying Differential Effects in Tiling Microarray Data with the les package
 
 #+AUTHOR: Julian Gehring
+#+KEYWORDS: les, Loci of Enhanced Significance, R bioconductor package, tiling microarrays, differential design, vignette
+#+LANGUAGE: en
 
 #+LINK_UP: ../index.html
 
