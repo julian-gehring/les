@@ -5,63 +5,13 @@
   xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
                       http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
  <url>
-  <loc>http://julian-gehring.github.com/les/</loc>
-  <lastmod>2011-10-09T20:37:39Z</lastmod>
+  <loc>http://julian-gehring.github.com/GSRI/doc/les_vignette.html</loc>
+  <lastmod>2011-10-13T19:43:51Z</lastmod>
   <priority>0.5000</priority>
  </url>
  <url>
-  <loc>http://julian-gehring.github.com/les/doc/</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/doc/fig1.png</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/doc/fig2.png</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/doc/fig3.png</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/doc/fig4.png</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/doc/fig5.png</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/doc/fig6.png</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/doc/les_vignette.html</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/doc/les_vignette.org</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/index.html</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
-  <priority>0.5000</priority>
- </url>
- <url>
-  <loc>http://julian-gehring.github.com/les/index.org</loc>
-  <lastmod>2011-10-09T20:36:39Z</lastmod>
+  <loc>http://julian-gehring.github.com/GSRI/index.html</loc>
+  <lastmod>2011-10-13T19:43:51Z</lastmod>
   <priority>0.5000</priority>
  </url>
 </urlset>
