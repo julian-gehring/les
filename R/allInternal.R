@@ -255,11 +255,11 @@ seFast <- function(x, y, b)  {
 ######################################################################
 mcsapply <- function(X, FUN, ..., mc.cores=NULL, simplify=TRUE)  {
 
-  mcLoaded <- "multicore" %in% .packages() &&
-  any("mclapply" %in% objects("package:multicore"))
+  mcLoaded <- "parallel" %in% .packages() &&
+  any("mclapply" %in% objects("package:parallel"))
 
   if(mcLoaded == TRUE && !is.null(mc.cores))  {
-    res <- multicore::mclapply(X, FUN, ...,  mc.cores=mc.cores)
+    res <- parallel::mclapply(X, FUN, ...,  mc.cores=mc.cores)
     res <- sapply(res, c, simplify=simplify)
   }
   else  {

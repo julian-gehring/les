@@ -51,9 +51,9 @@ method, scaling = les:::scaleNorm, nCores = NULL,  verbose = FALSE, ...)
     (default: les:::scaleNorm). By default both will be scaled to the
     range [0,1].}
   \item{nCores}{Integer indicating the number of cores to use for
-    computation. This feature requires the 'multicore' package which
+    computation. This feature requires the 'parallel' package which
     is only available for certain platforms. The package is used only if
-    'library(multicore)' has been called manually by the user before and if
+    'library(parallel)' has been called manually by the user before and if
     'nCores' is an integer unequal NULL specifying the number of cores
     to use. The value is passed directly to 'mclapply' as argument
     'n.cores'. For details and benefits please see the 'Details'
