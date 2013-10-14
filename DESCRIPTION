@@ -1,7 +1,7 @@
 Package: les
 Type: Package
 Title: Identifying Differential Effects in Tiling Microarray Data
-Version: 1.11.1
+Version: 1.12.0
 Date: 2013-07-23
 Author: Julian Gehring, Clemens Kreutz, Jens Timmer
 Maintainer: Julian Gehring <julian.gehring@embl.de>
