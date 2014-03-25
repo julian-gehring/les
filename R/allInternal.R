@@ -178,7 +178,8 @@ wcdfGrenander <- function(pval, cweight, nValidProbes, grenander, custom) {
 cdfDuplicates <- function(pvalSort, weightSort)  {
 
   nPval <- length(pvalSort)
-  tabCount <- rle(pvalSort)$lengths
+  #tabCount <- rle(pvalSort)$lengths ## this line seems buggy, 2014-03-25
+  tabCount <- table(pvalSort)
   tabWeight <- table(pvalSort, weightSort)
   weightSum <- tabWeight %*% sort(unique(weightSort))
   cdf1 <- cumsum(weightSum)
