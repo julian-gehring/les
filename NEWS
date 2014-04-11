@@ -1,0 +1,19 @@
+CHANGES IN VERSION 1.2.0 (2011-04, bioconductor release 2.8)
+-----------------------------------------------------------------
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    - New argument handling for the 'plot' method
+
+    - New experimental data set for examples and vignette
+
+    - More detailed vignette
+
+
+BUGS
+
+    - Fix minor bug in the 'show' method
+
+    - Fix missing name of the return object of the 'gsri' function
+
+    - Correct normation of weighting functions (not relevant for results, for the sake of completeness)

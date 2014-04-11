@@ -1,0 +1,1530 @@
+#LyX 1.6.9 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass literate-article
+\begin_preamble
+%\VignetteIndexEntry{Introduction to the les package: Identifying Differential Effects in Tiling Microarray Data with the Loci of Enhanced Significance Framework}
+%\VignettePackage{les}
+
+%\usepackage{fancyvrb}
+%\fvset{listparameters={\setlength{\topsep}{0pt}}}
+
+\newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
+\newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\Rfunarg}[1]{{\texttt{#1}}}
+\end_preamble
+\use_default_options false
+\language english
+\inputencoding utf8
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks true
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Introduction to the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rpackage{les}
+\end_layout
+
+\end_inset
+
+ package:
+\begin_inset Newline newline
+\end_inset
+
+Identifying Differential Effects in
+\begin_inset Newline newline
+\end_inset
+
+Tiling Microarray Data with the
+\emph on
+
+\begin_inset Newline newline
+\end_inset
+
+Loci of Enhanced Significance
+\emph default
+ Framework
+\end_layout
+
+\begin_layout Author
+Julian Gehring, Clemens Kreutz
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+SweaveOpts{width=7,height=5}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Scrap
+<<echo=false>>=
+\begin_inset Newline newline
+\end_inset
+
+set.seed(1)
+\begin_inset Newline newline
+\end_inset
+
+options(width=65, SweaveHooks=list(fig=function() par(mar=c(5.1, 5.1, 2.1,
+ 1.1))))
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+Tiling microarrays have become an important platform for the investigation
+ of regulation in expression, DNA modification, and DNA-protein interaction.
+ Since unbiased in relation to annotation they provide an powerful tool
+ for biological research.
+ Beside the analysis of single conditions, the investigation of regulation
+ between multiple experimental conditions is an important part of current
+ research.
+ A common approach consists in assessing the differential effect on the
+ level of individual probes and thereby computing p-values 
+\begin_inset Formula $p_{i}$
+\end_inset
+
+ for each probe 
+\begin_inset Formula $i$
+\end_inset
+
+ with a suitable statistical test, for example an F-test, independently.
+ Since the targets exhibiting differential effects cover multiple probes,
+ a reasonable next step involves combining information from neighboring
+ probes.
+ While several approaches for this purpose exist, most of them lack a statistica
+l interpretation of the results or are specific for certain platforms and
+ statistical tests.
+\end_layout
+
+\begin_layout Standard
+The approach used here utilizes the fact that p-values in regions without
+ an differential effect are uniformly distributed.
+ In the case that regulation is present the distribution of 
+\begin_inset Formula $p_{i}$
+\end_inset
+
+ is shifted towards zero; such regions are therefore referred to as 
+\emph on
+Loci of Enhanced Significance (LES)
+\emph default
+.
+ By assessing the uniform component of the p-value distribution within a
+ sliding window, the local degree of significant probes along the genome
+ is estimated.
+ The 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rpackage{les}
+\end_layout
+
+\end_inset
+
+ package implements the method for detecting 
+\emph on
+LES
+\emph default
+ in tiling microarray data sets, independent of the underlying statistical
+ test and hence is suitable for a wide range of applications.
+\end_layout
+
+\begin_layout Section
+Data set and statistic testing on probe level
+\end_layout
+
+\begin_layout Standard
+The data set used in this vignette is part of a quality control study for
+ tiling microarrays 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+cite{johnson_systematic_2008}
+\end_layout
+
+\end_inset
+
+, in which spike-ins were used to assess the influence of microarray platforms,
+ preparation procedures, and analysis algorithms on the accuracy and reproducibi
+lity of ChIP-chip experiments.
+ Here, the expression intensities of one region from the 
+\emph on
+undiluted
+\emph default
+ data set investigated with Affymetrix tiling microarrays is selected, consistin
+g of 452 probes and two conditions with three replicates each.
+ The data has been normalized using quantile normalization and probe positions
+ remapped to a common reference.
+\end_layout
+
+\begin_layout Standard
+Normalized expression intensities are stored in the matrix 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Robject{exprs}
+\end_layout
+
+\end_inset
+
+, with rows representing probes and columns arrays.
+ The corresponding names contain the position of the probes and the condition
+ of the samples, respectively.
+ The properties of the spike-in DNA, yielding a region with differential
+ effect, are described in the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Robject{reference}
+\end_layout
+
+\end_inset
+
+ data frame.
+\end_layout
+
+\begin_layout Scrap
+<<loadData>>=
+\begin_inset Newline newline
+\end_inset
+
+library(les)
+\begin_inset Newline newline
+\end_inset
+
+data(spikeInData)
+\begin_inset Newline newline
+\end_inset
+
+head(exprs)
+\begin_inset Newline newline
+\end_inset
+
+dim(exprs)
+\begin_inset Newline newline
+\end_inset
+
+pos <- as.integer(rownames(exprs))
+\begin_inset Newline newline
+\end_inset
+
+condition <- as.integer(colnames(exprs))
+\begin_inset Newline newline
+\end_inset
+
+reference
+\begin_inset Newline newline
+\end_inset
+
+region <- as.vector(reference[ ,c("start", "end")])
+\begin_inset Newline newline
+\end_inset
+
+@ 
+\end_layout
+
+\begin_layout Standard
+In order to assess the differential effect between the two conditions on
+ the level of individual probes, we use a modified t-test provided by the
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rpackage{limma}
+\end_layout
+
+\end_inset
+
+ package 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+cite{smyth_limma_2005}
+\end_layout
+
+\end_inset
+
+.
+ This offers an increased statistical power compared to a classical Student's
+ t-test for small sample sizes, as present in most tiling microarray experiments.
+\end_layout
+
+\begin_layout Scrap
+<<estimateProbeLevelStatistics>>=
+\begin_inset Newline newline
+\end_inset
+
+library(limma)
+\begin_inset Newline newline
+\end_inset
+
+design <- cbind(offset=1, diff=condition)
+\begin_inset Newline newline
+\end_inset
+
+fit <- lmFit(exprs, design)
+\begin_inset Newline newline
+\end_inset
+
+fit <- eBayes(fit)
+\begin_inset Newline newline
+\end_inset
+
+pval <- fit$p.value[, "diff"]
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Scrap
+<<plotProbeLevelStatistics, fig=TRUE, include=FALSE, echo=TRUE>>=
+\begin_inset Newline newline
+\end_inset
+
+plot(pos, pval, pch=20, xlab="Probe position", ylab=expression(p))
+\begin_inset Newline newline
+\end_inset
+
+abline(v=region)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-plotProbeLevelStatistics}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:plotProbeLevelStatistics}Probe-level p-values}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Incorporation of neighboring probes
+\end_layout
+
+\begin_layout Standard
+The accumulation of small p-values indicates a 
+\emph on
+LES
+\emph default
+ at the location of the spike-in, whereas the response of individual probes
+ may be not reliable (Figure 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:plotProbeLevelStatistics}
+\end_layout
+
+\end_inset
+
+).
+ Therefore, an incorporation of neighboring probes should be beneficial
+ and yield improved results in the detection of the differential effect.
+ For each probe 
+\begin_inset Formula $i$
+\end_inset
+
+ the surrounding p-values 
+\begin_inset Formula $p_{j}$
+\end_inset
+
+ get weights assigned, corresponding to the distance of probe 
+\begin_inset Formula $i$
+\end_inset
+
+ and 
+\begin_inset Formula $j$
+\end_inset
+
+.
+ Being free in the definition of the weighting function, the spatial relationshi
+p of probes in observing the same effect can be accounted for.
+ A weighted cumulative density is computed and the fraction of significant
+ 
+\begin_inset Formula $p$
+\end_inset
+
+ is estimated by an iterative regression.
+ The method is based on the fact that p-values are uniformly distributed
+ under the null hypothesis 
+\begin_inset Formula $H_{0}$
+\end_inset
+
+ whereas p-values violating 
+\begin_inset Formula $H_{0}$
+\end_inset
+
+ are shifted towards smaller values 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "bartholom_estimation_2009"
+
+\end_inset
+
+, which is closely related to the estimation of a false discovery rate.
+ This results in 
+\begin_inset Formula $\Lambda_{i}$
+\end_inset
+
+, constituting an estimate of the fraction of p-values violating 
+\begin_inset Formula $H_{0}$
+\end_inset
+
+ and therefore the degree of significance in the local surrounding of the
+ evaluated position.
+\end_layout
+
+\begin_layout Standard
+For the analysis, we first store all relevant data in an object of class
+ 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rclass{Les}
+\end_layout
+
+\end_inset
+
+ by calling the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{Les}
+\end_layout
+
+\end_inset
+
+ method.
+ The only data required are the positions of the probes 
+\begin_inset Formula $i$
+\end_inset
+
+, the corresponding p-values 
+\begin_inset Formula $p_{i}$
+\end_inset
+
+ from the statistical test, and optionally their chromosomal location.
+\end_layout
+
+\begin_layout Scrap
+<<constructLes>>=
+\begin_inset Newline newline
+\end_inset
+
+res <- Les(pos, pval)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+Then we can compute our estimate 
+\begin_inset Formula $\Lambda_{i}$
+\end_inset
+
+ for which we have to specify a weighting window.
+ Here, we use a triangular window taken as default with a size of 200bp.
+ The power of detecting a region will be high if the window matches approximatel
+y the properties of the regulated region.
+ In many experiments a rough prior knowledge is available which can be sufficien
+t for choosing a suitable window.
+ Further, optimal weighting windows can be estimated from the data directly.
+\end_layout
+
+\begin_layout Scrap
+<<estimateLes>>=
+\begin_inset Newline newline
+\end_inset
+
+res <- estimate(res, win=200)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+All data, results and parameters are stored in the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Robject{res}
+\end_layout
+
+\end_inset
+
+ object of class 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rclass{Les}
+\end_layout
+
+\end_inset
+
+.
+ We can get an overview of the results with the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{print}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{summary}
+\end_layout
+
+\end_inset
+
+, or 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{plot}
+\end_layout
+
+\end_inset
+
+ method (Figure 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:showPlotLes}
+\end_layout
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Scrap
+<<showPlotLes, fig=TRUE, include=FALSE, echo=TRUE>>=
+\begin_inset Newline newline
+\end_inset
+
+res
+\begin_inset Newline newline
+\end_inset
+
+summary(res)
+\begin_inset Newline newline
+\end_inset
+
+plot(res)
+\begin_inset Newline newline
+\end_inset
+
+abline(v=region)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-showPlotLes}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:showPlotLes}Results with triangular window.}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For comparison we analyze and plot the same data with a rectangular weighting
+ window (Figure 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+ref{fig:showPlotLes2}
+\end_layout
+
+\end_inset
+
+).
+ In this example the rectangular window leads to better results.
+ The 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rpackage{les}
+\end_layout
+
+\end_inset
+
+ package includes four predefined windows; custom functions can also be
+ used, as described in Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Specification-of-own"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Scrap
+<<showPlotLes2, fig=TRUE, include=FALSE, echo=TRUE>>=
+\begin_inset Newline newline
+\end_inset
+
+res2 <- estimate(res, win=200, weighting=rectangWeight)
+\begin_inset Newline newline
+\end_inset
+
+res2
+\begin_inset Newline newline
+\end_inset
+
+plot(res2)
+\begin_inset Newline newline
+\end_inset
+
+abline(v=region)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-showPlotLes2}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:showPlotLes2}Results with rectangular window.}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Parameter estimation
+\end_layout
+
+\begin_layout Standard
+To turn the continuous 
+\begin_inset Formula $\Lambda_{i}$
+\end_inset
+
+ into distinct regions of interest we define a threshold 
+\begin_inset Formula $\Theta$
+\end_inset
+
+.
+ It can be derived from the data by estimating the number of probes with
+ a significant effect on the whole array.
+\end_layout
+
+\begin_layout Scrap
+<<threshold>>=
+\begin_inset Newline newline
+\end_inset
+
+res2 <- threshold(res2, grenander=TRUE, verbose=TRUE)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+Given 
+\begin_inset Formula $\Theta$
+\end_inset
+
+ we can look for regions that have a continuous 
+\begin_inset Formula $\Lambda_{i}\geq\Theta$
+\end_inset
+
+.
+ The 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{regions}
+\end_layout
+
+\end_inset
+
+ method takes by default the estimated 
+\begin_inset Formula $\Theta$
+\end_inset
+
+ from the previous step.
+ We can also pass our own estimate for 
+\begin_inset Formula $\Theta$
+\end_inset
+
+ with the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rfunarg{limit}
+\end_layout
+
+\end_inset
+
+ argument.
+ Further restrictions can be imposed on the regions such as the minimal
+ length of a region and the maximum gap allowed between probes in one region.
+ The 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{[}
+\end_layout
+
+\end_inset
+
+ method allows to access any data slot of an object of class 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rclass{Les}
+\end_layout
+
+\end_inset
+
+.
+ Here, we use it to extract the data frame with the estimated regions.
+\end_layout
+
+\begin_layout Scrap
+<<regions>>=
+\begin_inset Newline newline
+\end_inset
+
+res2 <- regions(res2, verbose=TRUE)
+\begin_inset Newline newline
+\end_inset
+
+res2
+\begin_inset Newline newline
+\end_inset
+
+res2["regions"]
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Scrap
+<<plotRegions, fig=TRUE, include=FALSE, echo=TRUE>>=
+\begin_inset Newline newline
+\end_inset
+
+plot(res2, region=TRUE)
+\begin_inset Newline newline
+\end_inset
+
+abline(v=region)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-plotRegions}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:plotRegions}Results with estimates for regions.}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Calculation of confidence intervals
+\end_layout
+
+\begin_layout Standard
+By bootstrapping probes in each window, confidence intervals for the statistic
+ 
+\begin_inset Formula $\Lambda_{i}$
+\end_inset
+
+ can be computed.
+ Since confidence intervals are primarily interesting in regions of interest
+ and bootstrapping is by its nature computationally demanding, we can restrict
+ the calculation to a subset of probes.
+ 
+\end_layout
+
+\begin_layout Scrap
+<<plotCi, fig=TRUE, include=FALSE, echo=TRUE>>=
+\begin_inset Newline newline
+\end_inset
+
+subset <- pos >= 5232400 & pos <= 5233100
+\begin_inset Newline newline
+\end_inset
+
+res2 <- ci(res2, subset, nBoot=50, alpha=0.1)
+\begin_inset Newline newline
+\end_inset
+
+plot(res2, error="ci", region=TRUE)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-plotCi}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:plotCi}Results with confidence intervals and estimates for regions.}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Visualization
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{plot}
+\end_layout
+
+\end_inset
+
+ method uses a special system in order to customize the graphical elements
+ of the figure.
+ It allows to refer to all its components with the name of the additional
+ input argument; its value is a list containing named graphical parameters
+ for the underlying plot function.
+ As an example, we plot smaller region of the chromosome with confidence
+ intervals, estimated region, and the probe density.
+ Further, we adapt several parameters changing the graphical representation.
+ For details, please refer to the help of the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rpackage{les}
+\end_layout
+
+\end_inset
+
+ package.
+\end_layout
+
+\begin_layout Scrap
+<<plotOptions, fig=TRUE, include=FALSE, echo=TRUE>>=
+\begin_inset Newline newline
+\end_inset
+
+plot(res2, error="ci", region=TRUE, rug=TRUE, xlim=c(5232000, 5233000),
+ sigArgs=list(col="firebrick4"), plotArgs=list(main="LES results", yaxp=c(0,
+ 1, 2)), limitArgs=list(lty=2, lwd=3), regionArgs=list(col="black", density=20),
+ probeArgs=list(col="dodgerblue4", type="p"))
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{figure}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+includegraphics{les-plotOptions}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+caption{
+\backslash
+label{fig:plotOptions}Results with customized graphical parameters.}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{figure}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Exporting results to external software
+\end_layout
+
+\begin_layout Standard
+With the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{export}
+\end_layout
+
+\end_inset
+
+ method the estimated regions as well as 
+\begin_inset Formula $\Lambda_{i}$
+\end_inset
+
+ can be saved to standard files formats, in order to facilitate the export
+ of the results to other software and genome browsers.
+ The region estimates can be exported to the 
+\emph on
+bed
+\emph default
+ and 
+\emph on
+gff
+\emph default
+ formats, the test statistic 
+\begin_inset Formula $\Lambda_{i}$
+\end_inset
+
+ to the 
+\emph on
+wig
+\emph default
+ format.
+\end_layout
+
+\begin_layout Scrap
+<<export>>=
+\begin_inset Newline newline
+\end_inset
+
+bedFile <- paste(tempfile(), "bed", sep=".")
+\begin_inset Newline newline
+\end_inset
+
+gffFile <- paste(tempfile(), "gff", sep=".")
+\begin_inset Newline newline
+\end_inset
+
+wigFile <- paste(tempfile(), "wig", sep=".")
+\begin_inset Newline newline
+\end_inset
+
+export(res2, bedFile)
+\begin_inset Newline newline
+\end_inset
+
+export(res2, gffFile, format="gff")
+\begin_inset Newline newline
+\end_inset
+
+export(res2, wigFile, format="wig")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Section
+Specification of custom weighting windows
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Specification-of-own"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+With the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rfunction{triangWeight}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rfunction{rectangWeight}
+\end_layout
+
+\end_inset
+
+, 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rfunction{epWeight}
+\end_layout
+
+\end_inset
+
+, and 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rfunction{gaussWeight}
+\end_layout
+
+\end_inset
+
+ functions, four weighting windows are included in the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rpackage{les}
+\end_layout
+
+\end_inset
+
+ package, providing a triangular, rectangular, Epanechnikov, and Gaussian
+ window, respectively.
+ We can also specify custom window functions and pass it as 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rfunarg{weighting}
+\end_layout
+
+\end_inset
+
+ argument in the 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rmethod{estimate}
+\end_layout
+
+\end_inset
+
+ method.
+ They have to be specified as a function depending on the distance of the
+ probes (
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rfunarg{distance}
+\end_layout
+
+\end_inset
+
+) and the window size (
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+Rfunarg{win}
+\end_layout
+
+\end_inset
+
+), as illustrated here with a triangular weighting.
+\end_layout
+
+\begin_layout Scrap
+<<customWeightingFunction>>=
+\begin_inset Newline newline
+\end_inset
+
+weightFoo <- function(distance, win) {
+\begin_inset Newline newline
+\end_inset
+
+weight <- 1 - distance/win
+\begin_inset Newline newline
+\end_inset
+
+return(weight)
+\begin_inset Newline newline
+\end_inset
+
+}
+\begin_inset Newline newline
+\end_inset
+
+resFoo <- estimate(res, 200, weighting=weightFoo)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Scrap
+<<chi2, eval=FALSE, echo=FALSE, results=hide>>=
+\begin_inset Newline newline
+\end_inset
+
+regions <- res["regions"]
+\begin_inset Newline newline
+\end_inset
+
+winsize <- seq(100, 300, by=20)
+\begin_inset Newline newline
+\end_inset
+
+res2 <- chi2(res2, winsize, regions, offset=2500)
+\begin_inset Newline newline
+\end_inset
+
+plot(winsize, x["chi2"], type="b")
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "ref_les"
+options "plain"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Session information
+\end_layout
+
+\begin_layout Scrap
+<<sessionInfo, results=tex, echo=FALSE>>=
+\begin_inset Newline newline
+\end_inset
+
+toLatex(sessionInfo(), locale=FALSE)
+\begin_inset Newline newline
+\end_inset
+
+@
+\end_layout
+
+\end_body
+\end_document
